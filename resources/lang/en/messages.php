@@ -353,8 +353,9 @@ return [
     'suspended'=>'Suspended',
     'testimonial'=>'Testimonial',
     'testimonial_title'=>'Testimonial Title',
-    'paymob_supports_EGP_currency' => 'Paymob supports EGP currency',
-    'country_permission_denied_or_misconfiguration'=>'Country permission denyed or misconfigured',
+    'paymob_supports_EGP_currency' => 'OnePay supports LKR currency',
+    //'country_permission_denied_or_misconfiguration'=>'Country permission denyed or misconfigured',
+    'country_permission_denied_or_misconfiguration'=>'Country permission denyed',
     'paymob_accept' => 'Paymob accept',
     'callback'=>'Callback',
     'transactions'=>'Transactions',
@@ -1023,5 +1024,12 @@ return [
     'Please check the recaptcha' => 'Please check the recaptcha',
     'Enter recaptcha value' => 'Enter recaptcha value',
     'ReCAPTCHA Failed' => 'ReCAPTCHA Failed',
+    
+    //onepay
+    'onepay_accept' => 'Onepay accept',
+    'onepay_app_id'=>'APP ID',
+    'onepay_app_token' => 'APP TOKEN',
+    'onepay_hash'=>'HASH',
+    //onepay
   
 ];

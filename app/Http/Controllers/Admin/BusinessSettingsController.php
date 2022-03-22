@@ -398,54 +398,55 @@ class BusinessSettingsController extends Controller
                     'updated_at' => now(),
                 ]);
             }
-        } elseif ($name == 'flutterwave') {
-            $payment = BusinessSetting::where('key', 'flutterwave')->first();
+        }
+        
+        ////////////////////////////////////////////////////////////////////////
+        // Onepay
+        elseif ($name == 'onepay') {
+            $payment = BusinessSetting::where('key', 'onepay')->first();
             if (isset($payment) == false) {
                 DB::table('business_settings')->insert([
-                    'key'        => 'flutterwave',
+                    'key'        => 'onepay',
                     'value'      => json_encode([
                         'status'        => 1,
-                        'public_key'     => '',
-                        'secret_key'     => '',
-                        'hash'    => '',
+                        'one_pay_callback_url' => '',
+                        'onepay_app_id'=> '',
+                        'onepay_app_token'=> '',
+                        'onepay_app_hash'=> '',
                     ]),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
             } else {
-                DB::table('business_settings')->where(['key' => 'flutterwave'])->update([
-                    'key'        => 'flutterwave',
+                DB::table('business_settings')->where(['key' => 'onepay'])->update([
+                    'key'        => 'onepay',
                     'value'      => json_encode([
                         'status'        => $request['status'],
-                        'public_key'     => $request['public_key'],
-                        'secret_key'     => $request['secret_key'],
-                        'hash'    => $request['hash'],
+                         'one_pay_callback_url' => $request['one_pay_callback_url'],
+                         'onepay_app_id'=> $request['onepay_app_id'],
+                         'onepay_app_token'=>$request['onepay_app_token'],
+                         'onepay_app_hash'=> $request['onepay_app_hash'],
                     ]),
                     'updated_at' => now(),
                 ]);
             }
-        } elseif ($name == 'mercadopago') {
-            $payment = BusinessSetting::updateOrInsert(['key'=> 'mercadopago'],
-                ['value'      => json_encode([
-                    'status'        => $request['status'],
-                    'public_key'     => $request['public_key'],
-                    'access_token'     => $request['access_token'],
-                ]),
-                'updated_at' => now()]
+        } elseif ($name == 'onepay') {
+            $payment = BusinessSetting::updateOrInsert(
+                ['key' => 'onepay'],
+                [
+                    'value'      => json_encode([
+                        'status'        => $request['status'],
+                        'one_pay_callback_url' => $request['one_pay_callback_url'],
+                         'onepay_app_id'=> $request['onepay_app_id'],
+                         'onepay_app_token'=>$request['onepay_app_token'],
+                         'onepay_app_hash'=> $request['onepay_app_hash'],
+                    ]),
+                    'updated_at' => now()
+                ]
             );
         }
-        elseif($name == 'paymob_accept'){
-            DB::table('business_settings')->updateOrInsert(['key' => 'paymob_accept'], [
-                'value' => json_encode([
-                    'status' => $request['status'],
-                    'api_key' => $request['api_key'],
-                    'iframe_id' => $request['iframe_id'],
-                    'integration_id' => $request['integration_id'],
-                    'hmac' => $request['hmac'],
-                ]),
-                'updated_at' => now()
-            ]);
-        }
+        // Onepay
+        ////////////////////////////////////////////////////////////////////////
         Toastr::success(trans('messages.payment_settings_updated'));
         return back();
     }

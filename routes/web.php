@@ -74,6 +74,21 @@ Route::match(['get', 'post'], '/return-senang-pay', 'SenangPayController@return_
 Route::post('/paymob-credit', 'PaymobController@credit')->name('paymob-credit');
 Route::get('/paymob-callback', 'PaymobController@callback')->name('paymob-callback');
 
+
+// //onepay
+// Route::get('/checkout', 'App\\Http\\Controllers\\PaymobController@checkout')->name('onepay.checkout');
+// Route::post('/checkout-request', 'App\\Http\\Controllers\\PaymobController@checkoutRequest')->name('onepay.checkout-request');
+// Route::any('/onepay/callback', 'App\\Http\\Controllers\\PaymobController@callback')->name('onepay.callback');
+// Route::get('/onepay/notify', 'App\\Http\\Controllers\\PaymobController@notify')->name('onepay.notify');
+// //onepay
+
+
+
+Route::get('/checkout', 'OnepayController@checkout')->name('onepay.checkout');
+Route::post('/checkout-request', 'OnepayController@checkoutRequest')->name('onepay.checkout-request');
+Route::any('/onepay/callback', 'OnepayController@callback')->name('onepay.callback');
+Route::get('/onepay/notify', 'OnepayController@notify')->name('onepay.notify');
+
 //paystack
 Route::post('/paystack-pay', 'PaystackController@redirectToGateway')->name('paystack-pay');
 Route::get('/paystack-callback', 'PaystackController@handleGatewayCallback')->name('paystack-callback');
@@ -97,7 +112,7 @@ Route::get('mercadopago/get-user', 'MercadoPagoController@get_test_user')->name(
 
 Route::get('/test',function (){
     // dd(\App\CentralLogics\Helpers::get_view_keys());
-    dd('Hello tester');
+    echo('Hello tester');
 });
 
 Route::get('authentication-failed', function () {
@@ -124,3 +139,15 @@ Route::group(['prefix' => 'deliveryman', 'as' => 'deliveryman.'], function () {
     Route::get('apply', 'DeliveryManController@create')->name('create');
     Route::post('apply', 'DeliveryManController@store')->name('store');
 });
+
+//WEBXPAY Routes
+
+Route::get('payment/{ORDER_ID}', 'PaymentController@index');
+Route::post('/payment', 'PaymentController@verify');
+
+
+Route::get('/clear', function() {
+    Artisan::call('cache:clear');
+    return "Cache is cleared";
+});
+

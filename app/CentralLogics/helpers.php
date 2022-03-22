@@ -483,7 +483,7 @@ class Helpers
                 "type":"' . $data['type'] . '",
                 "is_read": 0,
                 "icon" : "new",
-                "sound" : "notification"
+                "sound" : "default"
             }
         }';
         $ch = curl_init();
@@ -534,7 +534,7 @@ class Helpers
                     "type":"'.$type.'",
                     "is_read": 0,
                     "icon" : "new",
-                    "sound" : "notification"
+                    "sound" : "default"
                   }
             }';
         }
@@ -747,14 +747,9 @@ class Helpers
         }
         elseif ($status == 'accepted') {
             $data = BusinessSetting::where('key', 'delivery_boy_assign_message')->first()->value;
-        } 
-        elseif ($status == 'canceled') {
+        } elseif ($status == 'canceled') {
             $data = BusinessSetting::where('key', 'order_cancled_message')->first()->value;
-        }
-        elseif ($status == 'refunded') {
-            $data = BusinessSetting::where('key', 'order_refunded_message')->first()->value;
-        }
-        else {
+        } else {
             $data = '{"status":"0","message":""}';
         }
 

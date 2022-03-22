@@ -280,23 +280,47 @@
                     @endif
 
 
-                    @php($config=\App\CentralLogics\Helpers::get_business_settings('paymob_accept'))
-                    @if($config['status'])
-                        <div class="col-md-6 mb-4" style="cursor: pointer">
-                            <div class="card">
-                                <div class="card-body" style="height: 100px">
-                                    <form class="needs-validation" method="POST" id="payment-form-paymob"
-                                        action="{{route('paymob-credit')}}">
-                                        {{ csrf_field() }}
-                                        <button class="btn btn-block" type="submit">
-                                            <img width="150"
-                                                src="{{asset('public/assets/admin/img/paymob.png')}}"/>
-                                        </button>
-                                    </form>
+                    <!--@php($config=\App\CentralLogics\Helpers::get_business_settings('paymob_accept'))-->
+                    <!--@if($config['status'])-->
+                    <!--    <div class="col-md-6 mb-4" style="cursor: pointer">-->
+                    <!--        <div class="card">-->
+                    <!--            <div class="card-body" style="height: 100px">-->
+                    <!--                <form class="needs-validation" method="POST" id="payment-form-paymob"-->
+                    <!--                    action="{{route('paymob-credit')}}">-->
+                    <!--                    {{ csrf_field() }}-->
+                    <!--                    <button class="btn btn-block" type="submit">-->
+                    <!--                        <img width="150"-->
+                    <!--                            src="{{asset('public/assets/admin/img/paymob.png')}}"/>-->
+                    <!--                    </button>-->
+                    <!--                </form>-->
+                    <!--            </div>-->
+                    <!--        </div>-->
+                    <!--    </div>-->
+                    <!--@endif-->
+                    
+                        {{-- onepay --}}
+    
+                        @php($config=\App\CentralLogics\Helpers::get_business_settings('onepay'))
+                        @if($config['status'])
+                            <div class="col-md-6 mb-4" style="cursor: pointer">
+                                <div class="card">
+                                    <div class="card-body" style="height: 100px">
+                                        <form class="needs-validation" method="GET" id="payment-form-onepay"
+                                            action="{{route('onepay.checkout')}}">
+                                            {{ csrf_field() }}
+                                            <button class="btn btn-block" type="submit">
+                                                <img width="150"
+                                                    src="{{asset('public/assets/admin/img/one_pay.png')}}"/>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endif
+                        @endif
+    
+                        {{-- onepay --}}
+                    
+                    
                 </div>
             </div>
         </section>

@@ -231,4 +231,8 @@ Route::group(['namespace' => 'Api\V1'], function () {
         Route::get('list', 'CouponController@list');
         Route::get('apply', 'CouponController@apply');
     });
+    
+    // WebXpay Payment Setup
+    
+    Route::post('webxpay', 'webxPayController@index');
 });

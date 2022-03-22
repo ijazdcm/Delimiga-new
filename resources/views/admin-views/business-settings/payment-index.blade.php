@@ -516,6 +516,74 @@
                     </div>
                 </div>
             </div>
+            
+            {{-- onepay--}}
+            <div class="col-md-6 mt-4">
+                <div class="card">
+                    <div class="card-body" style="padding: 20px">
+                        <h5 class="text-center">{{__('messages.onepay_accept')}}</h5>
+                        @php($config=\App\CentralLogics\Helpers::get_business_settings('onepay'))
+                        <form
+                            action="{{env('APP_MODE')!='demo'?route('admin.business-settings.payment-method-update',['onepay']):'javascript:'}}"
+                            method="post">
+                            @csrf
+
+                            @if(isset($config))
+                                <div class="form-group mb-2">
+                                    <label class="control-label">{{__('messages.onepay_accept')}}</label>
+                                </div>
+                                <div class="form-group mb-2 mt-2">
+                                    <input type="radio" name="status" value="1" {{$config['status']==1?'checked':''}}>
+                                    <label style="padding-left: 10px">{{__('messages.active')}}</label>
+                                    <br>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <input type="radio" name="status" value="0" {{$config['status']==0?'checked':''}}>
+                                    <label style="padding-left: 10px">{{__('messages.inactive')}} </label>
+                                    <br>
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-{{Session::get('direction') === "rtl" ? 'right' : 'left'}}: 10px">{{__('messages.callback')}}</label>
+                                    <span class="btn btn-secondary btn-sm m-2"
+                                          onclick="copyToClipboard('#id_onepay_accept')"><i class="tio-copy"></i> {{__('messages.copy_callback')}}</span>
+                                    <br>
+                                    <p class="form-control" id="id_onepay_accept">{{ url('/') }}/response</p>
+                                </div>
+                                <input type="hidden" name='one_pay_callback_url'  value={{ url('/').'/response' }}>
+                                <div class="form-group mb-2">
+                                    <label style="padding-left: 10px">{{__('messages.onepay_app_id')}}</label><br>
+                                    <input type="text" class="form-control" name="onepay_app_id"
+                                           value="{{env('APP_MODE')!='demo'?$config['onepay_app_id']:''}}">
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <label style="padding-left: 10px">{{__('messages.onepay_app_token')}}</label><br>
+                                    <input type="text" class="form-control" name="onepay_app_token"
+                                           value="{{env('APP_MODE')!='demo'?$config['onepay_app_token']:''}}">
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{__('messages.onepay_hash')}}</label><br>
+                                    <input type="text" class="form-control" name="onepay_app_hash"
+                                           value="{{env('APP_MODE')!='demo'?$config['onepay_app_hash']:''}}">
+                                </div>
+
+                                <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}"
+                                        onclick="{{env('APP_MODE')!='demo'?'':'call_demo()'}}"
+                                        class="btn btn-primary mb-2">{{__('messages.save')}}</button>
+                            @else
+                                <button type="submit"
+                                        class="btn btn-primary mb-2">{{__('messages.configure')}}</button>
+                            @endif
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {{-- onepay--}}
+            
         </div>
     </div>
 @endsection

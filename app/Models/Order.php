@@ -17,14 +17,14 @@ class Order extends Model
         'delivery_address_id' => 'integer',
         'delivery_man_id' => 'integer',
         'delivery_charge' => 'float',
-        'original_delivery_charge' => 'float',
+        'original_delivery_charge'=>'float',
         'user_id' => 'integer',
         'scheduled' => 'integer',
         'restaurant_id' => 'integer',
         'details_count' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'original_delivery_charge' => 'float'
+        'original_delivery_charge'=>'float'
     ];
 
     public function setDeliveryChargeAttribute($value)
@@ -79,24 +79,24 @@ class Order extends Model
 
     public function scopePreparing($query)
     {
-        return $query->whereIn('order_status', ['confirmed', 'processing', 'handover']);
+        return $query->whereIn('order_status', ['confirmed','processing','handover']);
     }
-
+    
     public function scopeOngoing($query)
     {
-        return $query->whereIn('order_status', ['accepted', 'confirmed', 'processing', 'handover', 'picked_up']);
+        return $query->whereIn('order_status', ['accepted','confirmed','processing','handover','picked_up']);
     }
-
+    
     public function scopeFoodOnTheWay($query)
     {
-        return $query->where('order_status', 'picked_up');
+        return $query->where('order_status','picked_up');
     }
-
+    
     public function scopePending($query)
     {
-        return $query->where('order_status', 'pending');
+        return $query->where('order_status','pending');
     }
-
+    
     // public function scopeRefundRequest($query)
     // {
     //     return $query->where('order_status','refund_requested');
@@ -104,61 +104,62 @@ class Order extends Model
 
     public function scopeFailed($query)
     {
-        return $query->where('order_status', 'failed');
+        return $query->where('order_status','failed');
     }
-
+    
     public function scopeCanceled($query)
     {
-        return $query->where('order_status', 'canceled');
+        return $query->where('order_status','canceled');
     }
-
+    
     public function scopeDelivered($query)
     {
-        return $query->where('order_status', 'delivered');
+        return $query->where('order_status','delivered');
     }
-
+    
     public function scopeRefunded($query)
     {
-        return $query->where('order_status', 'refunded');
+        return $query->where('order_status','refunded');
     }
-
+    
     public function scopeSearchingForDeliveryman($query)
     {
-        return $query->whereNull('delivery_man_id')->where('order_type', '=', 'delivery');
+        return $query->whereNull('delivery_man_id')->where('order_type', '=' , 'delivery');
     }
-
+    
     public function scopeDelivery($query)
     {
-        return $query->where('order_type', '=', 'delivery');
+        return $query->where('order_type', '=' , 'delivery');
     }
-
+    
     public function scopeScheduled($query)
     {
         return $query->whereRaw('created_at <> schedule_at')->where('scheduled', '1');
     }
-
+    
     public function scopeOrderScheduledIn($query, $interval)
     {
-        return $query->where(function ($query) use ($interval) {
-            $query->whereRaw('created_at <> schedule_at')->where(function ($q) use ($interval) {
-                $q->whereBetween('schedule_at', [Carbon::now()->toDateTimeString(), Carbon::now()->addMinutes($interval)->toDateTimeString()]);
-            })->orWhere('schedule_at', '<', Carbon::now()->toDateTimeString());
+        return $query->where(function($query)use($interval){
+            $query->whereRaw('created_at <> schedule_at')->where(function($q) use ($interval) {
+            $q->whereBetween('schedule_at', [Carbon::now()->toDateTimeString(),Carbon::now()->addMinutes($interval)->toDateTimeString()]); 
+            })->orWhere('schedule_at','<',Carbon::now()->toDateTimeString());
         })->orWhereRaw('created_at = schedule_at');
+        
     }
 
     public function scopePos($query)
     {
-        return $query->where('order_type', '=', 'pos');
+        return $query->where('order_type', '=' , 'pos');
     }
 
     public function scopeNotpos($query)
     {
-        return $query->where('order_type', '<>', 'pos');
+        return $query->where('order_type', '<>' , 'pos');
     }
 
     public function getCreatedAtAttribute($value)
     {
-        return date('Y-m-d H:i:s', strtotime($value));
+        return date('Y-m-d H:i:s',strtotime($value));
     }
 
     protected static function booted()

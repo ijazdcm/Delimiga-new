@@ -57,12 +57,12 @@ class PaymobController extends Controller
     public function credit()
     {
         $currency_code = Helpers::currency_code();
-        if ($currency_code != "EGP") {
+        if ($currency_code != "LKR") {
             Toastr::error(trans('messages.paymob_supports_EGP_currency'));
             return back();
         }
 
-        $config = Helpers::get_business_settings('paymob_accept');
+        $config = Helpers::get_business_settings('onepay_accept');
         try {
             $token = $this->getToken();
             $order = $this->createOrder($token);
@@ -71,12 +71,12 @@ class PaymobController extends Controller
             Toastr::error(trans('messages.country_permission_denied_or_misconfiguration'));
             return back();
         }
-        return \Redirect::away('https://portal.weaccept.co/api/acceptance/iframes/' . $config['iframe_id'] . '?payment_token=' . $paymentToken);
+        return Redirect::away('https://merchant-api-live-v2.onepay.lk/api/ipg/gateway/request-transaction/' . '?hash=' . $paymentToken);
     }
 
     public function getToken()
     {
-        $config = Helpers::get_business_settings('paymob_accept');
+        $config = Helpers::get_business_settings('onepay_accept');
         $response = $this->cURL(
             'https://accept.paymobsolutions.com/api/auth/tokens',
             ['api_key' => $config['api_key']]
@@ -120,7 +120,7 @@ class PaymobController extends Controller
         $ord = Order::with(['details'])->where(['id' => session('order_id')])->first();
 
         $value = $ord->order_amount;
-        $config = Helpers::get_business_settings('paymob_accept');
+        $config = Helpers::get_business_settings('onepay_accept');
         $billingData = [
             "apartment" => "not given",
             "email" => "not given",
@@ -156,7 +156,7 @@ class PaymobController extends Controller
 
     public function callback(Request $request)
     {
-        $config = Helpers::get_business_settings('paymob_accept');
+        $config = Helpers::get_business_settings('onepay_accept');
         $data = $request->all();
         ksort($data);
         $hmac = $data['hmac'];
@@ -194,7 +194,7 @@ class PaymobController extends Controller
 
         if ($hased == $hmac) {
             $order->transaction_reference = 'tran-' . session('order_id');
-            $order->payment_method = 'paymob_accept';
+            $order->payment_method = 'onepay_accept';
             $order->order_status = 'confirmed';
             $order->confirmed = now();
             $order->updated_at = now();

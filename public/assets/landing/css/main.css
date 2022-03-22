@@ -64,7 +64,7 @@ body {
     text-align: center;
     vertical-align: middle;
     padding-right: 1.3rem;
-    background-color: #ef7822;
+    background-color: #0195FF;
     padding: 5px 5px 5px 5px;
   }
   .web-browse > div {
@@ -304,7 +304,7 @@ body {
     text-align: center;
     vertical-align: middle;
     padding-right: 1.3rem;
-    background-color: #ef7822;
+    background-color: #0195FF;
     padding: 5px 5px 5px 5px;
   }
   .web-browse > div {
@@ -568,7 +568,7 @@ body {
     text-align: center;
     vertical-align: middle;
     padding-right: 1.3rem;
-    background-color: #ef7822;
+    background-color: #0195FF;
     padding: 5px 5px 5px 5px;
   }
   .web-browse > div {
@@ -805,7 +805,7 @@ body {
     text-align: center;
     vertical-align: middle;
     padding-right: 1.3rem;
-    background-color: #ef7822;
+    background-color: #0195FF;
     padding: 5px 5px 5px 5px;
   }
 
@@ -1041,7 +1041,7 @@ body {
     text-align: center;
     vertical-align: middle;
     padding-right: 1.3rem;
-    background-color: #ef7822;
+    background-color: #0195FF;
     padding: 5px 5px 5px 5px;
   }
 
@@ -1384,22 +1384,22 @@ body {
 /**************** Sections End **********************/
 
 .customed-hr-1 {
-  border-top: 0.25rem solid #ef7822;
+  border-top: 0.25rem solid #0195FF;
   width: 70px;
   border-radius: 10px;
 }
 
 .text-color-primary {
-  color: #ef7822;
+  color: #0195FF;
 }
 
 .btn-color-primary {
-  background-color: #ef7822;
+  background-color: #0195FF;
   color: black;
 }
 
 .bg-color-primary {
-  background-color: #ef7822;
+  background-color: #0195FF;
   color: black;
 }
 
