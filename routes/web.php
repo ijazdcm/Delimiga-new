@@ -15,9 +15,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', 'HomeController@index')->name('home');
 Route::get('terms-and-conditions', 'HomeController@terms_and_conditions')->name('terms-and-conditions');
-Route::get('about-us', 'HomeController@about_us')->name('about-us');
-Route::get('contact-us', 'HomeController@contact_us')->name('contact-us');
-Route::get('privacy-policy', 'HomeController@privacy_policy')->name('privacy-policy');
+Route::get('about-us-delimiga-delivery', 'HomeController@about_us')->name('about-us');
+Route::get('contact-us-delimiga-delivery', 'HomeController@contact_us')->name('contact-us');
+Route::get('privacy-policy-delimiga-delivery', 'HomeController@privacy_policy')->name('privacy-policy');
 
 Route::get('authentication-failed', function () {
     $errors = [];

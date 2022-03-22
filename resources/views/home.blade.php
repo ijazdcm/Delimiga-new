@@ -1,6 +1,6 @@
 @extends('layouts.landing.app')
 
-@section('title','Landing Page | '.\App\Models\BusinessSetting::where(['key'=>'business_name'])->first()->value??'Stack Food')
+@section('title',''.\App\Models\BusinessSetting::where(['key'=>'business_name'])->first()->value??'Stack Food')
 
 @section('content')
 
@@ -39,21 +39,21 @@
                                 @if($landing_page_links['app_url_android_status'])
                                 <div class="play-store">
                                     <a href="{{$landing_page_links['app_url_android']}}">
-                                        <img src="{{asset('public/assets/landing')}}/image/play_store.png">
+                                        <img src="{{asset('public/assets/landing')}}/image/play_store.png" alt="delimiga_app_in_playstore">
                                     </a>
                                 </div>
                                 @endif
                                 @if($landing_page_links['app_url_ios_status'])
                                 <div class="apple-store">
                                     <a href="{{$landing_page_links['app_url_ios']}}">
-                                        <img src="{{asset('public/assets/landing')}}/image/apple_store.png">
+                                        <img src="{{asset('public/assets/landing')}}/image/apple_store.png" alt="delimiga_app_in_appstore">
                                     </a>
                                 </div>
                                 @endif
                                 @if($landing_page_links['web_app_url_status'])
                                 <div class="apple-store">
                                     <a href="{{$landing_page_links['web_app_url']}}">
-                                        <img src="{{asset('public/assets/landing')}}/image/browse.png">
+                                        <img src="{{asset('public/assets/landing')}}/image/browse.png" alt="delimiga">
                                     </a>
                                 </div>
                                 @endif
@@ -62,7 +62,7 @@
 
                         <div
                             class="col-lg-5 d-flex justify-content-center justify-content-md-end text-center text-md-right top-image">
-                            <img src="{{asset('public/assets/landing')}}/image/{{isset($landing_page_images)?$landing_page_images['top_content_image']:'double_screen_image.png'}}">
+                            <img src="{{asset('public/assets/landing')}}/image/{{isset($landing_page_images)?$landing_page_images['top_content_image']:'double_screen_image.png'}}" alt="delimiga" title="delimiga delivery">
                         </div>
                     </div>
                 </div>
@@ -78,20 +78,20 @@
                         </div>
                         <div
                             class="col-lg-6 col-md-6  d-flex justify-content-center justify-content-md-start text-center text-md-left featured-section__image">
-                            <img src="{{asset('public/assets/landing')}}/image/{{isset($landing_page_images)?$landing_page_images['about_us_image']:'about_us_image.png'}}"></img>
+                            <img src="{{asset('public/assets/landing')}}/image/{{isset($landing_page_images)?$landing_page_images['about_us_image']:'about_us_image.png'}}" alt="delimiga_food_delivery" title="delimiga delivery in srilanka">
                         </div>
                         <!-- <div class="col-lg-3 col-md-0"></div> -->
                         <div class="col-lg-6 col-md-6">
                             <div class="featured-section__content"
                                  class="d-flex justify-content-center justify-content-md-start text-center text-md-left">
                                 <span>{{__('messages.about_us')}}</span>
-                                <h2
+                                <h1
                                     class="d-flex justify-content-center justify-content-md-start text-center text-md-left">
-                                    {{isset($landing_page_text)?$landing_page_text['about_title']:''}}</h2>
-                                <p
+                                    {{isset($landing_page_text)?$landing_page_text['about_title']:''}}</h1>
+                                <div
                                     class="d-flex justify-content-center justify-content-md-start text-center text-md-left">
                                     {!! \Illuminate\Support\Str::limit(\App\CentralLogics\Helpers::get_settings('about_us'),200) !!}
-                                </p>
+                                </div>
                                 <div
                                     class="d-flex justify-content-center justify-content-md-start text-center text-md-left">
                                     <a href="{{route('about-us')}}"
@@ -122,31 +122,13 @@
                         @foreach ($speciality as $sp)
                             <div>
                                 <div class="choosing-section__image-card">
-                                    <img src="{{asset('public/assets/landing')}}/image/{{$sp['img']}}"></img>
+                                    <img src="{{asset('public/assets/landing')}}/image/{{$sp['img']}}" alt="delimiga">
                                 </div>
                                 <div style="margin: 0px 55px 30px 54px">
                                     <p>{{$sp['title']}}</p>
                                 </div>
                             </div>
                         @endforeach
-                            <!-- <div>
-                                <div class="choosing-section__image-card">
-                                    <img src="{{asset('public/assets/landing')}}/image/best_dishes_icon.png"></img>
-                                </div>
-                                <div style="margin: 0px 54px 30px 55px">
-                                    <p>Best Dishes Near You</p>
-                                </div>
-                            </div>
-
-                            <div>
-                                <div class="choosing-section__image-card">
-                                    <img
-                                        src="{{asset('public/assets/landing')}}/image/virtual_restaurant_icon.png"></img>
-                                </div>
-                                <div style="margin: 0px 31px 30px 31px">
-                                    <p>Your Own Virtual Restaurant</p>
-                                </div>
-                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -174,7 +156,7 @@
                                                 <div class="testimonial">
                                                     <div class="pic">
                                                         <img src="{{asset('public/assets/landing')}}/image/{{$data['img']}}"
-                                                             alt="">
+                                                             alt="delimiga">
                                                     </div>
                                                     <div class="testimonial-content">
                                                         <h3 class="testimonial-title">

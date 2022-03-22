@@ -14,7 +14,9 @@
                         </div>
                         <div class="col-12">
                            <center>
-                               <img style="max-width: 50%" src="{{asset('public/assets/landing/image/contact.png')}}">
+                               <img style="max-width: 50%" src="{{asset('public/assets/landing/image/contact.png')}}" alt="delimiga">
+                                    <h1>We would be happy to answer your questions.</h1>
+                                    <h2>Feel free to contact us</h2>
                                <h6 class="mt-4">
                                    Phone : {{\App\CentralLogics\Helpers::get_settings('phone')}},
                                    Email : {{\App\CentralLogics\Helpers::get_settings('email_address')}}
