@@ -4,12 +4,13 @@ namespace App\CentralLogics;
 
 use App\Models\Food;
 use App\Models\Review;
+use Illuminate\Support\Facades\DB;
 
 class ProductLogic
 {
     public static function get_product($id)
     {
-        return Food::active()->with(['rating'])->where('id', $id)->first();
+        return Food::active()->where('id', $id)->first();
     }
 
     public static function get_latest_products($limit, $offset, $restaurant_id, $category_id, $type)
@@ -21,7 +22,7 @@ class ProductLogic
                 return $q->whereId($category_id)->orWhere('parent_id', $category_id);
             });
         }
-        $paginator = $paginator->with(['rating'])->where('restaurant_id', $restaurant_id)->latest()->paginate($limit, ['*'], 'page', $offset);
+        $paginator = $paginator->where('restaurant_id', $restaurant_id)->latest()->paginate($limit, ['*'], 'page', $offset);
 
         return [
             'total_size' => $paginator->total(),
@@ -34,7 +35,7 @@ class ProductLogic
     public static function get_related_products($product_id)
     {
         $product = Food::find($product_id);
-        return Food::active()->with(['rating'])
+        return Food::active()
         ->whereHas('restaurant', function($query){
             $query->Weekday();
         })
@@ -47,7 +48,7 @@ class ProductLogic
     public static function search_products($name, $zone_id, $limit = 10, $offset = 1)
     {
         $key = explode(' ', $name);
-        $paginator = Food::active()->with(['rating'])->whereHas('restaurant', function($q)use($zone_id){
+        $paginator = Food::active()->whereHas('restaurant', function($q)use($zone_id){
             $q->where('zone_id', $zone_id)->Weekday();
         })->where(function ($q) use ($key) {
             foreach ($key as $value) {
@@ -67,7 +68,7 @@ class ProductLogic
     {
         if($limit != null && $offset != null)
         {
-            $paginator = Food::with(['rating'])->whereHas('restaurant', function($q)use($zone_id){
+            $paginator = Food::whereHas('restaurant', function($q)use($zone_id){
                 $q->where('zone_id', $zone_id)->Weekday();
             })->active()->type($type)->popular()->paginate($limit, ['*'], 'page', $offset);
 
@@ -78,9 +79,9 @@ class ProductLogic
                 'products' => $paginator->items()
             ];
         }
-        $paginator = Food::active()->type($type)->with(['rating'])->whereHas('restaurant', function($q)use($zone_id){
+        $paginator = Food::active()->type($type)->whereHas('restaurant', function($q)use($zone_id){
             $q->where('zone_id', $zone_id)->Weekday();
-        })->withCount('orders')->orderBy('orders_count', 'desc')->limit(50)->get();
+        })->popular()->limit(50)->get();
 
         return [
             'total_size' => $paginator->count(),
@@ -95,10 +96,10 @@ class ProductLogic
     {
         if($limit != null && $offset != null)
         {
-            $paginator = Food::with(['rating'])->whereHas('restaurant', function($q)use($zone_id){
+            $paginator = Food::whereHas('restaurant', function($q)use($zone_id){
                 $q->where('zone_id', $zone_id)->Weekday();
             })->withCount('reviews')->active()->type($type)
-            // ->orderBy('rating_count','desc')
+            ->orderBy('reviews_count','desc')
             ->paginate($limit, ['*'], 'page', $offset);
 
             return [
@@ -108,9 +109,9 @@ class ProductLogic
                 'products' => $paginator->items()
             ];
         }
-        $paginator = Food::active()->type($type)->with(['rating'])->whereHas('restaurant', function($q)use($zone_id){
+        $paginator = Food::active()->type($type)->whereHas('restaurant', function($q)use($zone_id){
             $q->where('zone_id', $zone_id)->Weekday();
-        })->withCount('orders')
+        })
         ->withCount('reviews')
         ->orderBy('reviews_count','desc')
         ->limit(50)->get();
@@ -155,6 +156,18 @@ class ProductLogic
             }
         }
         return [$rating5, $rating4, $rating3, $rating2, $rating1];
+    }
+
+    public static function get_avg_rating($rating)
+    {
+        $total_rating = 0;
+        $total_rating += $rating[1];
+        $total_rating += $rating[2]*2;
+        $total_rating += $rating[3]*3;
+        $total_rating += $rating[4]*4;
+        $total_rating += $rating[5]*5;
+
+        return $total_rating/array_sum($rating);
     }
 
     public static function get_overall_rating($reviews)
@@ -213,5 +226,42 @@ class ProductLogic
         }
 
         return $storage;
+    }
+
+    public static function update_food_ratings()
+    {
+        try{
+            $foods = Food::withOutGlobalScopes()->whereHas('reviews')->with('reviews')->get();
+            foreach($foods as $key=>$food)
+            {
+                $foods[$key]->avg_rating = $food->reviews->avg('rating');
+                $foods[$key]->rating_count = $food->reviews->count();
+                foreach($food->reviews as $review)
+                {
+                    $foods[$key]->rating = self::update_rating($foods[$key]->rating, $review->rating);
+                }
+                $foods[$key]->save();
+            }
+        }catch(\Exception $e){
+            info($e);
+            return false;
+        }
+        return true;
+    }
+
+    public static function update_rating($ratings, $product_rating)
+    {
+
+        $restaurant_ratings = [1=>0 , 2=>0, 3=>0, 4=>0, 5=>0];
+        if(isset($ratings))
+        {
+            $restaurant_ratings = json_decode($ratings, true);
+            $restaurant_ratings[$product_rating] = $restaurant_ratings[$product_rating] + 1; 
+        }
+        else
+        {
+            $restaurant_ratings[$product_rating] = 1;
+        }
+        return json_encode($restaurant_ratings);
     }
 }

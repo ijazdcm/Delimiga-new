@@ -15,7 +15,7 @@ class CategoryController extends Controller
     {
         try {
             $categories = Category::where(['position'=>0,'status'=>1])->orderBy('priority','desc')->get();
-            return response()->json($categories, 200);
+            return response()->json(Helpers::category_data_formatting($categories, true), 200);
         } catch (\Exception $e) {
             return response()->json([], 200);
         }
@@ -25,7 +25,7 @@ class CategoryController extends Controller
     {
         try {
             $categories = Category::where(['parent_id' => $id,'status'=>1])->orderBy('priority','desc')->get();
-            return response()->json($categories, 200);
+            return response()->json(Helpers::category_data_formatting($categories, true), 200);
         } catch (\Exception $e) {
             return response()->json([], 200);
         }
@@ -54,7 +54,7 @@ class CategoryController extends Controller
         $type = $request->query('type', 'all');
 
         $data = CategoryLogic::products($id, $zone_id, $request['limit'], $request['offset'], $type);
-        $data['products'] = Helpers::product_data_formatting($data['products'] , true);
+        $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale());
         return response()->json($data, 200);
     }
 
@@ -100,7 +100,7 @@ class CategoryController extends Controller
         $zone_id= $request->header('zoneId');
 
         try {
-            return response()->json(Helpers::product_data_formatting(CategoryLogic::all_products($id, $zone_id), true), 200);
+            return response()->json(Helpers::product_data_formatting(CategoryLogic::all_products($id, $zone_id), true, false, app()->getLocale()), 200);
         } catch (\Exception $e) {
             return response()->json([], 200);
         }

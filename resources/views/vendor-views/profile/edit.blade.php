@@ -1,6 +1,6 @@
 @extends('layouts.vendor.app')
 
-@section('title','Profile Settings')
+@section('title',__('messages.profile_settings'))
 
 @push('css_or_js')
 <link href="{{asset('public/assets/back-end/css/croppie.css')}}" rel="stylesheet">
@@ -132,7 +132,7 @@
                                         class="input-label-secondary">(Optional)</span></label>
 
                                 <div class="col-sm-9">
-                                    <input type="text" class="js-masked-input form-control" name="phone" id="phoneLabel"
+                                    <input type="tel" class="js-masked-input form-control" name="phone" id="phoneLabel"
                                            placeholder="+x(xxx)xxx-xx-xx" aria-label="+(xxx)xx-xxx-xxxxx"
                                            value="{{$data->phone}}"
                                            data-hs-mask-options='{

@@ -22,7 +22,7 @@
 
         <div class="card mt-2 rest-part">
             <div class="card-header">
-                <h4>Export Restaurants</h4>
+                <h4>{{__('messages.Export Restaurants')}}</h4>
             </div>
             <div class="card-body">
                 <form class="product-form" action="{{route('admin.vendor.bulk-export')}}" method="POST"

@@ -14,7 +14,7 @@
         {{Str::limit($food->category,20,'...')}}
         </td>
         <td>
-        {{$food->restaurant->name}}
+        {{Str::limit($food->restaurant->name,20,'...')}}
         </td>
         <td>{{\App\CentralLogics\Helpers::format_currency($food['price'])}}</td>
         <td>

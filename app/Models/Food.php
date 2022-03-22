@@ -6,14 +6,19 @@ use App\Scopes\RestaurantScope;
 use App\Scopes\ZoneScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 
 class Food extends Model
 {
+    use HasFactory;
+    
     protected $casts = [
         'tax' => 'float',
         'price' => 'float',
         'status' => 'integer',
         'discount' => 'float',
+        'avg_rating' => 'float',
         'set_menu' => 'integer',
         'category_id' => 'integer',
         'restaurant_id' => 'integer',
@@ -22,6 +27,13 @@ class Food extends Model
         'updated_at' => 'datetime',
         'veg'=>'integer'
     ];
+
+
+    public function translations()
+    {
+        return $this->morphMany(Translation::class, 'translationable');
+    }
+
 
     public function scopeActive($query)
     {
@@ -40,12 +52,12 @@ class Food extends Model
         return $this->hasMany(Review::class)->latest();
     }
 
-    public function rating()
-    {
-        return $this->hasMany(Review::class)
-            ->select(DB::raw('avg(rating) average, count(food_id) rating_count, food_id'))
-            ->groupBy('food_id');
-    }
+    // public function rating()
+    // {
+    //     return $this->hasMany(Review::class)
+    //         ->select(DB::raw('avg(rating) average, count(food_id) rating_count, food_id'))
+    //         ->groupBy('food_id');
+    // }
 
     public function restaurant()
     {
@@ -71,12 +83,18 @@ class Food extends Model
 
     protected static function booted()
     {
-        if(auth('vendor')->check())
+        if(auth('vendor')->check() || auth('vendor_employee')->check())
         {
             static::addGlobalScope(new RestaurantScope);
         } 
 
         static::addGlobalScope(new ZoneScope);
+
+        static::addGlobalScope('translate', function (Builder $builder) {
+            $builder->with(['translations' => function($query){
+                return $query->where('locale', app()->getLocale());
+            }]);
+        });
     }
 
 

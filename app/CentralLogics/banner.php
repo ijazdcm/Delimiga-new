@@ -36,7 +36,7 @@ class BannerLogic
                     'type'=>$banner->type,
                     'image'=>$banner->image,
                     'restaurant'=> null,
-                    'food'=> $food?Helpers::product_data_formatting($food, false):null,
+                    'food'=> $food?Helpers::product_data_formatting($food, false, false, app()->getLocale()):null,
                 ];
             }
         }

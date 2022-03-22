@@ -6,7 +6,9 @@
     <!-- Title -->
     <title>@yield('title')</title>
     <!-- Favicon -->
+    @php($logo=\App\Models\BusinessSetting::where(['key'=>'icon'])->first()->value)
     <link rel="shortcut icon" href="">
+    <link rel="icon" type="image/x-icon" href="{{asset('storage/app/public/business/'.$logo??'')}}">
     <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&amp;display=swap" rel="stylesheet">
     <!-- CSS Implementing Plugins -->
@@ -32,7 +34,7 @@
         }
 
         ::-webkit-scrollbar {
-            width: 10px!important;
+            width: 3px!important;
             height: 3px!important;
         }
 
@@ -324,28 +326,30 @@
     }
 </script>
 <script>
-    @php($admin_order_notification=\App\Models\BusinessSetting::where('key','admin_order_notification')->first())
-    @php($admin_order_notification=$admin_order_notification?$admin_order_notification->value:0)
-    @if($admin_order_notification)
-    setInterval(function () {
-        $.get({
-            url: '{{route('admin.get-restaurant-data')}}',
-            dataType: 'json',
-            success: function (response) {
-                let data = response.data;
-                if (data.new_order > 0) {
-                    playAudio();
-                    $('#popup-modal').appendTo("body").modal('show');
-                }
-            },
-        });
-    }, 10000);
+    @if(\App\CentralLogics\Helpers::module_permission_check('order'))
+        @php($admin_order_notification=\App\Models\BusinessSetting::where('key','admin_order_notification')->first())
+        @php($admin_order_notification=$admin_order_notification?$admin_order_notification->value:0)
+        @if($admin_order_notification)
+        setInterval(function () {
+            $.get({
+                url: '{{route('admin.get-restaurant-data')}}',
+                dataType: 'json',
+                success: function (response) {
+                    let data = response.data;
+                    if (data.new_order > 0) {
+                        playAudio();
+                        $('#popup-modal').appendTo("body").modal('show');
+                    }
+                },
+            });
+        }, 10000);
 
-    function check_order() {
-        location.href = '{{route('admin.order.list',['status'=>'all'])}}';
-    }
+        function check_order() {
+            location.href = '{{route('admin.order.list',['status'=>'all'])}}';
+        }
+        @endif
     @endif
-    function route_alert(route, message, title='Are you sure?') {
+    function route_alert(route, message, title="{{__('messages.are_you_sure')}}") {
         Swal.fire({
             title: title,
             text: message,

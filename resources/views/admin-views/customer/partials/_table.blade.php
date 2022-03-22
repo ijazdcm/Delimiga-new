@@ -16,7 +16,7 @@
         </td>
         <td>
             <label class="badge badge-soft-info">
-                {{$customer->orders->count()}}
+                {{$customer->order_count}}
             </label>
         </td>
         <td>

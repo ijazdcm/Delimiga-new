@@ -42,23 +42,13 @@ class DashboardController extends Controller
             }
         }
 
-        $food_ids = Food::where(['restaurant_id' => Helpers::get_restaurant_id()])->pluck('id')->toArray();
-        $top_sell = OrderDetail::with(['food'])->whereIn('food_id', $food_ids)
-            ->select('food_id', DB::raw('COUNT(food_id) as count'))
-            ->groupBy('food_id')
-            ->orderBy("count", 'desc')
+        $top_sell = Food::orderBy("order_count", 'desc')
             ->take(6)
             ->get();
-        $most_rated_foods = Food::rightJoin('reviews', 'reviews.food_id', '=', 'food.id')
-            ->whereIn('food_id', $food_ids)
-            ->groupBy('food_id')
-            ->select(['food_id',
-                DB::raw('AVG(reviews.rating) as ratings_average'),
-                DB::raw('count(*) as total')
-            ])
-            ->orderBy('total', 'desc')
-            ->take(6)
-            ->get();
+        $most_rated_foods = Food::
+        orderBy('rating_count','desc')
+        ->take(6)
+        ->get();
         $data['top_sell'] = $top_sell;
         $data['most_rated_foods'] = $most_rated_foods;
 
@@ -107,37 +97,37 @@ class DashboardController extends Controller
             return $query->whereDate('created_at', Carbon::today());
         })->when($this_month, function ($query) {
             return $query->whereMonth('created_at', Carbon::now());
-        })->where(['restaurant_id' => Helpers::get_restaurant_id()])->whereIn('order_status',['confirmed', 'accepted'])->whereNotNull('confirmed')->count();
+        })->where(['restaurant_id' => Helpers::get_restaurant_id()])->whereIn('order_status',['confirmed', 'accepted'])->whereNotNull('confirmed')->Notpos()->count();
 
         $cooking = Order::when($today, function ($query) {
             return $query->whereDate('created_at', Carbon::today());
         })->when($this_month, function ($query) {
             return $query->whereMonth('created_at', Carbon::now());
-        })->where(['order_status' => 'processing', 'restaurant_id' => Helpers::get_restaurant_id()])->count();
+        })->where(['order_status' => 'processing', 'restaurant_id' => Helpers::get_restaurant_id()])->Notpos()->count();
 
         $ready_for_delivery = Order::when($today, function ($query) {
             return $query->whereDate('created_at', Carbon::today());
         })->when($this_month, function ($query) {
             return $query->whereMonth('created_at', Carbon::now());
-        })->where(['order_status' => 'handover', 'restaurant_id' => Helpers::get_restaurant_id()])->count();
+        })->where(['order_status' => 'handover', 'restaurant_id' => Helpers::get_restaurant_id()])->Notpos()->count();
 
         $food_on_the_way = Order::when($today, function ($query) {
             return $query->whereDate('created_at', Carbon::today());
         })->when($this_month, function ($query) {
             return $query->whereMonth('created_at', Carbon::now());
-        })->FoodOnTheWay()->where(['restaurant_id' => Helpers::get_restaurant_id()])->count();
+        })->FoodOnTheWay()->where(['restaurant_id' => Helpers::get_restaurant_id()])->Notpos()->count();
 
         $delivered = Order::when($today, function ($query) {
             return $query->whereDate('created_at', Carbon::today());
         })->when($this_month, function ($query) {
             return $query->whereMonth('created_at', Carbon::now());
-        })->where(['order_status' => 'delivered', 'restaurant_id' => Helpers::get_restaurant_id()])->count();
+        })->where(['order_status' => 'delivered', 'restaurant_id' => Helpers::get_restaurant_id()])->Notpos()->count();
 
         $refunded = Order::when($today, function ($query) {
             return $query->whereDate('created_at', Carbon::today());
         })->when($this_month, function ($query) {
             return $query->whereMonth('created_at', Carbon::now());
-        })->where(['order_status' => 'refunded', 'restaurant_id' => Helpers::get_restaurant_id()])->count();
+        })->where(['order_status' => 'refunded', 'restaurant_id' => Helpers::get_restaurant_id()])->Notpos()->count();
 
         $scheduled = Order::when($today, function ($query) {
             return $query->whereDate('created_at', Carbon::today());
@@ -155,19 +145,20 @@ class DashboardController extends Controller
                 });
             }
 
-        })->count();
+        })->Notpos()->count();
 
         $all = Order::when($today, function ($query) {
             return $query->whereDate('created_at', Carbon::today());
         })->when($this_month, function ($query) {
             return $query->whereMonth('created_at', Carbon::now());
         })->where(['restaurant_id' => Helpers::get_restaurant_id()])
-        ->where(function($q){
-            $q->whereNotIn('order_status',['pending','failed','canceled', 'refund_requested', 'refunded'])->orWhere(function($query){
-                $query->where('order_status','pending')->where('order_type', 'take_away');
+        ->where(function($query){
+            return $query->whereNotIn('order_status',(config('order_confirmation_model') == 'restaurant'|| \App\CentralLogics\Helpers::get_restaurant_data()->self_delivery_system)?['failed','canceled', 'refund_requested', 'refunded']:['pending','failed','canceled', 'refund_requested', 'refunded'])
+            ->orWhere(function($query){
+                return $query->where('order_status','pending')->where('order_type', 'take_away');
             });
         })
-        ->count();
+        ->Notpos()->count();
 
         $data = [
             'confirmed' => $confirmed,

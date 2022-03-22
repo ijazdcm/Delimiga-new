@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AddOn;
 use App\Models\Restaurant;
+use App\Models\Translation;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Rap2hpoutre\FastExcel\FastExcel;
@@ -28,45 +29,80 @@ class AddOnController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name.*' => 'max:191',
+            'name'=>'array|required',
             'restaurant_id' => 'required',
-            'price' => 'required',
+            'price' => 'required|numeric|between:0,999999999999.99',
         ], [
-            'name.required' => 'Name is required!',
+            'name.required' => trans('messages.Name is required!'),
             'restaurant_id.required' => trans('messages.please_select_restaurant'),
         ]);
 
         $addon = new AddOn();
-        $addon->name = $request->name;
+        $addon->name = $request->name[array_search('en', $request->lang)];
         $addon->price = $request->price;
         $addon->restaurant_id = $request->restaurant_id;
         $addon->save();
+
+        $data = [];
+        foreach($request->lang as $index=>$key)
+        {
+            if($request->name[$index] && $key != 'en')
+            {
+                array_push($data, Array(
+                    'translationable_type'  => 'App\Models\AddOn',
+                    'translationable_id'    => $addon->id,
+                    'locale'                => $key,
+                    'key'                   => 'name',
+                    'value'                 => $request->name[$index],
+                ));
+            }
+        }
+        if(count($data))
+        {
+            Translation::insert($data);
+        }
         Toastr::success(trans('messages.addon_added_successfully'));
         return back();
     }
 
     public function edit($id)
     {
-        $addon = AddOn::withoutGlobalScope(RestaurantScope::class)->find($id);
+        $addon = AddOn::withoutGlobalScope(RestaurantScope::class)->withoutGlobalScope('translate')->findOrFail($id);
         return view('admin-views.addon.edit', compact('addon'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|max:191',
             'restaurant_id' => 'required',
-            'price' => 'required',
+            'price' => 'required|numeric|between:0,999999999999.99',
         ], [
-            'name.required' => 'Name is required!',
+            'name.required' => trans('messages.Name is required!'),
             'restaurant_id.required' => trans('messages.please_select_restaurant'),
         ]);
 
         $addon = AddOn::withoutGlobalScope(RestaurantScope::class)->find($id);
-        $addon->name = $request->name;
+        $addon->name = $request->name[array_search('en', $request->lang)];
         $addon->price = $request->price;
         $addon->restaurant_id = $request->restaurant_id;
         $addon->save();
+
+        foreach($request->lang as $index=>$key)
+        {
+            if($request->name[$index] && $key != 'en')
+            {
+                Translation::updateOrInsert(
+                    ['translationable_type'  => 'App\Models\AddOn',
+                        'translationable_id'    => $addon->id,
+                        'locale'                => $key,
+                        'key'                   => 'name'],
+                    ['value'                 => $request->name[$index]]
+                );
+            }
+        }
+
         Toastr::success(trans('messages.addon_updated_successfully'));
         return redirect(route('admin.addon.add-new'));
     }
@@ -123,6 +159,7 @@ class AddOnController extends Controller
 
             array_push($data, [
                 'name' => $collection['name'],
+                'price' => $collection['price'],
                 'restaurant_id' => $collection['restaurant_id'],
                 'created_at'=>now(),
                 'updated_at'=>now()

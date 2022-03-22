@@ -72,7 +72,7 @@
                         <h5>
                             Phone : {{$order->customer['phone']}}
                         </h5>
-                        <h5>
+                        <h5 class="text-break">
                             Address : {{isset($order->delivery_address)?json_decode($order->delivery_address, true)['address']:''}}
                         </h5>
                     </div>
@@ -99,7 +99,7 @@
                                 <td class="">
                                     {{$detail['quantity']}}
                                 </td>
-                                <td class="">
+                                <td class="text-break">
                                     {{$detail->food['name']}} <br>
                                     @if(count(json_decode($detail['variation'],true))>0)
                                         <strong><u>Variation : </u></strong>
@@ -119,7 +119,7 @@
                                     @foreach(json_decode($detail['add_ons'],true) as $key2 =>$addon)
                                         @if($key2==0)<strong><u>Addons : </u></strong>@endif
                                         <div class="font-size-sm text-body">
-                                            <span>{{$addon['name']}} :  </span>
+                                            <span class="text-break">{{$addon['name']}} :  </span>
                                             <span class="font-weight-bold">
                                                 {{$addon['quantity']}} x {{\App\CentralLogics\Helpers::format_currency($addon['price'])}}
                                             </span>
@@ -140,7 +140,7 @@
                                 <td class="">
                                     {{$detail['quantity']}}
                                 </td>
-                                <td class="">
+                                <td class="text-break">
                                     {{$detail->campaign['title']}} <br>
                                     @if(count(json_decode($detail['variation'],true))>0)
                                         <strong><u>Variation : </u></strong>
@@ -160,10 +160,10 @@
                                     @foreach(json_decode($detail['add_ons'],true) as $key2 =>$addon)
                                         @if($key2==0)<strong><u>Addons : </u></strong>@endif
                                         <div class="font-size-sm text-body">
-                                            <span>{{$addon['name']}} :  </span>
+                                            <span class="text-break">{{$addon['name']}} :  </span>
                                             <span class="font-weight-bold">
-                                                            {{$addon['quantity']}} x {{\App\CentralLogics\Helpers::format_currency($addon['price'])}}
-                                                        </span>
+                                                {{$addon['quantity']}} x {{\App\CentralLogics\Helpers::format_currency($addon['price'])}}
+                                            </span>
                                         </div>
                                         @php($add_ons_cost+=$addon['price']*$addon['quantity'])
                                     @endforeach

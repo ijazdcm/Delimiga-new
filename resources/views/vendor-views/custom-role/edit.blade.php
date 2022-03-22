@@ -38,28 +38,28 @@
                                 <div class="form-group form-check">
                                     <input type="checkbox" name="modules[]" value="food" class="form-check-input"
                                            id="food" {{in_array('food',(array)json_decode($role['modules']))?'checked':''}}>
-                                    <label class="form-check-label" for="food">{{__('messages.food')}}</label>
+                                    <label class="form-check-label qcont" for="food">{{__('messages.food')}}</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group form-check">
                                     <input type="checkbox" name="modules[]" value="order" class="form-check-input"
                                            id="order" {{in_array('order',(array)json_decode($role['modules']))?'checked':''}}>
-                                    <label class="form-check-label" for="order">{{__('messages.order')}}</label>
+                                    <label class="form-check-label qcont" for="order">{{__('messages.order')}}</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group form-check">
                                     <input type="checkbox" name="modules[]" value="restaurant_setup" class="form-check-input"
                                            id="restaurant_setup" {{in_array('restaurant_setup',(array)json_decode($role['modules']))?'checked':''}}>
-                                    <label class="form-check-label" for="restaurant_setup">{{__('messages.business')}} {{__('messages.setup')}}</label>
+                                    <label class="form-check-label qcont" for="restaurant_setup">{{__('messages.business')}} {{__('messages.setup')}}</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group form-check">
                                     <input type="checkbox" name="modules[]" value="addon" class="form-check-input"
                                            id="addon" {{in_array('addon',(array)json_decode($role['modules']))?'checked':''}}>
-                                    <label class="form-check-label" for="addon">{{__('messages.addon')}}</label>
+                                    <label class="form-check-label qcont" for="addon">{{__('messages.addon')}}</label>
                                 </div>
                             </div>
                         </div>
@@ -69,28 +69,28 @@
                                 <div class="form-group form-check">
                                     <input type="checkbox" name="modules[]" value="wallet" class="form-check-input"
                                            id="wallet" {{in_array('wallet',(array)json_decode($role['modules']))?'checked':''}}>
-                                    <label class="form-check-label" for="wallet">{{__('messages.wallet')}}</label>
+                                    <label class="form-check-label qcont" for="wallet">{{__('messages.wallet')}}</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group form-check">
                                     <input type="checkbox" name="modules[]" value="bank_info" class="form-check-input"
                                            id="bank_info" {{in_array('bank_info',(array)json_decode($role['modules']))?'checked':''}}>
-                                    <label class="form-check-label" for="bank_info">{{__('messages.bank_info')}}</label>
+                                    <label class="form-check-label qcont" for="bank_info">{{__('messages.bank_info')}}</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group form-check">
                                     <input type="checkbox" name="modules[]" value="employee" class="form-check-input"
                                            id="employee" {{in_array('employee',(array)json_decode($role['modules']))?'checked':''}}>
-                                    <label class="form-check-label" for="employee">{{__('messages.Employee')}}</label>
+                                    <label class="form-check-label qcont" for="employee">{{__('messages.Employee')}}</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group form-check">
                                     <input type="checkbox" name="modules[]" value="my_shop" class="form-check-input"
                                            id="my_shop" {{in_array('my_shop',(array)json_decode($role['modules']))?'checked':''}}>
-                                    <label class="form-check-label" for="my_shop">{{__('messages.my_shop')}}</label>
+                                    <label class="form-check-label qcont" for="my_shop">{{__('messages.my_shop')}}</label>
                                 </div>
                             </div>
                         </div>
@@ -100,15 +100,7 @@
                                 <div class="form-group form-check">
                                     <input type="checkbox" name="modules[]" value="custom_role" class="form-check-input"
                                            id="custom_role" {{in_array('custom_role',(array)json_decode($role['modules']))?'checked':''}}>
-                                    <label class="form-check-label" for="custom_role">{{__('messages.custom_role')}}</label>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-3">
-                                <div class="form-group form-check">
-                                    <input type="checkbox" name="modules[]" value="banner" class="form-check-input"
-                                           id="banner" {{in_array('banner',(array)json_decode($role['modules']))?'checked':''}}>
-                                    <label class="form-check-label" for="banner">{{__('messages.banner')}}</label>
+                                    <label class="form-check-label qcont" for="custom_role">{{__('messages.custom_role')}}</label>
                                 </div>
                             </div>
                             
@@ -116,7 +108,7 @@
                                 <div class="form-group form-check">
                                     <input type="checkbox" name="modules[]" value="campaign" class="form-check-input"
                                            id="campaign" {{in_array('campaign',(array)json_decode($role['modules']))?'checked':''}}>
-                                    <label class="form-check-label" for="campaign">{{__('messages.campaign')}}</label>
+                                    <label class="form-check-label qcont" for="campaign">{{__('messages.campaign')}}</label>
                                 </div>
                             </div>
 
@@ -124,7 +116,15 @@
                                 <div class="form-group form-check">
                                     <input type="checkbox" name="modules[]" value="reviews" class="form-check-input"
                                            id="reviews" {{in_array('reviews',(array)json_decode($role['modules']))?'checked':''}}>
-                                    <label class="form-check-label" for="reviews">{{__('messages.reviews')}}</label>
+                                    <label class="form-check-label qcont" for="reviews">{{__('messages.reviews')}}</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group form-check">
+                                    <input type="checkbox" name="modules[]" value="pos" class="form-check-input"
+                                           id="pos" {{in_array('pos',(array)json_decode($role['modules']))?'checked':''}}>
+                                    <label class="form-check-label qcont" for="pos">{{__('messages.pos')}}</label>
                                 </div>
                             </div>
                         </div>

@@ -32,7 +32,9 @@ class DeliveryManController extends Controller
         }
 
         $request->validate([
-            'f_name' => 'required',
+            'f_name' => 'required|max:100',
+            'l_name' => 'nullable|max:100',
+            'identity_number' => 'required|max:30',
             'email' => 'required|unique:delivery_men',
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|unique:delivery_men',
             'zone_id' => 'required',

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::group(['namespace' => 'Api\V1'], function () {
+Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function () {
 
     Route::group(['prefix' => 'auth', 'namespace' => 'Auth'], function () {
         Route::post('register', 'CustomerAuthController@register');
@@ -95,6 +95,11 @@ Route::group(['namespace' => 'Api\V1'], function () {
         
         // Business setup
         Route::put('update-business-setup', 'BusinessSettingsController@update_restaurant_setup');
+
+        // Reataurant schedule
+        Route::post('schedule/store', 'BusinessSettingsController@add_schedule');
+        Route::delete('schedule/{restaurant_schedule}', 'BusinessSettingsController@remove_schedule');
+
         // Attributes
         Route::get('attributes', 'AttributeController@list');
 
@@ -123,6 +128,8 @@ Route::group(['namespace' => 'Api\V1'], function () {
             Route::delete('delete', 'FoodController@delete');
             Route::get('status', 'FoodController@status');
             Route::POST('search', 'FoodController@search');
+            Route::get('reviews', 'FoodController@reviews');
+
         });
 
         // POS
@@ -168,8 +175,6 @@ Route::group(['namespace' => 'Api\V1'], function () {
         Route::get('/', 'BannerController@get_banners');
     });
 
-
-
     Route::group(['prefix' => 'categories'], function () {
         Route::get('/', 'CategoryController@get_categories');
         Route::get('childes/{category_id}', 'CategoryController@get_childes');
@@ -181,6 +186,7 @@ Route::group(['namespace' => 'Api\V1'], function () {
     Route::group(['prefix' => 'customer', 'middleware' => 'auth:api'], function () {
         Route::get('notifications', 'NotificationController@get_notifications');
         Route::get('info', 'CustomerController@info');
+        Route::get('update-zone', 'CustomerController@update_zone');
         Route::post('update-profile', 'CustomerController@update_profile');
         Route::post('update-interest', 'CustomerController@update_interest');
         Route::put('cm-firebase-token', 'CustomerController@update_cm_firebase_token');
@@ -231,8 +237,4 @@ Route::group(['namespace' => 'Api\V1'], function () {
         Route::get('list', 'CouponController@list');
         Route::get('apply', 'CouponController@apply');
     });
-    
-    // WebXpay Payment Setup
-    
-    Route::post('webxpay', 'webxPayController@index');
 });

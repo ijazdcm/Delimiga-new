@@ -22,8 +22,8 @@
                          onerror="this.src='{{asset('public/assets/admin/img/160x160/img2.jpg')}}'"
                          src="{{asset('storage/app/public/restaurant/'.$restaurant_data->logo)}}" alt="Logo">
                 </a>
-            {{\Illuminate\Support\Str::limit($restaurant_data->name,15)}}
-            <!-- End Logo -->
+                {{\Illuminate\Support\Str::limit($restaurant_data->name,15)}}
+                <!-- End Logo -->
 
                 <!-- Navbar Vertical Toggle -->
                 <button type="button"
@@ -72,9 +72,9 @@
                                         {{__('messages.pending')}} {{(config('order_confirmation_model') == 'restaurant' || \App\CentralLogics\Helpers::get_restaurant_data()->self_delivery_system)?'':__('messages.take_away')}}
                                             <span class="badge badge-soft-success badge-pill ml-1">
                                             @if(config('order_confirmation_model') == 'restaurant' || \App\CentralLogics\Helpers::get_restaurant_data()->self_delivery_system)
-                                            {{\App\Models\Order::where(['order_status'=>'pending','restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->count()}}
+                                            {{\App\Models\Order::where(['order_status'=>'pending','restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->Notpos()->OrderScheduledIn(30)->count()}}
                                             @else
-                                            {{\App\Models\Order::where(['order_status'=>'pending','restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id(), 'order_type'=>'take_away'])->count()}}
+                                            {{\App\Models\Order::where(['order_status'=>'pending','restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id(), 'order_type'=>'take_away'])->Notpos()->OrderScheduledIn(30)->count()}}
                                             @endif
                                         </span>
                                     </span>
@@ -87,7 +87,7 @@
                                     <span class="text-truncate">
                                         {{__('messages.confirmed')}}
                                             <span class="badge badge-soft-success badge-pill ml-1">
-                                            {{\App\Models\Order::whereIn('order_status',['confirmed', 'accepted'])->whereNotNull('confirmed')->where('restaurant_id', \App\CentralLogics\Helpers::get_restaurant_id())->count()}}
+                                            {{\App\Models\Order::whereIn('order_status',['confirmed', 'accepted'])->Notpos()->whereNotNull('confirmed')->where('restaurant_id', \App\CentralLogics\Helpers::get_restaurant_id())->OrderScheduledIn(30)->count()}}
                                         </span>
                                     </span>
                                 </a>
@@ -99,7 +99,7 @@
                                     <span class="text-truncate">
                                         {{__('messages.cooking')}}
                                         <span class="badge badge-info badge-pill ml-1">
-                                            {{\App\Models\Order::where(['order_status'=>'processing', 'restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->count()}}
+                                            {{\App\Models\Order::where(['order_status'=>'processing', 'restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->Notpos()->count()}}
                                         </span>
                                     </span>
                                 </a>
@@ -110,7 +110,7 @@
                                     <span class="text-truncate">
                                         {{__('messages.ready_for_delivery')}}
                                         <span class="badge badge-info badge-pill ml-1">
-                                            {{\App\Models\Order::where(['order_status'=>'handover', 'restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->count()}}
+                                            {{\App\Models\Order::where(['order_status'=>'handover', 'restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->Notpos()->count()}}
                                         </span>
                                     </span>
                                 </a>
@@ -121,7 +121,7 @@
                                     <span class="text-truncate">
                                         {{__('messages.food_on_the_way')}}
                                         <span class="badge badge-info badge-pill ml-1">
-                                            {{\App\Models\Order::where(['order_status'=>'picked_up', 'restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->count()}}
+                                            {{\App\Models\Order::where(['order_status'=>'picked_up', 'restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->Notpos()->count()}}
                                         </span>
                                     </span>
                                 </a>
@@ -137,13 +137,13 @@
                                     </span>
                                 </a>
                             </li>
-                            <li class="nav-item {{Request::is('vendor-panel/order/list/returned')?'active':''}}">
-                                <a class="nav-link " href="{{route('vendor.order.list',['returned'])}}" title="">
+                            <li class="nav-item {{Request::is('vendor-panel/order/list/refunded')?'active':''}}">
+                                <a class="nav-link " href="{{route('vendor.order.list',['refunded'])}}" title="">
                                     <span class="tio-circle nav-indicator-icon"></span>
                                     <span class="text-truncate">
-                                        {{__('messages.returned')}}
+                                        {{__('messages.refunded')}}
                                             <span class="badge badge-soft-danger bg-light badge-pill ml-1">
-                                            {{\App\Models\Order::where(['order_status'=>'returned','restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->count()}}
+                                            {{\App\Models\Order::Refunded()->where(['restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->Notpos()->count()}}
                                         </span>
                                     </span>
                                 </a>
@@ -154,8 +154,8 @@
                                     <span class="text-truncate">
                                         {{__('messages.scheduled')}}
                                         <span class="badge badge-info badge-pill ml-1">
-                                            {{\App\Models\Order::where('restaurant_id',\App\CentralLogics\Helpers::get_restaurant_id())->Scheduled()->where(function($q){
-                                                if(config('order_confirmation_model') == 'restaurant')
+                                            {{\App\Models\Order::where('restaurant_id',\App\CentralLogics\Helpers::get_restaurant_id())->Notpos()->Scheduled()->where(function($q){
+                                                if(config('order_confirmation_model') == 'restaurant' || \App\CentralLogics\Helpers::get_restaurant_data()->self_delivery_system)
                                                 {
                                                     $q->whereNotIn('order_status',['failed','canceled', 'refund_requested', 'refunded']);
                                                 }
@@ -179,7 +179,7 @@
                                         <span class="badge badge-info badge-pill ml-1">
                                             {{\App\Models\Order::where('restaurant_id', \App\CentralLogics\Helpers::get_restaurant_id())
                                                 ->where(function($query){
-                                                    return $query->whereNotIn('order_status',config('order_confirmation_model') == 'restaurant'?['failed','canceled', 'refund_requested', 'refunded']:['pending','failed','canceled', 'refund_requested', 'refunded'])
+                                                    return $query->whereNotIn('order_status',(config('order_confirmation_model') == 'restaurant'|| \App\CentralLogics\Helpers::get_restaurant_data()->self_delivery_system)?['failed','canceled', 'refund_requested', 'refunded']:['pending','failed','canceled', 'refund_requested', 'refunded'])
                                                     ->orWhere(function($query){
                                                         return $query->where('order_status','pending')->where('order_type', 'take_away');
                                                     });
@@ -307,7 +307,7 @@
                         </a>
                         <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
                             style="display: {{Request::is('vendor-panel/category*')?'block':'none'}}">
-                            <li class="nav-item {{Request::is('vendor-panel/category/add')?'active':''}}">
+                            <li class="nav-item {{Request::is('vendor-panel/category/list')?'active':''}}">
                                 <a class="nav-link " href="{{route('vendor.category.add')}}"
                                     title="{{__('messages.category')}}">
                                     <span class="tio-circle nav-indicator-icon"></span>
@@ -315,7 +315,7 @@
                                 </a>
                             </li>
 
-                            <li class="nav-item {{Request::is('vendor-panel/category/add-sub-category')?'active':''}}">
+                            <li class="nav-item {{Request::is('vendor-panel/category/sub-category-list')?'active':''}}">
                                 <a class="nav-link " href="{{route('vendor.category.add-sub-category')}}"
                                     title="{{__('messages.sub_category')}}">
                                     <span class="tio-circle nav-indicator-icon"></span>
@@ -414,7 +414,7 @@
                     @endif
 
                     @if(\App\CentralLogics\Helpers::employee_module_permission_check('my_shop'))
-                    <li class="navbar-vertical-aside-has-menu {{Request::is('vendor/shop*')?'active':''}}">
+                    <li class="navbar-vertical-aside-has-menu {{Request::is('vendor/restaurant/*')?'active':''}}">
                         <a class="js-navbar-vertical-aside-menu-link nav-link"
                             href="{{route('vendor.shop.view')}}"
                             title="{{__('messages.my_shop')}}">

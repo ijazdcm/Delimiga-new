@@ -34,12 +34,12 @@ class ConfigController extends Controller
         $free_delivery_over = $free_delivery_over?(float)$free_delivery_over:$free_delivery_over;
         $languages = Helpers::get_business_settings('language');
         $lang_array = [];
-        // foreach ($languages as $language) {
-        //     array_push($lang_array, [
-        //         'key' => $language,
-        //         'value' => Helpers::get_language_name($language)
-        //     ]);
-        // }
+        foreach ($languages as $language) {
+            array_push($lang_array, [
+                'key' => $language,
+                'value' => Helpers::get_language_name($language)
+            ]);
+        }
         // $social_login = [];
         // foreach (Helpers::get_business_settings('social_login') as $social) {
         //     $config = [
@@ -109,6 +109,8 @@ class ConfigController extends Controller
             'toggle_veg_non_veg' => (boolean)BusinessSetting::where(['key' => 'toggle_veg_non_veg'])->first()->value,
             'toggle_dm_registration' => (boolean)BusinessSetting::where(['key' => 'toggle_dm_registration'])->first()->value,
             'toggle_restaurant_registration' => (boolean)BusinessSetting::where(['key' => 'toggle_restaurant_registration'])->first()->value,
+            'schedule_order_slot_duration' => (int)BusinessSetting::where(['key' => 'schedule_order_slot_duration'])->first()->value,
+            'digit_after_decimal_point' => (int)config('round_up_to_digit'),
         ]);
     }
 

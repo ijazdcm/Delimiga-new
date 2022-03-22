@@ -1,6 +1,6 @@
 @extends('layouts.admin.app')
 
-@section('title','Add new attribute')
+@section('title',__('messages.attributes'))
 
 @push('css_or_js')
 
@@ -21,9 +21,13 @@
             <div class="col-sm-12 col-lg-12 mb-3 mb-lg-2">
                 <form action="{{route('admin.attribute.store')}}" method="post">
                     @csrf
-                    <div class="form-group">
-                        <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}}</label>
-                        <input type="text" name="name" class="form-control" placeholder="{{__('messages.new_attribute')}}" required>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}}</label>
+                                <input type="text" name="name" class="form-control" placeholder="{{__('messages.new_attribute')}}" maxlength="191" required>
+                            </div>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary">{{__('messages.submit')}}</button>
                 </form>
@@ -74,7 +78,7 @@
                                     <td>{{$key+$attributes->firstItem()}}</td>
                                     <td>
                                     <span class="d-block font-size-sm text-body">
-                                        {{$attribute['name']}}
+                                        {{Str::limit($attribute['name'],20,'...')}}
                                     </span>
                                     </td>
                                     <td>
@@ -107,6 +111,7 @@
 @endsection
 
 @push('script_2')
+
     <script>
         $(document).on('ready', function () {
             // INITIALIZATION OF DATATABLES

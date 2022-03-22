@@ -220,7 +220,7 @@
                             });
                         }
                     } else {
-                        toastr.success('Banner uploaded successfully!', {
+                        toastr.success('{{__('messages.banner_updated_successfully')}}', {
                             CloseButton: true,
                             ProgressBar: true
                         });

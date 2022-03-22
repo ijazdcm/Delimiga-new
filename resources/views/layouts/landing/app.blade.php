@@ -6,24 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title')</title>
-     <!--Meta Tags-->
-    <meta name="description" content="Delimiga helps the customer to access the online food delivery platforms in Sri Lanka, search for the right restaurant or the dish they want to order, place their orders and pay easily.">
-    <meta name="keywords" content="delimiga,food,home,delivery,jaffna,near me,order,hotel,restaurents,eater,restaurants, delivery restaurants, jaffna restaurants, jaffna delivery, jaffna restaurants food delivery, food delivery jaffna, jaffna,best restaurant on Jaffna, food delivey in sri lanka, food delivey in colombo,online food, online delivey, online order food, online order food in jaffna, online order food sri lanka">
-    <meta name="robots" content="index, follow, noarchive">
-    
-    <!--OG Meta tags-->
-    <meta property="og:title" content="Food Delivery in Sri Lanka | Delimiga"/>
-    <meta property="og:description" content="Delimiga helps the customer to access the online food delivery platforms in Sri Lanka, search for the right restaurant or the dish they want to order, place their orders and pay easily."/>
-    <meta property="og:image" content="http://delimiga.com/storage/app/public/logo.png" >
-    <meta property="og:url" content="http://delimiga.com/"/>
-    <meta property="og:site_name" content="Delimiga">
-    
-    
-    
-    
-    <link rel="canonical" href="http://delimiga.com" />
-
-    <link rel="icon" href="{{asset('public/assets/landing')}}/image/logo_no_bg.png">
+    @php($logo=\App\Models\BusinessSetting::where(['key'=>'icon'])->first()->value??'')
+    <link rel="shortcut icon" href="">
+    <link rel="icon" type="image/x-icon" href="{{asset('storage/app/public/business/'.$logo??'')}}">
 
     <!-- Bootstrap+JQuery -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
@@ -49,17 +34,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-222702955-1"></script>
-    <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-        
-            gtag('config', 'UA-222702955-1');
-    </script>
-
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{asset('public/assets/landing/css/main.css')}}">
@@ -98,7 +72,7 @@
                 <a class="navbar-brand" href="{{route('home')}}">
                     @php($logo=\App\CentralLogics\Helpers::get_settings('logo'))
                     <img  onerror="this.src='{{asset('public/assets/admin/img/160x160/img2.jpg')}}'"
-                          src="{{asset('storage/app/public/business/'.$logo)}}" alt="delimiga_logo"
+                          src="{{asset('storage/app/public/business/'.$logo)}}"
                           style="height:auto;width:100%; max-width:200px; max-height:60px">
                 </a>
                 <button style="background: #FFFFFF; border-radius: 2px;font-size: 13px" class="navbar-toggler" type="button"
@@ -177,7 +151,7 @@
                                     @php($logo=\App\CentralLogics\Helpers::get_settings('logo'))
                                     <img class="rounded float-left"
                                          onerror="this.src='{{asset('public/assets/admin/img/160x160/img2.jpg')}}'"
-                                         src="{{asset('storage/app/public/business/'.$logo)}}" alt="delimiga_logo"
+                                         src="{{asset('storage/app/public/business/'.$logo)}}"
                                          style="max-width: 200px;max-height: 75px">
                                 </a>
                             </div>
@@ -190,10 +164,13 @@
                         </div>
 
                         <div class="mt-4">
-                            <a href="https://twitter.com" class="text-white"><i class="fab fa-twitter"></i></a>
-                            <a href="https://www.facebook.com/delimigaa" class="text-white" style="margin-left: 44px"><i
+                            <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="text-white" style="margin-left: 44px"><i
                                     class="fab fa-facebook-f"></i></a>
-                          
+                            <a href="#" class="text-white" style="margin-left: 44px"><i
+                                    class="fab fa-linkedin"></i></a>
+                            <a href="#" class="text-white" style="margin-left: 44px"><i
+                                    class="fab fa-skype"></i></a>
                         </div>
                     </div>
 

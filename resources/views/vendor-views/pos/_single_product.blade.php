@@ -13,8 +13,8 @@
 
     <div class="card-body inline_product text-center p-1 clickable"
          style="height:3.5rem; max-height: 3.5rem">
-        <div style="position: relative;" class="product-title1 text-dark font-weight-bold">
-            {{ Str::limit($product['name'], 15,'...') }}
+        <div style="position: relative;" class="product-title1 text-dark font-weight-bold text-capitalize">
+            {{ Str::limit($product['name'], 12,'...') }}
         </div>
         <div class="justify-content-between text-center">
             <div class="product-price text-center">

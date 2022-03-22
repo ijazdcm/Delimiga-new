@@ -164,7 +164,17 @@ class OrderController extends Controller
 
     public function details(Request $request, $id)
     {
-        $order = Order::with('details')->where(['id' => $id])->Notpos()->first();
+        $order = Order::with(['details', 'restaurant'=>function($query){
+            return $query->withCount('orders');
+        }, 'customer'=>function($query){
+            return $query->withCount('orders');
+        },'delivery_man'=>function($query){
+            return $query->withCount('orders');
+        }, 'details.food'=>function($query){
+            return $query->withoutGlobalScope(RestaurantScope::class);
+        }, 'details.campaign'=>function($query){
+            return $query->withoutGlobalScope(RestaurantScope::class);
+        }])->where(['id' => $id])->Notpos()->first();
         if (isset($order)) {
             if($order->restaurant->self_delivery_system)
             {
@@ -283,6 +293,7 @@ class OrderController extends Controller
             if($order->delivery_man)
             {
                 $dm = $order->delivery_man;
+                $dm->increment('order_count');
                 $dm->current_orders = $dm->current_orders>1?$dm->current_orders-1:0;
                 $dm->save();
                 
@@ -303,6 +314,7 @@ class OrderController extends Controller
                 }
             });
             $order->customer->increment('order_count');
+            $order->restaurant->increment('order_count');
         }
         else if($request->order_status == 'refunded')
         {
@@ -417,6 +429,7 @@ class OrderController extends Controller
 
             $deliveryman->current_orders = $deliveryman->current_orders + 1;
             $deliveryman->save();
+            $deliveryman->increment('assigned_order_count');
             $fcm_token = $order->customer->cm_firebase_token;
             $value = Helpers::order_status_update_message('accepted');
             try {
@@ -502,6 +515,9 @@ class OrderController extends Controller
 
     public function add_payment_ref_code(Request $request, $id)
     {
+        $request->validate([
+            'transaction_reference'=>'max:30'
+        ]);
         Order::Notpos()->where(['id' => $id])->update([
             'transaction_reference' => $request['transaction_reference']
         ]);
@@ -656,6 +672,17 @@ class OrderController extends Controller
 
     public function edit(Request $request, Order $order)
     {
+        $order = Order::with(['details', 'restaurant'=>function($query){
+            return $query->withCount('orders');
+        }, 'customer'=>function($query){
+            return $query->withCount('orders');
+        },'delivery_man'=>function($query){
+            return $query->withCount('orders');
+        }, 'details.food'=>function($query){
+            return $query->withoutGlobalScope(RestaurantScope::class);
+        }, 'details.campaign'=>function($query){
+            return $query->withoutGlobalScope(RestaurantScope::class);
+        }])->where(['id' => $order->id])->Notpos()->first();
         if($request->cancle)
         {
             if ($request->session()->has(['order_cart'])) {
@@ -681,6 +708,18 @@ class OrderController extends Controller
 
     public function update(Request $request, Order $order)
     {
+        $order = Order::with(['details', 'restaurant'=>function($query){
+            return $query->withCount('orders');
+        }, 'customer'=>function($query){
+            return $query->withCount('orders');
+        },'delivery_man'=>function($query){
+            return $query->withCount('orders');
+        }, 'details.food'=>function($query){
+            return $query->withoutGlobalScope(RestaurantScope::class);
+        }, 'details.campaign'=>function($query){
+            return $query->withoutGlobalScope(RestaurantScope::class);
+        }])->where(['id' => $order->id])->Notpos()->first();
+        
         if(!$request->session()->has('order_cart'))
         {
             Toastr::error(trans('messages.order_data_not_found'));
@@ -696,7 +735,6 @@ class OrderController extends Controller
         {
             $coupon = Coupon::where(['code' => $request['coupon_code']])->first();
         }
-
         foreach ($cart as $c) {
             if($c['status'] == true)
             {

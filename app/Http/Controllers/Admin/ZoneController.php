@@ -22,7 +22,7 @@ class ZoneController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|unique:zones',
+            'name' => 'required|unique:zones|max:191',
             'coordinates' => 'required',
         ]);
 
@@ -64,7 +64,7 @@ class ZoneController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|unique:zones,name,'.$id,
+            'name' => 'required|max:191|unique:zones,name,'.$id,
             'coordinates' => 'required',
         ]);
         $value = $request->coordinates; 
@@ -107,7 +107,7 @@ class ZoneController extends Controller
             Toastr::warning('Sorry!You can not inactive this zone!');
             return back();
         }
-        $zone = Zone::find($request->id);
+        $zone = Zone::findOrFail($request->id);
         $zone->status = $request->status;
         $zone->save();
         Toastr::success(trans('messages.zone_status_updated'));

@@ -48,17 +48,17 @@
                             <div class="col-md-4 mb-3 mb-md-0">
                                 <form id="search-form">
                                 @csrf
-                                <!-- Search -->
-                                <div class="input-group input-group-merge input-group-flush">
-                                    <div class="input-group-prepend">
-                                    <div class="input-group-text">
-                                        <i class="tio-search"></i>
+                                    <!-- Search -->
+                                    <div class="input-group input-group-merge input-group-flush">
+                                        <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="tio-search"></i>
+                                        </div>
+                                        </div>
+                                        <input id="datatableSearch" name="search" type="search" class="form-control" placeholder="{{__('messages.search_here')}}" aria-label="{{__('messages.search_here')}}">
+                                        <button type="submit" class="btn btn-light">{{__('messages.search')}}</button>
                                     </div>
-                                    </div>
-                                    <input id="datatableSearch" name="search" type="search" class="form-control" placeholder="{{__('messages.search_here')}}" aria-label="{{__('messages.search_here')}}">
-                                    <button type="submit" class="btn btn-light">{{__('messages.search')}}</button>
-                                </div>
-                                <!-- End Search -->
+                                    <!-- End Search -->
                                 </form>
                             </div>
 
@@ -77,106 +77,106 @@
 
                                 <!-- Unfold -->
                                 <div class="hs-unfold">
-                                <a class="js-hs-unfold-invoker btn btn-white" href="javascript:;"
-                                    data-hs-unfold-options='{
-                                    "target": "#showHideDropdown",
-                                    "type": "css-animation"
-                                    }'>
-                                    <i class="tio-table mr-1"></i> Columns <span class="badge badge-soft-dark rounded-circle ml-1">7</span>
-                                </a>
+                                    <a class="js-hs-unfold-invoker btn btn-white" href="javascript:;"
+                                        data-hs-unfold-options='{
+                                        "target": "#showHideDropdown",
+                                        "type": "css-animation"
+                                        }'>
+                                        <i class="tio-table mr-1"></i> {{__('messages.columns')}} <span class="badge badge-soft-dark rounded-circle ml-1">7</span>
+                                    </a>
 
-                                <div id="showHideDropdown" class="hs-unfold-content dropdown-unfold dropdown-menu dropdown-menu-right dropdown-card" style="width: 15rem;">
-                                    <div class="card card-sm">
-                                        <div class="card-body">
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <span class="mr-2">#</span>
-                                                <!-- Checkbox Switch -->
-                                                <label class="toggle-switch toggle-switch-sm" for="toggleColumn_index">
-                                                    <input type="checkbox" class="toggle-switch-input" id="toggleColumn_index" checked>
-                                                    <span class="toggle-switch-label">
-                                                    <span class="toggle-switch-indicator"></span>
-                                                    </span>
-                                                </label>
-                                            <!-- End Checkbox Switch -->
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <span class="mr-2">Name</span>
-                                                <!-- Checkbox Switch -->
-                                                <label class="toggle-switch toggle-switch-sm" for="toggleColumn_name">
-                                                    <input type="checkbox" class="toggle-switch-input" id="toggleColumn_name" checked>
-                                                    <span class="toggle-switch-label">
-                                                    <span class="toggle-switch-indicator"></span>
-                                                    </span>
-                                                </label>
-                                            <!-- End Checkbox Switch -->
-                                            </div>
-
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <span class="mr-2">Type</span>
-
-                                                <!-- Checkbox Switch -->
-                                                <label class="toggle-switch toggle-switch-sm" for="toggleColumn_type">
-                                                    <input type="checkbox" class="toggle-switch-input" id="toggleColumn_type" checked>
-                                                    <span class="toggle-switch-label">
-                                                    <span class="toggle-switch-indicator"></span>
-                                                    </span>
-                                                </label>
-                                            <!-- End Checkbox Switch -->
-                                            </div>
-
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <span class="mr-2">Restaurant</span>
-
-                                                <!-- Checkbox Switch -->
-                                                <label class="toggle-switch toggle-switch-sm" for="toggleColumn_vendor">
-                                                    <input type="checkbox" class="toggle-switch-input" id="toggleColumn_vendor" checked>
-                                                    <span class="toggle-switch-label">
-                                                    <span class="toggle-switch-indicator"></span>
-                                                    </span>
-                                                </label>
+                                    <div id="showHideDropdown" class="hs-unfold-content dropdown-unfold dropdown-menu dropdown-menu-right dropdown-card" style="width: 15rem;">
+                                        <div class="card card-sm">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <span class="mr-2">#</span>
+                                                    <!-- Checkbox Switch -->
+                                                    <label class="toggle-switch toggle-switch-sm" for="toggleColumn_index">
+                                                        <input type="checkbox" class="toggle-switch-input" id="toggleColumn_index" checked>
+                                                        <span class="toggle-switch-label">
+                                                        <span class="toggle-switch-indicator"></span>
+                                                        </span>
+                                                    </label>
                                                 <!-- End Checkbox Switch -->
-                                            </div>
-
-                                        
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <span class="mr-2">Status</span>
-
-                                                <!-- Checkbox Switch -->
-                                                <label class="toggle-switch toggle-switch-sm" for="toggleColumn_status">
-                                                    <input type="checkbox" class="toggle-switch-input" id="toggleColumn_status" checked>
-                                                    <span class="toggle-switch-label">
-                                                    <span class="toggle-switch-indicator"></span>
-                                                    </span>
-                                                </label>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <span class="mr-2">{{__('messages.name')}}</span>
+                                                    <!-- Checkbox Switch -->
+                                                    <label class="toggle-switch toggle-switch-sm" for="toggleColumn_name">
+                                                        <input type="checkbox" class="toggle-switch-input" id="toggleColumn_name" checked>
+                                                        <span class="toggle-switch-label">
+                                                        <span class="toggle-switch-indicator"></span>
+                                                        </span>
+                                                    </label>
                                                 <!-- End Checkbox Switch -->
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <span class="mr-2">Price</span>
+                                                </div>
 
-                                                <!-- Checkbox Switch -->
-                                                <label class="toggle-switch toggle-switch-sm" for="toggleColumn_price">
-                                                    <input type="checkbox" class="toggle-switch-input" id="toggleColumn_price" checked>
-                                                    <span class="toggle-switch-label">
-                                                    <span class="toggle-switch-indicator"></span>
-                                                    </span>
-                                                </label>
-                                                <!-- End Checkbox Switch -->
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <span class="mr-2">Action</span>
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <span class="mr-2">{{__('messages.category')}}</span>
 
-                                                <!-- Checkbox Switch -->
-                                                <label class="toggle-switch toggle-switch-sm" for="toggleColumn_action">
-                                                    <input type="checkbox" class="toggle-switch-input" id="toggleColumn_action" checked>
-                                                    <span class="toggle-switch-label">
-                                                    <span class="toggle-switch-indicator"></span>
-                                                    </span>
-                                                </label>
+                                                    <!-- Checkbox Switch -->
+                                                    <label class="toggle-switch toggle-switch-sm" for="toggleColumn_type">
+                                                        <input type="checkbox" class="toggle-switch-input" id="toggleColumn_type" checked>
+                                                        <span class="toggle-switch-label">
+                                                        <span class="toggle-switch-indicator"></span>
+                                                        </span>
+                                                    </label>
                                                 <!-- End Checkbox Switch -->
+                                                </div>
+
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <span class="mr-2">{{__('messages.restaurant')}}</span>
+
+                                                    <!-- Checkbox Switch -->
+                                                    <label class="toggle-switch toggle-switch-sm" for="toggleColumn_vendor">
+                                                        <input type="checkbox" class="toggle-switch-input" id="toggleColumn_vendor" checked>
+                                                        <span class="toggle-switch-label">
+                                                        <span class="toggle-switch-indicator"></span>
+                                                        </span>
+                                                    </label>
+                                                    <!-- End Checkbox Switch -->
+                                                </div>
+
+                                            
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <span class="mr-2">{{__('messages.status')}}</span>
+
+                                                    <!-- Checkbox Switch -->
+                                                    <label class="toggle-switch toggle-switch-sm" for="toggleColumn_status">
+                                                        <input type="checkbox" class="toggle-switch-input" id="toggleColumn_status" checked>
+                                                        <span class="toggle-switch-label">
+                                                        <span class="toggle-switch-indicator"></span>
+                                                        </span>
+                                                    </label>
+                                                    <!-- End Checkbox Switch -->
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <span class="mr-2">{{__('messages.price')}}</span>
+
+                                                    <!-- Checkbox Switch -->
+                                                    <label class="toggle-switch toggle-switch-sm" for="toggleColumn_price">
+                                                        <input type="checkbox" class="toggle-switch-input" id="toggleColumn_price" checked>
+                                                        <span class="toggle-switch-label">
+                                                        <span class="toggle-switch-indicator"></span>
+                                                        </span>
+                                                    </label>
+                                                    <!-- End Checkbox Switch -->
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <span class="mr-2">{{__('messages.action')}}</span>
+
+                                                    <!-- Checkbox Switch -->
+                                                    <label class="toggle-switch toggle-switch-sm" for="toggleColumn_action">
+                                                        <input type="checkbox" class="toggle-switch-input" id="toggleColumn_action" checked>
+                                                        <span class="toggle-switch-label">
+                                                        <span class="toggle-switch-indicator"></span>
+                                                        </span>
+                                                    </label>
+                                                    <!-- End Checkbox Switch -->
+                                                </div>
                                             </div>
+                                        </div>
                                     </div>
-                                    </div>
-                                </div>
                                 </div>
                                 <!-- End Unfold -->
                             </div>
@@ -234,7 +234,7 @@
                                     {{Str::limit($food->category,20,'...')}}
                                     </td>
                                     <td>
-                                    {{$food->restaurant?$food->restaurant->name:__('messages.restaurant').' '.__('messages.deleted')}}
+                                    {{Str::limit($food->restaurant?$food->restaurant->name:__('messages.Restaurant deleted!'), 20, '...')}}
                                     </td>
                                     <td>{{\App\CentralLogics\Helpers::format_currency($food['price'])}}</td>
                                     <td>

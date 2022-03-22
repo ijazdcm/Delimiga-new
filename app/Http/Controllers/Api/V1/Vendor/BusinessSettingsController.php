@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\CentralLogics\Helpers;
 use Illuminate\Support\Facades\Validator;
+use App\Models\RestaurantSchedule;
 
 class BusinessSettingsController extends Controller
 {
@@ -16,8 +17,6 @@ class BusinessSettingsController extends Controller
             'name' => 'required',
             'address' => 'required',
             'contact_number' => 'required',
-            'opening_time' => 'required',
-            'closeing_time' => 'required',
             'delivery' => 'required|boolean',
             'take_away' => 'required|boolean',
             'schedule_order' => 'required|boolean',
@@ -79,5 +78,55 @@ class BusinessSettingsController extends Controller
         $restaurant->save();
 
         return response()->json(['message'=>trans('messages.restaurant_settings_updated')], 200);
+    }
+
+    public function add_schedule(Request $request)
+    {
+        $validator = Validator::make($request->all(),[
+            'opening_time'=>'required|date_format:H:i:s',
+            'closing_time'=>'required|date_format:H:i:s|after:opening_time',
+        ],[
+            'closing_time.after'=>trans('messages.End time must be after the start time')
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => Helpers::error_processor($validator)],400);
+        }
+        $restaurant = $request['vendor']->restaurants[0];
+        $temp = RestaurantSchedule::where('day', $request->day)->where('restaurant_id',$restaurant->id)
+        ->where(function($q)use($request){
+            return $q->where(function($query)use($request){
+                return $query->where('opening_time', '<=' , $request->opening_time)->where('closing_time', '>=', $request->opening_time);
+            })->orWhere(function($query)use($request){
+                return $query->where('opening_time', '<=' , $request->closing_time)->where('closing_time', '>=', $request->closing_time);
+            });
+        })
+        ->first();
+
+        if(isset($temp))
+        {
+            return response()->json(['errors' => [
+                ['code'=>'time', 'message'=>trans('messages.schedule_overlapping_warning')]
+            ]], 400);
+        }
+        
+        $restaurant_schedule = RestaurantSchedule::insertGetId(['restaurant_id'=>$restaurant->id,'day'=>$request->day,'opening_time'=>$request->opening_time,'closing_time'=>$request->closing_time]);
+        return response()->json(['message'=>trans('messages.Schedule added successfully'), 'id'=>$restaurant_schedule], 200);
+    }
+
+    public function remove_schedule(Request $request, $restaurant_schedule)
+    {
+        $restaurant = $request['vendor']->restaurants[0];
+        $schedule = RestaurantSchedule::where('restaurant_id', $restaurant->id)->find($restaurant_schedule);
+        if(!$schedule)
+        {
+            return response()->json([
+                'error'=>[
+                    ['code'=>'not-fond', 'message'=>trans('messages.Schedule not found')]
+                ]
+            ],404);
+        }
+        $schedule->delete();
+        return response()->json(['message'=>trans('messages.Schedule removed successfully')], 200);
     }
 }

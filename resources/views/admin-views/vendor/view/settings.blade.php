@@ -21,7 +21,7 @@
     <div class="page-header">
         <div class="row">
             <div class="col-6">
-                <h1 class="page-header-title">{{$restaurant->name}}</h1>
+                <h1 class="page-header-title text-break">{{$restaurant->name}}</h1>
             </div>
             <div class="col-6">
                 <a href="{{route('admin.vendor.edit',[$restaurant->id])}}" class="btn btn-primary float-right">
@@ -200,61 +200,63 @@
                                 </div>
                                 @endif
                             </div>
-                            <form action="{{route('admin.vendor.update-settings',[$restaurant['id']])}}" method="post"
-                                enctype="multipart/form-data">
-                                @csrf 
-                                <div class="row">
-                                    <div class="col-md-4 col-sm-6 col-12">
-                                        <div class="form-group">
-                                            <label class="input-label  text-capitalize" for="title">{{__('messages.opening')}} {{__('messages.time')}}</label>
-                                            <input type="time" id="closeing_time" class="form-control" name="opening_time" value="{{$restaurant->opening_time?$restaurant->opening_time->format('H:i'):''}}">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-sm-6 col-12">
-                                        <label class="input-label  text-capitalize" for="title">{{__('messages.closing')}} {{__('messages.time')}}</label>
-                                        <input type="time" id="closeing_time" class="form-control"  name="closeing_time" value="{{$restaurant->closeing_time?$restaurant->closeing_time->format('H:i'):''}}">
-                                    </div>
-                                    <div class="col-md-4 col-sm-6 col-12">
-                                        <div class="form-group">
-                                            <label class="input-label text-capitalize" for="title">{{__('messages.minimum')}} {{__('messages.order')}} {{__('messages.amount')}}</label>
-                                            <input type="number" name="minimum_order" step="0.01" min="0" max="100000" class="form-control" placeholder="100" value="{{$restaurant->minimum_order??'0'}}"> 
-                                        </div>
-                                    </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    {{__('messages.Daily time schedule')}}
                                 </div>
-                                <div class="row">
-                                    <div class="form-group col-md-6">
-                                        <label class="input-label" for="minimum_delivery_time">{{__('messages.minimum_delivery_time')}}</label>
-                                        <input type="text" name="minimum_delivery_time" class="form-control" placeholder="30" pattern="^[0-9]{2}$" required value="{{explode('-',$restaurant->delivery_time)[0]}}">
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label class="input-label" for="maximum_delivery_time">{{__('messages.maximum_delivery_time')}}</label>
-                                        <input type="text" name="maximum_delivery_time" class="form-control" placeholder="40" pattern="[0-9]{2}" required value="{{explode('-',$restaurant->delivery_time)[1]}}">
-                                    </div>
+                                <div class="card-body" id="schedule">
+                                    @include('admin-views.vendor.view.partials._schedule', $restaurant)
                                 </div>
-                                <div class="row">
-                                    <div class="col-6"> 
-                                        <div class="form-group p-2 border">
-                                            <label class="d-flex justify-content-between switch toggle-switch-sm text-dark" for="comission_status">
-                                                <span>{{__('messages.admin_commission')}}(%) <span class="input-label-secondary" title="{{__('messages.if_sales_commission_disabled_system_default_will_be_applicable')}}"><img src="{{asset('/public/assets/admin/img/info-circle.svg')}}" alt="{{__('messages.if_sales_commission_disabled_system_default_will_be_applicable')}}"></span></span>
-                                                <input type="checkbox" class="toggle-switch-input" name="comission_status" id="comission_status" value="1" {{isset($restaurant->comission)?'checked':''}}>
-                                                <span class="toggle-switch-label">
-                                                    <span class="toggle-switch-indicator"></span>
-                                                </span>
-                                            </label>
-                                            <input type="number" id="comission" min="0" max="10000" step="0.01" name="comission" class="form-control" required value="{{$restaurant->comission??'0'}}" {{isset($restaurant->comission)?'':'readonly'}}>
-                                        </div>
-                                    </div>
-                                    <div class="col-6"> 
-                                        <div class="form-group p-2 border">
-                                            <label class="d-flex justify-content-between switch toggle-switch-sm text-dark" for="tax">
-                                                <span>{{__('messages.vat/tax')}}(%)</span>
-                                            </label>
-                                            <input type="number" id="tax" min="0" max="10000" step="0.01" name="tax" class="form-control" required value="{{$restaurant->tax??'0'}}" {{isset($restaurant->tax)?'':'readonly'}}>
-                                        </div>
-                                    </div>
+                            </div>
+                            <div class="card mt-2">
+                                <div class="card-header">
+                                    {{__('messages.basic')}} {{__('messages.settings')}}
                                 </div>
-                                <button type="submit" class="btn btn-primary">{{__('messages.update')}}</button>
-                            </form>
+                                <div class="card-body">
+                                    <form action="{{route('admin.vendor.update-settings',[$restaurant['id']])}}" method="post"
+                                        enctype="multipart/form-data">
+                                        @csrf 
+                                        <div class="row">
+                                            <div class="form-group col-md-4">
+                                                <label class="input-label text-capitalize" for="title">{{__('messages.minimum')}} {{__('messages.order')}} {{__('messages.amount')}}</label>
+                                                <input type="number" name="minimum_order" step="0.01" min="0" max="100000" class="form-control" placeholder="100" value="{{$restaurant->minimum_order??'0'}}"> 
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                <label class="input-label" for="minimum_delivery_time">{{__('messages.minimum_delivery_time')}}</label>
+                                                <input type="text" name="minimum_delivery_time" class="form-control" placeholder="30" pattern="^[0-9]{2}$" required value="{{explode('-',$restaurant->delivery_time)[0]}}">
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <label class="input-label" for="maximum_delivery_time">{{__('messages.maximum_delivery_time')}}</label>
+                                                <input type="text" name="maximum_delivery_time" class="form-control" placeholder="40" pattern="[0-9]{2}" required value="{{explode('-',$restaurant->delivery_time)[1]}}">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6"> 
+                                                <div class="form-group p-2 border">
+                                                    <label class="d-flex justify-content-between switch toggle-switch-sm text-dark" for="comission_status">
+                                                        <span>{{__('messages.admin_commission')}}(%) <span class="input-label-secondary" title="{{__('messages.if_sales_commission_disabled_system_default_will_be_applicable')}}"><img src="{{asset('/public/assets/admin/img/info-circle.svg')}}" alt="{{__('messages.if_sales_commission_disabled_system_default_will_be_applicable')}}"></span></span>
+                                                        <input type="checkbox" class="toggle-switch-input" name="comission_status" id="comission_status" value="1" {{isset($restaurant->comission)?'checked':''}}>
+                                                        <span class="toggle-switch-label">
+                                                            <span class="toggle-switch-indicator"></span>
+                                                        </span>
+                                                    </label>
+                                                    <input type="number" id="comission" min="0" max="10000" step="0.01" name="comission" class="form-control" required value="{{$restaurant->comission??'0'}}" {{isset($restaurant->comission)?'':'readonly'}}>
+                                                </div>
+                                            </div>
+                                            <div class="col-6"> 
+                                                <div class="form-group p-2 border">
+                                                    <label class="d-flex justify-content-between switch toggle-switch-sm text-dark" for="tax">
+                                                        <span>{{__('messages.vat/tax')}}(%)</span>
+                                                    </label>
+                                                    <input type="number" id="tax" min="0" max="10000" step="0.01" name="tax" class="form-control" required value="{{$restaurant->tax??'0'}}" {{isset($restaurant->tax)?'':'readonly'}}>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">{{__('messages.update')}}</button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -262,6 +264,38 @@
         </div>
     </div>
 </div>
+
+<!-- Create schedule modal -->
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">{{__('messages.Create Schedule')}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="javascript:" method="post" id="add-schedule">
+                    @csrf
+                    <input type="hidden" name="day" id="day_id_input">
+                    <input type="hidden" name="restaurant_id" value="{{$restaurant->id}}">
+                    <div class="form-group">
+                        <label for="recipient-name" class="col-form-label">{{__('messages.Start time')}}:</label>
+                        <input type="time" class="form-control" name="start_time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">{{__('messages.End time')}}:</label>
+                        <input type="time" class="form-control" name="end_time" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">{{__('messages.Submit')}}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('script_2')
@@ -270,6 +304,15 @@
         // Call the dataTables jQuery plugin
         $(document).ready(function () {
             $('#dataTable').DataTable();
+
+            $('#exampleModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var day_name = button.data('day');
+                var day_id = button.data('dayid');
+                var modal = $(this);
+                modal.find('.modal-title').text('{{__('messages.Create Schedule For ')}} ' + day_name);
+                modal.find('.modal-body input[name=day]').val(day_id);
+            })
         });
     </script>
     <script>
@@ -321,6 +364,100 @@
                 }
             });
 
+        });
+
+        function delete_schedule(route) {
+            Swal.fire({
+                title: '{{__('messages.are_you_sure')}}',
+                text: '{{__('messages.You want to remove this schedule')}}',
+                type: 'warning',
+                showCancelButton: true,
+                cancelButtonColor: 'default',
+                confirmButtonColor: '#377dff',
+                cancelButtonText: '{{__('messages.no')}}',
+                confirmButtonText: '{{__('messages.yes')}}',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.value) {
+                    $.get({
+                        url: route,
+                        beforeSend: function () {
+                            $('#loading').show();
+                        },
+                        success: function (data) {
+                            if (data.errors) {
+                                for (var i = 0; i < data.errors.length; i++) {
+                                    toastr.error(data.errors[i].message, {
+                                        CloseButton: true,
+                                        ProgressBar: true
+                                    });
+                                }
+                            } else {
+                                $('#schedule').empty().html(data.view);
+                                toastr.success('{{__('messages.Schedule removed successfully')}}', {
+                                    CloseButton: true,
+                                    ProgressBar: true
+                                });
+                            }
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                            toastr.error('{{__('messages.Schedule not found')}}', {
+                                CloseButton: true,
+                                ProgressBar: true
+                            });
+                        },
+                        complete: function () {
+                            $('#loading').hide();
+                        },
+                    });
+                }
+            })
+        };
+
+        $('#add-schedule').on('submit', function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.post({
+                url: '{{route('admin.vendor.add-schedule')}}',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                beforeSend: function () {
+                    $('#loading').show();
+                },
+                success: function (data) {
+                    if (data.errors) {
+                        for (var i = 0; i < data.errors.length; i++) {
+                            toastr.error(data.errors[i].message, {
+                                CloseButton: true,
+                                ProgressBar: true
+                            });
+                        }
+                    } else {
+                        $('#schedule').empty().html(data.view);
+                        $('#exampleModal').modal('hide');
+                        toastr.success('{{__('messages.Schedule added successfully')}}', {
+                            CloseButton: true,
+                            ProgressBar: true
+                        });
+                    }
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    toastr.error(XMLHttpRequest.responseText, {
+                        CloseButton: true,
+                        ProgressBar: true
+                    });
+                },
+                complete: function () {
+                    $('#loading').hide();
+                },
+            });
         });
     </script>
 @endpush

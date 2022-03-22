@@ -11,7 +11,7 @@
             </a>
         </td>
         <td>
-        {{$food->restaurant->name}}
+        {{Str::limit($food->restaurant->name,25,'...')}}
         </td>
         <td>{{$food->restaurant->zone->name}}</td>
         <td>

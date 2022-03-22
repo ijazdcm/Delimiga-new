@@ -31,7 +31,7 @@ class ProductController extends Controller
         $type = $request->query('type', 'all'); 
 
         $products = ProductLogic::get_latest_products($request['limit'], $request['offset'], $request['restaurant_id'], $request['category_id'], $type);
-        $products['products'] = Helpers::product_data_formatting($products['products'], true);
+        $products['products'] = Helpers::product_data_formatting($products['products'], true, false, app()->getLocale());
         return response()->json($products, 200);
     }
 
@@ -39,7 +39,7 @@ class ProductController extends Controller
     {
         if (!$request->hasHeader('zoneId')) {
             $errors = [];
-            array_push($errors, ['code' => 'zoneId', 'message' => 'Zone id is required!']);
+            array_push($errors, ['code' => 'zoneId', 'message' => trans('messages.zone_id_required')]);
             return response()->json([
                 'errors' => $errors
             ], 403);
@@ -61,7 +61,6 @@ class ProductController extends Controller
         $type = $request->query('type', 'all'); 
 
         $products = Food::active()->type($type)
-        ->with(['rating'])
         ->whereHas('restaurant', function($q)use($zone_id){
             $q->where('zone_id', $zone_id);
         })
@@ -87,7 +86,7 @@ class ProductController extends Controller
             'products' => $products->items()
         ];
 
-        $data['products'] = Helpers::product_data_formatting($data['products'], true);
+        $data['products'] = Helpers::product_data_formatting($data['products'], true, false, app()->getLocale());
         return response()->json($data, 200);
     }
 
@@ -95,7 +94,7 @@ class ProductController extends Controller
     {
         if (!$request->hasHeader('zoneId')) {
             $errors = [];
-            array_push($errors, ['code' => 'zoneId', 'message' => 'Zone id is required!']);
+            array_push($errors, ['code' => 'zoneId', 'message' => trans('messages.zone_id_required')]);
             return response()->json([
                 'errors' => $errors
             ], 403);
@@ -105,7 +104,7 @@ class ProductController extends Controller
 
         $zone_id= $request->header('zoneId');
         $products = ProductLogic::popular_products($zone_id, $request['limit'], $request['offset'], $type);
-        $products['products'] = Helpers::product_data_formatting($products['products'], true);
+        $products['products'] = Helpers::product_data_formatting($products['products'], true, false, app()->getLocale());
         return response()->json($products, 200);
     }    
     
@@ -113,7 +112,7 @@ class ProductController extends Controller
     {
         if (!$request->hasHeader('zoneId')) {
             $errors = [];
-            array_push($errors, ['code' => 'zoneId', 'message' => 'Zone id is required!']);
+            array_push($errors, ['code' => 'zoneId', 'message' => trans('messages.zone_id_required')]);
             return response()->json([
                 'errors' => $errors
             ], 403);
@@ -123,7 +122,7 @@ class ProductController extends Controller
 
         $zone_id= $request->header('zoneId');
         $products = ProductLogic::most_reviewed_products($zone_id, $request['limit'], $request['offset'], $type);
-        $products['products'] = Helpers::product_data_formatting($products['products'], true);
+        $products['products'] = Helpers::product_data_formatting($products['products'], true, false, app()->getLocale());
         return response()->json($products, 200);
     }
 
@@ -132,7 +131,7 @@ class ProductController extends Controller
         
         try {
             $product = ProductLogic::get_product($id);
-            $product = Helpers::product_data_formatting($product, false);
+            $product = Helpers::product_data_formatting($product, false, false, app()->getLocale());
             return response()->json($product, 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -145,7 +144,7 @@ class ProductController extends Controller
     {
         if (Food::find($id)) {
             $products = ProductLogic::get_related_products($id);
-            $products = Helpers::product_data_formatting($products, true);
+            $products = Helpers::product_data_formatting($products, true, false, app()->getLocale());
             return response()->json($products, 200);
         }
         return response()->json([
@@ -156,7 +155,7 @@ class ProductController extends Controller
     public function get_set_menus()
     {
         try {
-            $products = Helpers::product_data_formatting(Food::active()->with(['rating'])->where(['set_menu' => 1, 'status' => 1])->get(), true);
+            $products = Helpers::product_data_formatting(Food::active()->with(['rating'])->where(['set_menu' => 1, 'status' => 1])->get(), true, false, app()->getLocale());
             return response()->json($products, 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -167,11 +166,23 @@ class ProductController extends Controller
 
     public function get_product_reviews($food_id)
     {
-        $reviews = Review::with(['customer'])->where(['food_id' => $food_id])->active()->get();
+        $reviews = Review::with(['customer', 'food'])->where(['food_id' => $food_id])->active()->get();
 
         $storage = [];
         foreach ($reviews as $item) {
             $item['attachment'] = json_decode($item['attachment']);
+            $item['food_name'] = null;
+            if($item->food)
+            {
+                $item['food_name'] = $item->food->name;
+                if(count($item->food->translations)>0)
+                {
+                    $translate = array_column($item->food->translations->toArray(), 'value', 'key');
+                    $item['food_name'] = $translate['name'];
+                }
+            }
+            
+            unset($item['food']);
             array_push($storage, $item);
         }
 
@@ -240,11 +251,16 @@ class ProductController extends Controller
 
         if($product->restaurant)
         {
-            $restaurant_rating = RestaurantLogic::update_restaurant_rating($product->restaurant->rating, $request->rating);
+            $restaurant_rating = RestaurantLogic::update_restaurant_rating($product->restaurant->rating, (int)$request->rating);
             $product->restaurant->rating = $restaurant_rating;
             $product->restaurant->save();
         }
 
-        return response()->json(['message' => 'successfully review submitted!'], 200);
+        $product->rating = ProductLogic::update_rating($product->rating, (int)$request->rating);
+        $product->avg_rating = ProductLogic::get_avg_rating(json_decode($product->rating, true));
+        $product->save();
+        $product->increment('rating_count');
+
+        return response()->json(['message' => trans('messages.review_submited_successfully')], 200);
     }
 }

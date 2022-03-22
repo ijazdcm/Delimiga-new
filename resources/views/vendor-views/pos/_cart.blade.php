@@ -2,10 +2,10 @@
         <table class="table table-bordered">
             <thead class="text-muted">
                 <tr>
-                    <th scope="col">Item</th>
-                    <th scope="col" class="text-center">Qty</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Delete</th>
+                    <th scope="col">{{__('messages.item')}}</th>
+                    <th scope="col" class="text-center">{{__('messages.qty')}}</th>
+                    <th scope="col">{{__('messages.price')}}</th>
+                    <th scope="col">{{__('messages.delete')}}</th>
                 </tr>
             </thead>
             <tbody>
@@ -148,7 +148,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="{{route('vendor.pos.tax')}}" method="POST" class="row">
+                    <form action="{{route('vendor.pos.tax')}}" method="POST" class="row" id="order_submit_form">
                         @csrf
                         <div class="form-group col-12">
                             <label for="">{{__('messages.tax')}}(%)</label>
@@ -176,6 +176,7 @@
                 <div class="modal-body">
                     <form action="{{route('vendor.pos.order')}}" id='order_place' method="post" class="row">
                         @csrf
+                        <input type="hidden" name="user_id" id="customer_id">
                         <div class="form-group col-12">
                             <label class="input-label" for="">{{__('messages.amount')}}({{\App\CentralLogics\Helpers::currency_symbol()}})</label>
                             <input type="number" class="form-control" name="amount" min="0" step="0.01" value="{{round($total+$total_tax_amount, 2)}}">

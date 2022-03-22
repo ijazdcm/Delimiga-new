@@ -54,6 +54,17 @@ class BusinessSettingsController extends Controller
             'value' => $image_name
         ]);
 
+        $fav_icon = BusinessSetting::where(['key' => 'icon'])->first();
+        if ($request->has('icon')) {
+            $image_name = Helpers::update('business/', $fav_icon->value, 'png', $request->file('icon'));
+        } else {
+            $image_name = $fav_icon['value'];
+        }
+
+        DB::table('business_settings')->updateOrInsert(['key' => 'icon'], [
+            'value' => $image_name
+        ]);
+
         DB::table('business_settings')->updateOrInsert(['key' => 'phone'], [
             'value' => $request['phone']
         ]);
@@ -125,17 +136,17 @@ class BusinessSettingsController extends Controller
             'value' => $request['dm_maximum_orders']
         ]);
 
-        // $languages = $request['language'];
+        $languages = $request['language'];
 
-        // if(in_array('en',$languages))
-        // {
-        //     unset($languages[array_search('en',$languages)]);
-        // }
-        // array_unshift($languages, 'en');
+        if(in_array('en',$languages))
+        {
+            unset($languages[array_search('en',$languages)]);
+        }
+        array_unshift($languages, 'en');
 
-        // DB::table('business_settings')->updateOrInsert(['key' => 'language'], [
-        //     'value' => json_encode($languages),
-        // ]);
+        DB::table('business_settings')->updateOrInsert(['key' => 'language'], [
+            'value' => json_encode($languages),
+        ]);
 
         DB::table('business_settings')->updateOrInsert(['key' => 'timeformat'], [
             'value' => $request['time_format']
@@ -163,6 +174,14 @@ class BusinessSettingsController extends Controller
 
         DB::table('business_settings')->updateOrInsert(['key' => 'toggle_restaurant_registration'], [
             'value' => $request['restaurant_self_registration']
+        ]);
+
+        DB::table('business_settings')->updateOrInsert(['key' => 'schedule_order_slot_duration'], [
+            'value' => $request['schedule_order_slot_duration']
+        ]);
+
+        DB::table('business_settings')->updateOrInsert(['key' => 'digit_after_decimal_point'], [
+            'value' => $request['digit_after_decimal_point']
         ]);
 
         Toastr::success(trans('messages.successfully_updated_to_changes_restart_user_app'));
@@ -398,55 +417,96 @@ class BusinessSettingsController extends Controller
                     'updated_at' => now(),
                 ]);
             }
-        }
-        
-        ////////////////////////////////////////////////////////////////////////
-        // Onepay
-        elseif ($name == 'onepay') {
-            $payment = BusinessSetting::where('key', 'onepay')->first();
+        } elseif ($name == 'flutterwave') {
+            $payment = BusinessSetting::where('key', 'flutterwave')->first();
             if (isset($payment) == false) {
                 DB::table('business_settings')->insert([
-                    'key'        => 'onepay',
+                    'key'        => 'flutterwave',
                     'value'      => json_encode([
                         'status'        => 1,
-                        'one_pay_callback_url' => '',
-                        'onepay_app_id'=> '',
-                        'onepay_app_token'=> '',
-                        'onepay_app_hash'=> '',
+                        'public_key'     => '',
+                        'secret_key'     => '',
+                        'hash'    => '',
                     ]),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
             } else {
-                DB::table('business_settings')->where(['key' => 'onepay'])->update([
-                    'key'        => 'onepay',
+                DB::table('business_settings')->where(['key' => 'flutterwave'])->update([
+                    'key'        => 'flutterwave',
                     'value'      => json_encode([
                         'status'        => $request['status'],
-                         'one_pay_callback_url' => $request['one_pay_callback_url'],
-                         'onepay_app_id'=> $request['onepay_app_id'],
-                         'onepay_app_token'=>$request['onepay_app_token'],
-                         'onepay_app_hash'=> $request['onepay_app_hash'],
+                        'public_key'     => $request['public_key'],
+                        'secret_key'     => $request['secret_key'],
+                        'hash'    => $request['hash'],
                     ]),
                     'updated_at' => now(),
                 ]);
             }
-        } elseif ($name == 'onepay') {
-            $payment = BusinessSetting::updateOrInsert(
-                ['key' => 'onepay'],
-                [
-                    'value'      => json_encode([
-                        'status'        => $request['status'],
-                        'one_pay_callback_url' => $request['one_pay_callback_url'],
-                         'onepay_app_id'=> $request['onepay_app_id'],
-                         'onepay_app_token'=>$request['onepay_app_token'],
-                         'onepay_app_hash'=> $request['onepay_app_hash'],
-                    ]),
-                    'updated_at' => now()
-                ]
+        } elseif ($name == 'mercadopago') {
+            $payment = BusinessSetting::updateOrInsert(['key'=> 'mercadopago'],
+                ['value'      => json_encode([
+                    'status'        => $request['status'],
+                    'public_key'     => $request['public_key'],
+                    'access_token'     => $request['access_token'],
+                ]),
+                'updated_at' => now()]
             );
         }
-        // Onepay
-        ////////////////////////////////////////////////////////////////////////
+        elseif($name == 'paymob_accept'){
+            DB::table('business_settings')->updateOrInsert(['key' => 'paymob_accept'], [
+                'value' => json_encode([
+                    'status' => $request['status'],
+                    'api_key' => $request['api_key'],
+                    'iframe_id' => $request['iframe_id'],
+                    'integration_id' => $request['integration_id'],
+                    'hmac' => $request['hmac'],
+                ]),
+                'updated_at' => now()
+            ]);
+        }elseif ($name == 'liqpay') {
+            DB::table('business_settings')->updateOrInsert(['key' => 'liqpay'], [
+                'value' => json_encode([
+                    'status' => $request['status'],
+                    'public_key' => $request['public_key'],
+                    'private_key' => $request['private_key']
+                ]),
+                'updated_at' => now()
+            ]);
+        } elseif ($name == 'paytm') {
+            DB::table('business_settings')->updateOrInsert(['key' => 'paytm'], [
+                'value' => json_encode([
+                    'status' => $request['status'],
+                    'paytm_merchant_key' => $request['paytm_merchant_key'],
+                    'paytm_merchant_mid' => $request['paytm_merchant_mid'],
+                    'paytm_merchant_website' => $request['paytm_merchant_website'],
+                    'paytm_refund_url' => $request['paytm_refund_url'],
+                ]),
+                'updated_at' => now()
+            ]);
+        }elseif ($name == 'bkash') {
+            DB::table('business_settings')->updateOrInsert(['key' => 'bkash'], [
+                'value' => json_encode([
+                    'status' => $request['status'],
+                    'api_key' => $request['api_key'],
+                    'api_secret' => $request['api_secret'],
+                    'username' => $request['username'],
+                    'password' => $request['password'],
+                ]),
+                'updated_at' => now()
+            ]);
+        } elseif ($name == 'paytabs') {
+            DB::table('business_settings')->updateOrInsert(['key' => 'paytabs'], [
+                'value' => json_encode([
+                    'status' => $request['status'],
+                    'profile_id' => $request['profile_id'],
+                    'server_key' => $request['server_key'],
+                    'base_url' => $request['base_url']
+                ]),
+                'updated_at' => now()
+            ]);
+        }
+        
         Toastr::success(trans('messages.payment_settings_updated'));
         return back();
     }

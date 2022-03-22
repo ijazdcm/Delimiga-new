@@ -4845,11 +4845,11 @@ input[type=button].btn-block, input[type=reset].btn-block, input[type=submit].bt
 }
 
 .navbar-light .navbar-brand {
-    color: #0096FF
+    color: #377dff
 }
 
 .navbar-light .navbar-brand:focus, .navbar-light .navbar-brand:hover {
-    color: #0096FF
+    color: #377dff
 }
 
 .navbar-light .navbar-nav .nav-link {
@@ -4890,7 +4890,7 @@ input[type=button].btn-block, input[type=reset].btn-block, input[type=submit].bt
 }
 
 .navbar-dark .navbar-brand {
-    color: #0096FF
+    color: #fff
 }
 
 .navbar-dark .navbar-brand:focus, .navbar-dark .navbar-brand:hover {
@@ -16056,7 +16056,7 @@ input[type=number] {
     display: flex;
     -ms-flex-align: center;
     align-items: center;
-    height: 2.25rem;
+    height: 3.75rem;
     padding-right: 1.75rem;
     padding-left: 1.75rem
 }

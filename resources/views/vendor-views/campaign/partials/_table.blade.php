@@ -4,7 +4,7 @@
         <td>{{$key+1}}</td>
         <td>
             <span class="d-block font-size-sm text-body">
-                {{$campaign['title']}}
+                {{Str::limit($campaign['title'],25,'...')}}
             </span>
         </td>
         <td>

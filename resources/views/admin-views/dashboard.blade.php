@@ -66,11 +66,11 @@
                         <select class="custom-select" name="statistics_type" onchange="order_stats_update(this.value)">
                             <option
                                 value="overall" {{$params['statistics_type'] == 'overall'?'selected':''}}>
-                                Overall Statistics
+                                {{__('messages.Overall Statistics')}}
                             </option>
                             <option
                                 value="today" {{$params['statistics_type'] == 'today'?'selected':''}}>
-                                Today's Statistics
+                                {{__("messages.Today's Statistics")}}
                             </option>
                         </select>
                     </div>
@@ -103,17 +103,17 @@
                     <!-- Header -->
                     <div class="card-header">
                         <h5 class="card-header-title">
-                            Users Overview
+                            {{__('messages.Users Overview')}}
                         </h5>
                         <select class="custom-select" style="width: 30%" name="user_overview"
                                 onchange="user_overview_stats_update(this.value)">
                             <option
                                 value="this_month" {{$params['user_overview'] == 'this_month'?'selected':''}}>
-                                This Month
+                                {{__('This month')}}
                             </option>
                             <option
                                 value="overall" {{$params['user_overview'] == 'overall'?'selected':''}}>
-                                Overall
+                                {{__('messages.Overall')}}
                             </option>
                         </select>
                     </div>
@@ -134,47 +134,6 @@
                     </div>
                     <!-- End Body -->
                 </div>
-            </div>
-
-            <div class="col-lg-6 mb-3">
-                <!-- Card -->
-                <div class="card h-100">
-                    <!-- Header -->
-                    <div class="card-header">
-                        <h5 class="card-header-title">
-                            Business Overview
-                        </h5>
-                        <select class="custom-select" style="width: 30%" name="business_overview"
-                                onchange="business_overview_stats_update(this.value)">
-                            <option
-                                value="this_month" {{$params['business_overview'] == 'this_month'?'selected':''}}>
-                                This Month
-                            </option>
-                            <option
-                                value="overall" {{$params['business_overview'] == 'overall'?'selected':''}}>
-                                Overall
-                            </option>
-                        </select>
-                    </div>
-                    <!-- End Header -->
-
-                    <!-- Body -->
-                    <div class="card-body" id="business-overview-board">
-                        @if($params['zone_id']!='all')
-                            @php($zone_name=\App\Models\Zone::where('id',$params['zone_id'])->first()->name)
-                        @else
-                            @php($zone_name='All')
-                        @endif
-                        <label class="badge badge-soft-info">( Zone : {{$zone_name}} )</label>
-                        <!-- Chart -->
-                        <div class="chartjs-custom mx-auto">
-                            <canvas style="max-height: 85%;" id="business-overview" class="mt-2"></canvas>
-                        </div>
-                        <!-- End Chart -->
-                    </div>
-                    <!-- End Body -->
-                </div>
-                <!-- End Card -->
             </div>
 
             <div class="col-lg-6 mb-3">
@@ -205,14 +164,6 @@
                 <!-- Card -->
                 <div class="card h-100" id="top-deliveryman-view">
                     @include('admin-views.partials._top-deliveryman',['top_deliveryman'=>$data['top_deliveryman']])
-                </div>
-                <!-- End Card -->
-            </div>
-
-            <div class="col-lg-6 mt-3">
-                <!-- Card -->
-                <div class="card h-100" id="top-customer-view">
-                    @include('admin-views.partials._top-customer',['top_customer'=>$data['top_customer']])
                 </div>
                 <!-- End Card -->
             </div>
@@ -267,9 +218,9 @@
             type: 'doughnut',
             data: {
                 labels: [
-                    'Customer',
-                    'Restaurant',
-                    'Delivery Man'
+                    '{{__('messages.customer')}}',
+                    '{{__('messages.restaurant')}}',
+                    '{{__('messages.Delivery Man')}}'
                 ],
                 datasets: [{
                     label: 'User',
@@ -278,37 +229,6 @@
                         '#628395',
                         '#055052',
                         '#53B8BB'
-                    ],
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    </script>
-
-    <script>
-        var ctx = document.getElementById('business-overview');
-        var myChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: [
-                    'Food',
-                    'Review',
-                    'Wishlist'
-                ],
-                datasets: [{
-                    label: 'Business',
-                    data: ['{{$data['food']}}', '{{$data['reviews']}}', '{{$data['wishlist']}}'],
-                    backgroundColor: [
-                        '#2C2E43',
-                        '#595260',
-                        '#B2B1B9'
                     ],
                     hoverOffset: 4
                 }]
@@ -366,11 +286,8 @@
                     insert_param('zone_id', zone_id);
                     $('#order_stats').html(data.order_stats);
                     $('#user-overview-board').html(data.user_overview);
-                    $('#business-overview-board').html(data.business_overview);
                     $('#monthly-earning-graph').html(data.monthly_graph);
-
                     $('#popular-restaurants-view').html(data.popular_restaurants);
-                    $('#top-customer-view').html(data.top_customer);
                     $('#top-deliveryman-view').html(data.top_deliveryman);
                     $('#top-rated-foods-view').html(data.top_rated_foods);
                     $('#top-restaurants-view').html(data.top_restaurants);
@@ -399,30 +316,6 @@
                 success: function (data) {
                     insert_param('user_overview',type);
                     $('#user-overview-board').html(data.view)
-                },
-                complete: function () {
-                    $('#loading').hide()
-                }
-            });
-        }
-
-        function business_overview_stats_update(type) {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            $.post({
-                url: '{{route('admin.dashboard-stats.business-overview')}}',
-                data: {
-                    business_overview: type
-                },
-                beforeSend: function () {
-                    $('#loading').show()
-                },
-                success: function (data) {
-                    insert_param('business_overview',type);
-                    $('#business-overview-board').html(data.view)
                 },
                 complete: function () {
                     $('#loading').hide()

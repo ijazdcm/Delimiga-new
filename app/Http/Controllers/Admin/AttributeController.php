@@ -20,33 +20,34 @@ class AttributeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|unique:attributes',
+            'name' => 'required|unique:attributes|max:100',
         ], [
-            'name.required' => 'Name is required!',
+            'name.required' => trans('messages.Name is required!'),
         ]);
 
         $attribute = new Attribute;
         $attribute->name = $request->name;
         $attribute->save();
+
         Toastr::success(trans('messages.attribute_added_successfully'));
         return back();
     }
 
     public function edit($id)
     {
-        $attribute = Attribute::find($id);
+        $attribute = Attribute::findOrFail($id);
         return view('admin-views.attribute.edit', compact('attribute'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|unique:attributes,name,'.$id,
+            'name' => 'required|max:100|unique:attributes,name,'.$id,
         ], [
-            'name.required' => 'Name is required!',
+            'name.required' => trans('messages.Name is required!'),
         ]);
 
-        $attribute = Attribute::find($id);
+        $attribute = Attribute::findOrFail($id);
         $attribute->name = $request->name;
         $attribute->save();
         Toastr::success(trans('messages.attribute_updated_successfully'));
@@ -55,7 +56,7 @@ class AttributeController extends Controller
 
     public function delete(Request $request)
     {
-        $attribute = Attribute::find($request->id);
+        $attribute = Attribute::findOrFail($request->id);
         $attribute->delete();
         Toastr::success(trans('messages.attribute_deleted_successfully'));
         return back();

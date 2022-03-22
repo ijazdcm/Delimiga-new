@@ -25,22 +25,68 @@
                 <form action="javascript:" method="post" id="product_form"
                       enctype="multipart/form-data">
                     @csrf
+                    @php($language=\App\Models\BusinessSetting::where('key','language')->first())
+                    @php($language = $language->value ?? null)
+                    @php($default_lang = 'bn')
+                    @if($language)
+                        @php($default_lang = json_decode($language)[0])
+                        <ul class="nav nav-tabs mb-4">
+                            @foreach(json_decode($language) as $lang)
+                                <li class="nav-item">
+                                    <a class="nav-link lang_link {{$lang == $default_lang? 'active':''}}" href="#" id="{{$lang}}-link">{{\App\CentralLogics\Helpers::get_language_name($lang).'('.strtoupper($lang).')'}}</a>
+                                </li>
+                            @endforeach
+                        </ul>
+                        @foreach(json_decode($language) as $lang)
+                            <?php
+                                if(count($product['translations'])){
+                                    $translate = [];
+                                    foreach($product['translations'] as $t)
+                                    {
+                                        if($t->locale == $lang && $t->key=="name"){
+                                            $translate[$lang]['name'] = $t->value;
+                                        }
+                                        if($t->locale == $lang && $t->key=="description"){
+                                            $translate[$lang]['description'] = $t->value;
+                                        }
+                                    }
+                                }
+                            ?>
+                            <div class="card p-4 {{$lang != $default_lang ? 'd-none':''}} lang_form" id="{{$lang}}-form">
+                                <div class="form-group">
+                                    <label class="input-label" for="{{$lang}}_name">{{__('messages.name')}} ({{strtoupper($lang)}})</label>
+                                    <input type="text" name="name[]" id="{{$lang}}_name" class="form-control" placeholder="{{__('messages.new_food')}}" value="{{$translate[$lang]['name']??$product['name']}}" {{$lang == $default_lang? 'required':''}} oninvalid="document.getElementById('en-link').click()">
+                                </div>
+                                <input type="hidden" name="lang[]" value="{{$lang}}">
+                                <div class="form-group pt-4">
+                                    <label class="input-label" for="exampleFormControlInput1">{{__('messages.short')}} {{__('messages.description')}} ({{strtoupper($lang)}})</label>
+                                    <textarea type="text" name="description[]" class="form-control ckeditor">{!! $translate[$lang]['description']??$product['description'] !!}</textarea>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                    <div class="card p-4" id="{{$default_lang}}-form">
+                        <div class="form-group">
+                            <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}} (EN)</label>
+                            <input type="text" name="name[]" class="form-control" placeholder="{{__('messages.new_food')}}" value="{{$product['name']}}" required>
+                        </div>
+                        <input type="hidden" name="lang[]" value="en">
+                        <div class="form-group pt-4">
+                            <label class="input-label" for="exampleFormControlInput1">{{__('messages.short')}} {{__('messages.description')}}</label>
+                            <textarea type="text" name="description[]" class="form-control ckeditor">{!! $product['description'] !!}</textarea>
+                        </div>
+                    </div>
+                    @endif
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-12">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlSelect1">{{__('messages.restaurant')}}<span
                                         class="input-label-secondary"></span></label>
-                                <select name="restaurant_id" data-placeholder="{{__('messages.select')}} {{__('messages.restaurant')}}" class="js-data-example-ajax form-control" onchange="getRestaurantData('{{url('/')}}/admin/vendor/get-addons?data[]=0&restaurant_id='+this.value,'add_on')"  title="Select Restaurant" required oninvalid="this.setCustomValidity('{{__('messages.please_select_restaurant')}}')">
+                                <select name="restaurant_id" data-placeholder="{{__('messages.select')}} {{__('messages.restaurant')}}" class="js-data-example-ajax form-control" onchange="getRestaurantData('{{url('/')}}/admin/vendor/get-addons?data[]=0&restaurant_id=', this.value,'add_on')"  title="Select Restaurant" required oninvalid="this.setCustomValidity('{{__('messages.please_select_restaurant')}}')">
                                 @if(isset($product->restaurant))
                                 <option value="{{$product->restaurant_id}}" selected="selected">{{$product->restaurant->name}}</option>
                                 @endif
                                 </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}}</label>
-                                <input type="text" name="name" value="{{$product['name']}}" class="form-control" placeholder="New food" required>
                             </div>
                         </div>
                     </div>
@@ -167,7 +213,7 @@
                         <div class="col-6">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.available')}} {{__('messages.time')}} {{__('messages.starts')}}</label>
-                                <input type="time" value="{{$product['available_time_starts']}}" min="{{$opening_time}}"
+                                <input type="time" value="{{$product['available_time_starts']}}"
                                        name="available_time_starts" class="form-control" id="available_time_starts"
                                        placeholder="Ex : 10:30 am" required>
                             </div>
@@ -176,15 +222,10 @@
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.available')}} {{__('messages.time')}} {{__('messages.ends')}}</label>
                                 <input type="time" value="{{$product['available_time_ends']}}"
-                                       name="available_time_ends" class="form-control" max="{{$closing_time}}" id="available_time_ends" placeholder="5:45 pm"
+                                       name="available_time_ends" class="form-control" id="available_time_ends" placeholder="5:45 pm"
                                        required>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="input-label" for="exampleFormControlInput1">{{__('messages.short')}} {{__('messages.description')}}</label>
-                        <textarea type="text" name="description" class="form-control">{{$product['description']}}</textarea>
                     </div>
 
                     <div class="form-group">
@@ -216,28 +257,12 @@
 
 @push('script_2')
     <script>
-        function getRestaurantData(route, id) {
+        function getRestaurantData(route, restaurant_id, id) {
             $.get({
-                url: route,
+                url: route+restaurant_id,
                 dataType: 'json',
                 success: function (data) {
                     $('#' + id).empty().append(data.options);
-                },
-            });
-            $.get({
-                url:'{{url('/')}}/api/v1/restaurants/details/'+restaurant_id,
-                dataType: 'json',
-                success: function(data) {
-                    if(data.available_time_starts != null && data.available_time_ends != null){
-                        var opening_time = data.available_time_starts;
-                        var closeing_time = data.available_time_ends;
-                        $('#available_time_ends').attr('min', opening_time);
-                        $('#available_time_starts').attr('min', opening_time);
-                        $('#available_time_ends').attr('max', closeing_time);
-                        $('#available_time_starts').attr('max', closeing_time);
-                        $('#available_time_starts').val(opening_time);
-                        $('#available_time_ends').val(closeing_time);
-                    }                    
                 },
             });
         }
@@ -274,14 +299,14 @@
                 let category = $("#category-id").val();
                 let sub_category = '{{count($product_category)>=2?$product_category[1]->id:''}}';
                 let sub_sub_category ='{{count($product_category)>=3?$product_category[2]->id:''}}';
-                getRequest('{{url('/')}}/admin/food/get-categories?parent_id=' + category + '&&sub_category=' + sub_category, 'sub-categories');
-                getRequest('{{url('/')}}/admin/food/get-categories?parent_id=' + sub_category + '&&sub_category=' + sub_sub_category, 'sub-sub-categories');
+                getRequest('{{url('/')}}/admin/food/get-categories?parent_id=' + category + '&sub_category=' + sub_category, 'sub-categories');
+                getRequest('{{url('/')}}/admin/food/get-categories?parent_id=' + sub_category + '&sub_category=' + sub_sub_category, 'sub-sub-categories');
             
             }, 1000)
             @if(count(json_decode($product['add_ons'], true))>0)
-            getRestaurantData('{{url('/')}}/admin/vendor/get-addons?restaurant_id={{$product['restaurant_id']}}@foreach(json_decode($product['add_ons'], true) as $addon)&data[]={{$addon}}@endforeach','add_on');
+            getRestaurantData('{{url('/')}}/admin/vendor/get-addons?@foreach(json_decode($product['add_ons'], true) as $addon)data[]={{$addon}}@endforeach&restaurant_id=','{{$product['restaurant_id']}}','add_on');
             @else
-            getRestaurantData('{{url('/')}}/admin/vendor/get-addons?data[]=0&restaurant_id={{$product['restaurant_id']}}','add_on');
+            getRestaurantData('{{url('/')}}/admin/vendor/get-addons?data[]=0&restaurant_id=','{{$product['restaurant_id']}}','add_on');
             @endif
         });
     </script>
@@ -367,7 +392,6 @@
                 },
                 success: function (data) {
                     $('#loading').hide();
-                    console.log(data.view);
                     $('#variant_combination').html(data.view);
                     if (data.length > 1) {
                         $('#quantity').hide();
@@ -419,6 +443,27 @@
                 }
             });
         });
+    </script>
+    <script>
+        $(".lang_link").click(function(e){
+            e.preventDefault();
+            $(".lang_link").removeClass('active');
+            $(".lang_form").addClass('d-none');
+            $(this).addClass('active');
+
+            let form_id = this.id;
+            let lang = form_id.split("-")[0];
+            console.log(lang);
+            $("#"+lang+"-form").removeClass('d-none');
+            if(lang == 'en')
+            {
+                $("#from_part_2").removeClass('d-none');
+            }
+            else
+            {
+                $("#from_part_2").addClass('d-none');
+            }
+        })
     </script>
 @endpush
 

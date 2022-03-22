@@ -21,7 +21,7 @@ class EmployeeLoginController extends Controller
     {
         $custome_recaptcha = new CaptchaBuilder;
         $custome_recaptcha->build();
-        Session::put('custome_recaptcha', $custome_recaptcha->getPhrase());
+        Session::put('six_captcha', $custome_recaptcha->getPhrase());
         return view('vendor-views.auth.login', compact('custome_recaptcha'));
     }
 
@@ -48,7 +48,7 @@ class EmployeeLoginController extends Controller
                     },
                 ],
             ]);
-        } else if(session('custome_recaptcha') != $request->custome_recaptcha)
+        } else if(session('six_captcha') != $request->custome_recaptcha)
         {
             Toastr::error(trans('messages.ReCAPTCHA Failed'));
             return back();

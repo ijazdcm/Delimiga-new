@@ -109,6 +109,11 @@ class DeliveryMan extends Authenticatable
         return $query->where('current_orders', '<' ,config('dm_maximum_orders'));
     }
 
+    public function scopeZonewise($query)
+    {
+        return $query->where('type','zone_wise');
+    }
+    
     protected static function booted()
     {
         static::addGlobalScope(new ZoneScope);

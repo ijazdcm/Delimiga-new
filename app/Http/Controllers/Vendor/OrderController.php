@@ -36,7 +36,10 @@ class OrderController extends Controller
             {
                 return $query->where('order_status','pending');
             }
-            return $query->where('order_status','pending')->where('order_type', 'take_away');
+            else
+            {
+                return $query->where('order_status','pending')->where('order_type', 'take_away');
+            }
         })
         ->when($status == 'cooking', function($query){
             return $query->where('order_status','processing');
@@ -53,12 +56,12 @@ class OrderController extends Controller
         ->when($status == 'refund_requested', function($query){
             return $query->RefundRequest();
         })
-        ->when($status == 'returned', function($query){
-            return $query->where('order_status','returned');
+        ->when($status == 'refunded', function($query){
+            return $query->Refunded();
         })
         ->when($status == 'scheduled', function($query){
             return $query->Scheduled()->where(function($q){
-                if(config('order_confirmation_model') == 'restaurant')
+                if(config('order_confirmation_model') == 'restaurant' || Helpers::get_restaurant_data()->self_delivery_system)
                 {
                     $q->whereNotIn('order_status',['failed','canceled', 'refund_requested', 'refunded']);
                 }
@@ -73,13 +76,13 @@ class OrderController extends Controller
         })
         ->when($status == 'all', function($query){
             return $query->where(function($query){
-                $query->whereNotIn('order_status',config('order_confirmation_model') == 'restaurant'?['failed','canceled', 'refund_requested', 'refunded']:['pending','failed','canceled', 'refund_requested', 'refunded'])
+                $query->whereNotIn('order_status',(config('order_confirmation_model') == 'restaurant'|| Helpers::get_restaurant_data()->self_delivery_system)?['failed','canceled', 'refund_requested', 'refunded']:['pending','failed','canceled', 'refund_requested', 'refunded'])
                 ->orWhere(function($query){
                     return $query->where('order_status','pending')->where('order_type', 'take_away');
                 });
             });
         })
-        ->when(($status != 'scheduled' && $status != 'all'), function($query){
+        ->when(in_array($status, ['pending','confirmed']), function($query){
             return $query->OrderScheduledIn(30);
         })
         ->Notpos()
@@ -107,7 +110,11 @@ class OrderController extends Controller
 
     public function details(Request $request,$id)
     {
-        $order = Order::with('details')->where(['id' => $id, 'restaurant_id' => Helpers::get_restaurant_id()])->first();
+        $order = Order::with(['details', 'customer'=>function($query){
+            return $query->withCount('orders');
+        },'delivery_man'=>function($query){
+            return $query->withCount('orders');
+        }])->where(['id' => $id, 'restaurant_id' => Helpers::get_restaurant_id()])->first();
         if (isset($order)) {
             return view('vendor-views.order.order-view', compact('order'));
         } else {
@@ -183,7 +190,14 @@ class OrderController extends Controller
 
             if($order->transaction  == null)
             {
-                $ol = OrderLogic::create_transaction($order,'restaurant', null);
+                if($order->payment_method == 'cash_on_delivery')
+                {
+                    $ol = OrderLogic::create_transaction($order,'restaurant', null);
+                }
+                else{
+                    $ol = OrderLogic::create_transaction($order,'admin', null);
+                }
+                
 
                 if(!$ol)
                 {
@@ -209,7 +223,17 @@ class OrderController extends Controller
                 $dm = $order->delivery_man;
                 $dm->current_orders = $dm->current_orders>1?$dm->current_orders-1:0;
                 $dm->save();
-            }                   
+            }                 
+        }  
+
+        if($request->order_status == 'delivered')
+        {
+            $order->restaurant->increment('order_count');
+            if($order->delivery_man)
+            {
+                $order->delivery_man->increment('order_count');
+            }
+            
         }
 
         $order->order_status = $request->order_status;

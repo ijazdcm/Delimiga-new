@@ -15,9 +15,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', 'HomeController@index')->name('home');
 Route::get('terms-and-conditions', 'HomeController@terms_and_conditions')->name('terms-and-conditions');
-Route::get('about-us-delimiga-delivery', 'HomeController@about_us')->name('about-us');
-Route::get('contact-us-delimiga-delivery', 'HomeController@contact_us')->name('contact-us');
-Route::get('privacy-policy-delimiga-delivery', 'HomeController@privacy_policy')->name('privacy-policy');
+Route::get('about-us', 'HomeController@about_us')->name('about-us');
+Route::get('contact-us', 'HomeController@contact_us')->name('contact-us');
+Route::get('privacy-policy', 'HomeController@privacy_policy')->name('privacy-policy');
 
 Route::get('authentication-failed', function () {
     $errors = [];
@@ -74,21 +74,6 @@ Route::match(['get', 'post'], '/return-senang-pay', 'SenangPayController@return_
 Route::post('/paymob-credit', 'PaymobController@credit')->name('paymob-credit');
 Route::get('/paymob-callback', 'PaymobController@callback')->name('paymob-callback');
 
-
-// //onepay
-// Route::get('/checkout', 'App\\Http\\Controllers\\PaymobController@checkout')->name('onepay.checkout');
-// Route::post('/checkout-request', 'App\\Http\\Controllers\\PaymobController@checkoutRequest')->name('onepay.checkout-request');
-// Route::any('/onepay/callback', 'App\\Http\\Controllers\\PaymobController@callback')->name('onepay.callback');
-// Route::get('/onepay/notify', 'App\\Http\\Controllers\\PaymobController@notify')->name('onepay.notify');
-// //onepay
-
-
-
-Route::get('/checkout', 'OnepayController@checkout')->name('onepay.checkout');
-Route::post('/checkout-request', 'OnepayController@checkoutRequest')->name('onepay.checkout-request');
-Route::any('/onepay/callback', 'OnepayController@callback')->name('onepay.callback');
-Route::get('/onepay/notify', 'OnepayController@notify')->name('onepay.notify');
-
 //paystack
 Route::post('/paystack-pay', 'PaystackController@redirectToGateway')->name('paystack-pay');
 Route::get('/paystack-callback', 'PaystackController@handleGatewayCallback')->name('paystack-callback');
@@ -108,11 +93,37 @@ Route::get('mercadopago/home', 'MercadoPagoController@index')->name('mercadopago
 Route::post('mercadopago/make-payment', 'MercadoPagoController@make_payment')->name('mercadopago.make_payment');
 Route::get('mercadopago/get-user', 'MercadoPagoController@get_test_user')->name('mercadopago.get-user');
 
+//paytabs
+Route::any('/paytabs-payment', 'PaytabsController@payment')->name('paytabs-payment');
+Route::any('/paytabs-response', 'PaytabsController@callback_response')->name('paytabs-response');
+
+//bkash
+Route::group(['prefix'=>'bkash'], function () {
+    // Payment Routes for bKash
+    Route::post('get-token', 'BkashPaymentController@getToken')->name('bkash-get-token');
+    Route::post('create-payment', 'BkashPaymentController@createPayment')->name('bkash-create-payment');
+    Route::post('execute-payment', 'BkashPaymentController@executePayment')->name('bkash-execute-payment');
+    Route::get('query-payment', 'BkashPaymentController@queryPayment')->name('bkash-query-payment');
+    Route::post('success', 'BkashPaymentController@bkashSuccess')->name('bkash-success');
+
+    // Refund Routes for bKash
+    // Route::get('refund', 'BkashRefundController@index')->name('bkash-refund');
+    // Route::post('refund', 'BkashRefundController@refund')->name('bkash-refund');
+});
+
+// The callback url after a payment PAYTM
+Route::get('paytm-payment', 'PaytmController@payment')->name('paytm-payment');
+Route::any('paytm-response', 'PaytmController@callback')->name('paytm-response');
+
+// The callback url after a payment LIQPAY
+Route::get('liqpay-payment', 'LiqPayController@payment')->name('liqpay-payment');
+Route::any('liqpay-callback', 'LiqPayController@callback')->name('liqpay-callback');
 
 
 Route::get('/test',function (){
-    // dd(\App\CentralLogics\Helpers::get_view_keys());
-    echo('Hello tester');
+    // dd(now()->dayOfWeek);
+    dd(date('w', strtotime('2022-02-28')));
+    dd('Hello tester');
 });
 
 Route::get('authentication-failed', function () {
@@ -139,15 +150,3 @@ Route::group(['prefix' => 'deliveryman', 'as' => 'deliveryman.'], function () {
     Route::get('apply', 'DeliveryManController@create')->name('create');
     Route::post('apply', 'DeliveryManController@store')->name('store');
 });
-
-//WEBXPAY Routes
-
-Route::get('payment/{ORDER_ID}', 'PaymentController@index');
-Route::post('/payment', 'PaymentController@verify');
-
-
-Route::get('/clear', function() {
-    Artisan::call('cache:clear');
-    return "Cache is cleared";
-});
-

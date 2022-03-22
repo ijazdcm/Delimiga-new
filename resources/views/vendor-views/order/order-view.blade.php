@@ -95,13 +95,6 @@
                         </a>
 
                         <!-- Unfold -->
-                        <div class="hs-unfold ml-1">
-                            <h5>
-                                <i class="tio-shop"></i>
-                                {{__('messages.restaurant')}} : <label
-                                    class="badge badge-secondary">{{$order->restaurant?$order->restaurant->name:'Restaurant deleted!'}}</label>
-                            </h5>
-                        </div>
                         @php($order_delivery_verification = (boolean)\App\Models\BusinessSetting::where(['key' => 'order_delivery_verification'])->first()->value)
                         <div class="hs-unfold float-right">
                             @if($order['order_status']=='pending')
@@ -190,7 +183,8 @@
                         $total_addon_price=0;
                     ?>
                     @foreach($order->details as $key=>$detail)
-                        @if($detail->food )
+                        @if(isset($detail->food_id) )
+                            @php($detail->food = json_decode($detail->food_details, true))
                             <!-- Media -->
                             <div class="media">
                                 <a class="avatar avatar-xl mr-3 cursor-pointer" href="{{route('vendor.food.view',$detail->food['id'])}}">
@@ -202,15 +196,15 @@
 
                                 <div class="media-body">
                                     <div class="row">
-                                        <div class="col-md-6 mb-3 mb-md-0">
-                                            <strong> {{$detail->food['name']}}</strong><br>
+                                        <div class="col-md-6 mb-3 mb-md-0 text-break">
+                                            <strong> {{Str::limit($detail->food['name'], 25, '...')}}</strong><br>
 
                                             @if(count(json_decode($detail['variation'],true))>0)
                                                 <strong><u>{{__('messages.variation')}} : </u></strong>
                                                 @foreach(json_decode($detail['variation'],true)[0] as $key1 =>$variation)
                                                     <div class="font-size-sm text-body">
                                                         <span>{{$key1}} :  </span>
-                                                        <span class="font-weight-bold">{{$variation}}</span>
+                                                        <span class="font-weight-bold">{{Str::limit($variation,20,'...')}}</span>
                                                     </div>
                                                 @endforeach
                                             @endif
@@ -218,7 +212,7 @@
                                             @foreach(json_decode($detail['add_ons'],true) as $key2 =>$addon)
                                                 @if($key2==0)<strong><u>{{__('messages.addons')}} : </u></strong>@endif
                                                 <div class="font-size-sm text-body">
-                                                    <span>{{$addon['name']}} :  </span>
+                                                    <span>{{Str::limit($addon['name'], 25, '...')}} :  </span>
                                                     <span class="font-weight-bold">
                                                         {{$addon['quantity']}} x {{\App\CentralLogics\Helpers::format_currency($addon['price'])}}
                                                     </span>
@@ -245,7 +239,8 @@
                             @php($restaurant_discount_amount += ($detail['discount_on_food']*$detail['quantity']))
                             <!-- End Media -->
                             <hr>
-                        @elseif($detail->campaign)
+                        @elseif(isset($detail->item_campaign_id))
+                            @php($detail->campaign = json_decode($detail->food_details, true))
                             <!-- Media -->
                                 <div class="media">
                                     <div class="avatar avatar-xl mr-3">
@@ -258,14 +253,14 @@
                                     <div class="media-body">
                                         <div class="row">
                                             <div class="col-md-6 mb-3 mb-md-0">
-                                                <strong> {{$detail->campaign['title']}}</strong><br>
+                                                <strong> {{Str::limit($detail->campaign['name'], 25, '...')}}</strong><br>
 
                                                 @if(count(json_decode($detail['variation'],true))>0)
                                                     <strong><u>{{__('messages.variation')}} : </u></strong>
                                                     @foreach(json_decode($detail['variation'],true)[0] as $key1 =>$variation)
                                                         <div class="font-size-sm text-body">
                                                             <span>{{$key1}} :  </span>
-                                                            <span class="font-weight-bold">{{$variation}}</span>
+                                                            <span class="font-weight-bold">{{Str::limit($variation, 25, '...')}}</span>
                                                         </div>
                                                     @endforeach
                                                 @endif
@@ -273,7 +268,7 @@
                                                 @foreach(json_decode($detail['add_ons'],true) as $key2 =>$addon)
                                                     @if($key2==0)<strong><u>{{__('messages.addons')}} : </u></strong>@endif
                                                     <div class="font-size-sm text-body">
-                                                        <span>{{$addon['name']}} :  </span>
+                                                        <span>{{Str::limit($addon['name'], 20, '...')}} :  </span>
                                                         <span class="font-weight-bold">
                                                             {{$addon['quantity']}} x {{\App\CentralLogics\Helpers::format_currency($addon['price'])}}
                                                         </span>
@@ -394,7 +389,7 @@
                                 <i class="tio-shopping-basket-outlined"></i>
                             </div>
                             <div class="media-body">
-                                <span class="text-body text-hover-primary text-lowercase">{{$order->delivery_man->orders->count()}} {{__('messages.orders')}}</span>
+                                <span class="text-body text-hover-primary text-lowercase">{{$order->delivery_man->orders_count}} {{__('messages.orders')}}</span>
                             </div>
                             <div class="media-body text-right">
                                 {{--<i class="tio-chevron-right text-body"></i>--}}
@@ -484,7 +479,7 @@
                                     <i class="tio-shopping-basket-outlined"></i>
                                 </div>
                                 <div class="media-body">
-                                    <span class="text-body text-hover-primary">{{\App\Models\Order::where('user_id',$order['user_id'])->count()}} orders</span>
+                                    <span class="text-body text-hover-primary">{{$order->customer->orders_count}} orders</span>
                                 </div>
                                 <div class="media-body text-right">
                                     {{--<i class="tio-chevron-right text-body"></i>--}}

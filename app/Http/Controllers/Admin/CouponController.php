@@ -19,8 +19,8 @@ class CouponController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'code' => 'required|unique:coupons',
-            'title' => 'required',
+            'code' => 'required|unique:coupons|max:100',
+            'title' => 'required|max:191',
             'start_date' => 'required',
             'expire_date' => 'required',
             'discount' => 'required',
@@ -69,8 +69,8 @@ class CouponController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'code' => 'required|unique:coupons,code,'.$id,
-            'title' => 'required',
+            'code' => 'required|max:100|unique:coupons,code,'.$id,
+            'title' => 'required|max:191',
             'start_date' => 'required',
             'expire_date' => 'required',
             'discount' => 'required',

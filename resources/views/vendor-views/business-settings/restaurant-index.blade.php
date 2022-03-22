@@ -1,6 +1,6 @@
 @extends('layouts.vendor.app')
 
-@section('title','Settings')
+@section('title',__('messages.settings'))
 
 @push('css_or_js')
 <link href="{{asset('public/assets/admin/css/croppie.css')}}" rel="stylesheet">
@@ -154,65 +154,87 @@
                             </div>
                             @endif
                         </div>
-                        <form action="{{route('vendor.business-settings.update-setup',[$restaurant['id']])}}" method="post"
-                            enctype="multipart/form-data">
-                            @csrf 
-                            <div class="row">
-                                <div class="col-sm-{{$restaurant->self_delivery_system?'6':'4'}} col-12">
-                                    <div class="form-group">
-                                        <label class="input-label text-capitalize" for="title">{{__('messages.opening')}} {{__('messages.time')}}</label>
-                                        <input type="time" id="closeing_time" class="form-control" name="opening_time" value="{{$restaurant->opening_time?$restaurant->opening_time->format('H:i:s'):''}}">
-                                    </div>
-                                </div>
-                                <div class="col-sm-{{$restaurant->self_delivery_system?'6':'4'}} col-12">
-                                    <label class="input-label text-capitalize" for="title">{{__('messages.closing')}} {{__('messages.time')}}</label>
-                                    <input type="time" id="closeing_time" class="form-control"  name="closeing_time" value="{{$restaurant->closeing_time?$restaurant->closeing_time->format('H:i:s'):''}}">
-                                </div>
-                                <div class="col-sm-{{$restaurant->self_delivery_system?'6':'4'}} col-12">
-                                    <div class="form-group">
-                                        <label class="input-label text-capitalize" for="title">{{__('messages.minimum')}} {{__('messages.order')}} {{__('messages.amount')}}</label>
-                                        <input type="number" name="minimum_order" step="0.01" min="0" max="100000" class="form-control" placeholder="100" value="{{$restaurant->minimum_order??'0'}}"> 
-                                    </div>
-                                </div>
-                                @if($restaurant->self_delivery_system)
-                                <div class="col-sm-6 col-12">
-                                    <div class="form-group">
-                                        <label class="input-label text-capitalize" for="title">{{__('messages.delivery_charge')}}</label>
-                                        <input type="number" name="delivery_charge" step="0.01" min="0" max="100000" class="form-control" placeholder="100" value="{{$restaurant->delivery_charge??'0'}}"> 
-                                    </div>
-                                </div>
-                                @endif
+                        <div class="card">
+                            <div class="card-header">
+                                {{__('messages.Daily time schedule')}}
                             </div>
-                            <div class="row">
-                                <div class="col-sm-6 col-12">
-                                    <label class="input-label text-capitalize" for="off_day">{{__('messages.weekly_off_day')}}</label>
-                                    <select name="off_day[]" class="form-control js-select2-custom" id="off_day" multiple="multiple" data-placeholder="{{__('messages.select_off_day')}}" data-minimum-results-for-search="-1">
-                                        <option value="1" {{str_contains($restaurant->off_day, 1)?'selected':''}}>{{__('messages.monday')}}</option>
-                                        <option value="2" {{str_contains($restaurant->off_day, 2)?'selected':''}}>{{__('messages.tuesday')}}</option>
-                                        <option value="3" {{str_contains($restaurant->off_day, 3)?'selected':''}}>{{__('messages.wednesday')}}</option>
-                                        <option value="4" {{str_contains($restaurant->off_day, 4)?'selected':''}}>{{__('messages.thirsday')}}</option>
-                                        <option value="5" {{str_contains($restaurant->off_day, 5)?'selected':''}}>{{__('messages.friday')}}</option>
-                                        <option value="6" {{str_contains($restaurant->off_day, 6)?'selected':''}}>{{__('messages.saturday')}}</option>
-                                        <option value="7" {{str_contains($restaurant->off_day, 7)?'selected':''}}>{{__('messages.sunday')}}</option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-6 col-12">
-                                    <div class="form-group p-2 border">
-                                        <label class="d-flex justify-content-between switch toggle-switch-sm text-dark" for="gst_status">
-                                            <span>{{__('messages.gst')}} <span class="input-label-secondary" title="{{__('messages.gst_status_warning')}}"><img src="{{asset('/public/assets/admin/img/info-circle.svg')}}" alt="{{__('messages.gst_status_warning')}}"></span></span>
-                                            <input type="checkbox" class="toggle-switch-input" name="gst_status" id="gst_status" value="1" {{$restaurant->gst_status?'checked':''}}>
-                                            <span class="toggle-switch-label">
-                                                <span class="toggle-switch-indicator"></span>
-                                            </span>
-                                        </label>
-                                        <input type="text" id="gst" name="gst" class="form-control" value="{{$restaurant->gst_code}}" {{isset($restaurant->gst_status)?'':'readonly'}}>
-                                    </div>
-                                </div>
+                            <div class="card-body" id="schedule">
+                                @include('admin-views.vendor.view.partials._schedule', $restaurant)
                             </div>
+                        </div>
+                        <div class="card mt-2">
+                            <div class="card-header">{{__('messages.basic')}} {{__('messages.settings')}}</div>
+                            <div class="card-body">
+                                <form action="{{route('vendor.business-settings.update-setup',[$restaurant['id']])}}" method="post"
+                                    enctype="multipart/form-data">
+                                    @csrf 
+                                    <div class="row">
+                                        <div class="col-sm-{{$restaurant->self_delivery_system?'4':'6'}} col-12">
+                                            <div class="form-group">
+                                                <label class="input-label text-capitalize" for="title">{{__('messages.minimum')}} {{__('messages.order')}} {{__('messages.amount')}}</label>
+                                                <input type="number" name="minimum_order" step="0.01" min="0" max="100000" class="form-control" placeholder="100" value="{{$restaurant->minimum_order??'0'}}"> 
+                                            </div>
+                                        </div>
+                                        @if($restaurant->self_delivery_system)
+                                        <div class="col-sm-{{$restaurant->self_delivery_system?'4':'6'}} col-12">
+                                            <div class="form-group">
+                                                <label class="input-label text-capitalize" for="title">{{__('messages.delivery_charge')}}</label>
+                                                <input type="number" name="delivery_charge" step="0.01" min="0" max="100000" class="form-control" placeholder="100" value="{{$restaurant->delivery_charge??'0'}}"> 
+                                            </div>
+                                        </div>
+                                        @endif
+                
+                                        <div class="col-sm-{{$restaurant->self_delivery_system?'4':'6'}} col-12">
+                                            <div class="form-group p-2 border">
+                                                <label class="d-flex justify-content-between switch toggle-switch-sm text-dark" for="gst_status">
+                                                    <span>{{__('messages.gst')}} <span class="input-label-secondary" title="{{__('messages.gst_status_warning')}}"><img src="{{asset('/public/assets/admin/img/info-circle.svg')}}" alt="{{__('messages.gst_status_warning')}}"></span></span>
+                                                    <input type="checkbox" class="toggle-switch-input" name="gst_status" id="gst_status" value="1" {{$restaurant->gst_status?'checked':''}}>
+                                                    <span class="toggle-switch-label">
+                                                        <span class="toggle-switch-indicator"></span>
+                                                    </span>
+                                                </label>
+                                                <input type="text" id="gst" name="gst" class="form-control" value="{{$restaurant->gst_code}}" {{isset($restaurant->gst_status)?'':'readonly'}}>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">{{__('messages.update')}}</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
 
-                            <button type="submit" class="btn btn-primary">{{__('messages.update')}}</button>
-                        </form>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create schedule modal -->
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">{{__('messages.Create Schedule For ')}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="javascript:" method="post" id="add-schedule">
+                        @csrf
+                        <input type="hidden" name="day" id="day_id_input">
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">{{__('messages.Start time')}}:</label>
+                            <input type="time" class="form-control" name="start_time" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">{{__('messages.End time')}}:</label>
+                            <input type="time" class="form-control" name="end_time" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">{{__('messages.Submit')}}</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -224,7 +246,7 @@
         function restaurant_open_status(e) {
             Swal.fire({
                 title: '{{__('messages.are_you_sure')}}',
-                text: '{{$restaurant->active?__('messages.you_want_to_temporarily_close_this_restaurant'):__('messages.you_want_to_open_this_restaurant')}}',
+                text: '{{$restaurant->active ? __('messages.you_want_to_temporarily_close_this_restaurant') : __('messages.you_want_to_open_this_restaurant') }}',
                 type: 'warning',
                 showCancelButton: true,
                 cancelButtonColor: 'default',
@@ -246,10 +268,59 @@
                         },
                         complete: function () {
                             $('#loading').hide();
+                            location.reload();
                         },
                     });
                 } else {
                     e.checked = !e.checked;
+                }
+            })
+        };
+
+        function delete_schedule(route) {
+            Swal.fire({
+                title: '{{__('messages.are_you_sure')}}',
+                text: '{{__('messages.You want to remove this schedule')}}',
+                type: 'warning',
+                showCancelButton: true,
+                cancelButtonColor: 'default',
+                confirmButtonColor: '#377dff',
+                cancelButtonText: '{{__('messages.no')}}',
+                confirmButtonText: '{{__('messages.yes')}}',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.value) {
+                    $.get({
+                        url: route,
+                        beforeSend: function () {
+                            $('#loading').show();
+                        },
+                        success: function (data) {
+                            if (data.errors) {
+                                for (var i = 0; i < data.errors.length; i++) {
+                                    toastr.error(data.errors[i].message, {
+                                        CloseButton: true,
+                                        ProgressBar: true
+                                    });
+                                }
+                            } else {
+                                $('#schedule').empty().html(data.view);
+                                toastr.success('{{__('messages.Schedule removed successfully')}}', {
+                                    CloseButton: true,
+                                    ProgressBar: true
+                                });
+                            }
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                            toastr.error('{{__('messages.Schedule not found')}}', {
+                                CloseButton: true,
+                                ProgressBar: true
+                            });
+                        },
+                        complete: function () {
+                            $('#loading').hide();
+                        },
+                    });
                 }
             })
         };
@@ -284,6 +355,61 @@
                 } else {
                     $('#gst').attr('readonly', true);
                 }
+            });
+        });
+
+        $('#exampleModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var day_name = button.data('day');
+            var day_id = button.data('dayid');
+            var modal = $(this);
+            modal.find('.modal-title').text('{{__('messages.Create Schedule For ')}} ' + day_name);
+            modal.find('.modal-body input[name=day]').val(day_id);
+        })
+
+        $('#add-schedule').on('submit', function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.post({
+                url: '{{route('vendor.business-settings.add-schedule')}}',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                beforeSend: function () {
+                    $('#loading').show();
+                },
+                success: function (data) {
+                    if (data.errors) {
+                        for (var i = 0; i < data.errors.length; i++) {
+                            toastr.error(data.errors[i].message, {
+                                CloseButton: true,
+                                ProgressBar: true
+                            });
+                        }
+                    } else {
+                        $('#schedule').empty().html(data.view);
+                        $('#exampleModal').modal('hide');
+                        toastr.success('{{__('messages.Schedule added successfully')}}', {
+                            CloseButton: true,
+                            ProgressBar: true
+                        });
+                    }
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    toastr.error(XMLHttpRequest.responseText, {
+                        CloseButton: true,
+                        ProgressBar: true
+                    });
+                },
+                complete: function () {
+                    $('#loading').hide();
+                },
             });
         });
     </script>

@@ -28,7 +28,7 @@
                             <li class="breadcrumb-item">
                                 <a class="breadcrumb-link"
                                    href="{{route('admin.order.list',['status'=>'all'])}}">
-                                    Orders
+                                    {{__('messages.orders')}}
                                 </a>
                             </li>
                             <li class="breadcrumb-item active" aria-current="page">{{__('messages.order')}} {{__('messages.details')}}</li>
@@ -99,13 +99,13 @@
                         </a>
 
                         <!-- Unfold -->
-                    {{--<div class="hs-unfold ml-1">
+                        <div class="hs-unfold ml-1">
                             <h5>
                                 <i class="tio-shop"></i>
                                 {{__('messages.restaurant')}} : <label
-                                    class="badge badge-secondary">{{$order->restaurant?$order->restaurant->name:'Restaurant deleted!'}}</label>
+                                    class="badge badge-secondary">{{Str::limit($order->restaurant?$order->restaurant->name:__('messages.Restaurant deleted!'), 25,'...')}}</label>
                             </h5>
-                        </div>--}}
+                        </div>
                         @php
                             $refund_amount = $order->order_amount;
                             if($order->order_status == 'delivered')
@@ -316,7 +316,14 @@
                         }
                     ?>
                     @foreach($details as $key=>$detail)
-                        @if($detail->food  && $detail->status)
+                        @if(isset($detail->food_id) && $detail->status)
+                        <?php
+                            if(!$editing)
+                            {
+                                $detail->food = json_decode($detail->food_details, true);
+                            }
+                        ?>
+                            
                             <!-- Media -->
                                 <div class="media">
                                 @if($editing)
@@ -338,14 +345,14 @@
                                     <div class="media-body">
                                         <div class="row">
                                             <div class="col-md-6 mb-3 mb-md-0">
-                                                <strong> {{$detail->food['name']}}</strong><br>
+                                                <strong> {{Str::limit($detail->food['name'], 20, '...')}}</strong><br>
 
                                                 @if(count(json_decode($detail['variation'],true))>0)
                                                     <strong><u>{{__('messages.variation')}} : </u></strong>
                                                     @foreach(json_decode($detail['variation'],true)[0] as $key1 =>$variation)
                                                         <div class="font-size-sm text-body">
                                                             <span>{{$key1}} :  </span>
-                                                            <span class="font-weight-bold">{{$variation}}</span>
+                                                            <span class="font-weight-bold">{{Str::limit($variation,15, '...')}}</span>
                                                         </div>
                                                     @endforeach
                                                 @endif
@@ -353,7 +360,7 @@
                                                 @foreach(json_decode($detail['add_ons'],true) as $key2 =>$addon)
                                                     @if($key2==0)<strong><u>{{__('messages.addons')}} : </u></strong>@endif
                                                     <div class="font-size-sm text-body">
-                                                        <span>{{$addon['name']}} :  </span>
+                                                        <span>{{Str::limit($addon['name'],20,'...')}} :  </span>
                                                         <span class="font-weight-bold">
                                                             {{$addon['quantity']}} x {{\App\CentralLogics\Helpers::format_currency($addon['price'])}}
                                                         </span>
@@ -381,7 +388,13 @@
                             <!-- End Media -->
                                 <hr>
                         
-                        @elseif($detail->campaign  && $detail->status)
+                        @elseif(isset($detail->item_campaign_id)  && $detail->status)
+                        <?php
+                            if(!$editing)
+                            {
+                                $detail->campaign = json_decode($detail->food_details, true);
+                            }
+                        ?>
                             <!-- Media -->
                                 <div class="media">
                                     @if ($editing)
@@ -405,14 +418,14 @@
                                     <div class="media-body">
                                         <div class="row">
                                             <div class="col-md-6 mb-3 mb-md-0">
-                                                <strong> {{$detail->campaign['title']}}</strong><br>
+                                                <strong> {{Str::limit($detail->campaign['name'],20,'...')}}</strong><br>
 
                                                 @if(count(json_decode($detail['variation'],true))>0)
                                                     <strong><u>{{__('messages.variation')}} : </u></strong>
                                                     @foreach(json_decode($detail['variation'],true)[0] as $key1 =>$variation)
                                                         <div class="font-size-sm text-body">
                                                             <span>{{$key1}} :  </span>
-                                                            <span class="font-weight-bold">{{$variation}}</span>
+                                                            <span class="font-weight-bold">{{Str::limit($variation, 20, '...')}}</span>
                                                         </div>
                                                     @endforeach
                                                 @endif
@@ -420,7 +433,7 @@
                                                 @foreach(json_decode($detail['add_ons'],true) as $key2 =>$addon)
                                                     @if($key2==0)<strong><u>{{__('messages.addons')}} : </u></strong>@endif
                                                     <div class="font-size-sm text-body">
-                                                        <span>{{$addon['name']}} :  </span>
+                                                        <span>{{Str::limit($addon['name'],20, '...')}} :  </span>
                                                         <span class="font-weight-bold">
                                                             {{$addon['quantity']}} x {{\App\CentralLogics\Helpers::format_currency($addon['price'])}}
                                                         </span>
@@ -554,7 +567,7 @@
             </div>
 
             <div class="col-lg-4">
-                @if($order['order_type']!='take_away')
+                @if($order['order_type']!='take_away' && !$order->restaurant->self_delivery_system)
                 <!-- Card -->
                 <div class="card mb-2">
                     <!-- Header -->
@@ -582,7 +595,7 @@
                             </div>
                             <div class="media-body">
                                 <span class="text-body text-hover-primary">{{$order->delivery_man['f_name'].' '.$order->delivery_man['l_name']}}</span><br>
-                                <span class="badge badge-ligh">{{$order->delivery_man->orders->count()}} {{__('messages.orders_delivered')}}</span>
+                                <span class="badge badge-ligh">{{$order->delivery_man->orders_count}} {{__('messages.orders_delivered')}}</span>
                             </div>
                         </a>
 
@@ -622,7 +635,7 @@
                         </span>
                         @endif
            
-                    @elseif (!$order->restaurant->self_delivery_system)
+                    @else
                         <div class="w-100 text-center">
                             <div class="hs-unfold">
                                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" data-lat='21.03' data-lng='105.85'>
@@ -630,10 +643,6 @@
                                 </button>
                             </div>
                         </div>
-                    @else
-                        <span class="d-block text-lowercase qcont">
-                                {{__('messages.deliveryman').' '.__('messages.not_found')}}
-                        </span>
                     @endif    
                     </div>
                     
@@ -664,7 +673,7 @@
                                 </div>
                                 <div class="media-body">
                                     <span class="text-body text-hover-primary">{{$order->customer['f_name'].' '.$order->customer['l_name']}}</span><br>
-                                    <span class="badge badge-ligh">{{$order->customer->orders->count()}} {{__('messages.orders')}}</span>
+                                    <span class="badge badge-ligh">{{$order->customer->orders_count}} {{__('messages.orders')}}</span>
                                 </div>
             
                             </a>
@@ -741,8 +750,8 @@
                                     alt="Image Description">
                             </div>
                             <div class="media-body">
-                                <span class="text-body text-hover-primary">{{$order->restaurant->name}}</span><br>
-                                <span class="badge badge-ligh">{{$order->restaurant->orders->count()}} {{__('messages.orders_served')}}</span>
+                                <span class="text-body text-hover-primary text-break">{{$order->restaurant->name}}</span><br>
+                                <span class="badge badge-ligh">{{$order->restaurant->orders_count}} {{__('messages.orders_served')}}</span>
                             </div>
                         </a>
                         <hr>
@@ -1362,13 +1371,13 @@
             var Restaurantmarker = new google.maps.Marker({
                 position: new google.maps.LatLng({{$order->restaurant->latitude}}, {{$order->restaurant->longitude}}),
                 map: map,
-                title: "{{$order->restaurant->name}}",
+                title: "{{Str::limit($order->restaurant->name, 15, '...')}}",
                 icon: "{{asset('public/assets/admin/img/restaurant_map.png')}}"
             });
 
             google.maps.event.addListener(Restaurantmarker, 'click', (function(Restaurantmarker) {
                 return function() {
-                    infowindow.setContent("<div style='float:left'><img style='max-height:40px;wide:auto;' src='{{asset('storage/app/public/restaurant/'.$order->restaurant->logo)}}'></div><div style='float:right; padding: 10px;'><b>{{$order->restaurant->name}}</b><br/> {{$order->restaurant->address}}</div>");
+                    infowindow.setContent("<div style='float:left'><img style='max-height:40px;wide:auto;' src='{{asset('storage/app/public/restaurant/'.$order->restaurant->logo)}}'></div><div class='text-break' style='float:right; padding: 10px;'><b>{{Str::limit($order->restaurant->name, 15, '...')}}</b><br/> {{$order->restaurant->address}}</div>");
                     infowindow.open(map, Restaurantmarker);
                 }
             })(Restaurantmarker));
@@ -1456,13 +1465,13 @@
                 var Retaurantmarker = new google.maps.Marker({
                     position: new google.maps.LatLng({{$order->restaurant->latitude}}, {{$order->restaurant->longitude}}),
                     map: map,
-                    title: "{{$order->restaurant->name}}",
+                    title: "{{Str::limit($order->restaurant->name, 15,'...')}}",
                     icon: "{{asset('public/assets/admin/img/restaurant_map.png')}}"
                 });
 
                 google.maps.event.addListener(Retaurantmarker, 'click', (function(Retaurantmarker) {
                     return function() {
-                        infowindow.setContent("<div style='float:left'><img style='max-height:40px;wide:auto;' src='{{asset('storage/app/public/restaurant/'.$order->restaurant->logo)}}'></div><div style='float:right; padding: 10px;'><b>{{$order->restaurant->name}}</b><br/> {{$order->restaurant->address}}</div>");
+                        infowindow.setContent("<div style='float:left'><img style='max-height:40px;wide:auto;' src='{{asset('storage/app/public/restaurant/'.$order->restaurant->logo)}}'></div><div style='float:right; padding: 10px;'><b>{{Str::limit($order->restaurant->name, 15, '...')}}</b><br/> {{$order->restaurant->address}}</div>");
                         infowindow.open(map, Retaurantmarker);
                     }
                 })(Retaurantmarker));

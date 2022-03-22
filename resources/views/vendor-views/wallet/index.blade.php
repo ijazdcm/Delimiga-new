@@ -136,7 +136,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Withdraw Request</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">{{__('messages.withdraw')}} {{__('messages.request')}}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -145,15 +145,15 @@
                     <div class="modal-body">
                         @csrf
                         <div class="form-group">
-                            <label for="recipient-name" class="col-form-label">Amount:</label>
+                            <label for="recipient-name" class="col-form-label">{{__('messages.amount')}}:</label>
                             <input type="number" name="amount" step="0.01"
                                     value="{{$wallet->balance}}" 
                                     class="form-control" id="" min="0" max="{{$wallet->balance}}">
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Request</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{__('messages.Close')}}</button>
+                        <button type="submit" class="btn btn-primary">{{__('messages.Submit')}}</button>
                     </div>
                 </form>
             </div>
@@ -193,15 +193,15 @@
                                 <tr>
                                     <td scope="row">{{$k+$withdraw_req->firstItem()}}</td>
                                     <td>{{$wr['amount']}}</td>
-                                    <td>{{$wr->__action_note}}</td>
-                                    <td>{{$wr->created_at}}</td>
+                                    <td>{{$wr->transaction_note}}</td>
+                                    <td>{{date('Y-m-d '.config('timeformat'),strtotime($wr->created_at))}}</td>
                                     <td>
                                         @if($wr->approved==0)
-                                            <label class="badge badge-primary">Pending</label>
+                                            <label class="badge badge-primary">{{__('messages.pending')}}</label>
                                         @elseif($wr->approved==1)
-                                            <label class="badge badge-success">Approved</label>
+                                            <label class="badge badge-success">{{__('messages.approved')}}</label>
                                         @else
-                                            <label class="badge badge-danger">Denied</label>
+                                            <label class="badge badge-danger">{{__('messages.denied')}}</label>
                                         @endif
                                     </td>
                                     <td>
@@ -218,7 +218,7 @@
                                                 @csrf @method('delete')
                                             </form>
                                         @else
-                                            <label>complete</label>
+                                            <label>{{__('messages.complete')}}</label>
                                         @endif
                                     </td>
                                 </tr>

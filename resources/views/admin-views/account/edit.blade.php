@@ -59,19 +59,19 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="input-label" for="method">{{__('messages.method')}}<span class="input-label-secondary"></span></label>
-                            <input class="form-control" type="text" name="method" id="method" value="{{$account_transaction->method}}">
+                            <input class="form-control" type="text" name="method" id="method" value="{{$account_transaction->method}}" maxlength="191">
                         </div>  
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="input-label" for="ref">{{__('messages.reference')}}<span class="input-label-secondary"></span></label>
-                            <input  class="form-control" type="text" name="ref" id="ref" value="{{$account_transaction->ref}}">>
+                            <input  class="form-control" type="text" name="ref" id="ref" value="{{$account_transaction->ref}}" maxlength="191">
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="input-label" for="amount">{{__('messages.amount')}}<span class="input-label-secondary"></span></label>
-                            <input class="form-control" type="number" min="1" step="0.01" name="amount" id="amount" value="{{$account_transaction->amount}}">>
+                            <input class="form-control" type="number" min=".01" step="0.01" name="amount" id="amount" value="{{$account_transaction->amount}}" max="999999999999.99">
                         </div>
                     </div>  
                 </div>

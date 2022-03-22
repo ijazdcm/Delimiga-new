@@ -50,7 +50,7 @@ class DashboardController extends Controller
         } else {
             $restaurant_ids = Restaurant::pluck('id')->toArray();
         }
-        $data = self::order_stats_calc(array_unique($restaurant_ids));
+        $data = self::order_stats_calc($params['zone_id']);
         return response()->json([
             'view' => view('admin-views.partials._dashboard-order-stats', compact('data'))->render()
         ], 200);
@@ -70,7 +70,6 @@ class DashboardController extends Controller
         $total_sell = $data['total_sell'];
         $commission = $data['commission'];
         $popular = $data['popular'];
-        $top_customer = $data['top_customer'];
         $top_deliveryman = $data['top_deliveryman'];
         $top_rated_foods = $data['top_rated_foods'];
         $top_restaurants = $data['top_restaurants'];
@@ -78,7 +77,6 @@ class DashboardController extends Controller
 
         return response()->json([
             'popular_restaurants' => view('admin-views.partials._popular-restaurants', compact('popular'))->render(),
-            'top_customer' => view('admin-views.partials._top-customer', compact('top_customer'))->render(),
             'top_deliveryman' => view('admin-views.partials._top-deliveryman', compact('top_deliveryman'))->render(),
             'top_rated_foods' => view('admin-views.partials._top-rated-foods', compact('top_rated_foods'))->render(),
             'top_restaurants' => view('admin-views.partials._top-restaurants', compact('top_restaurants'))->render(),
@@ -86,7 +84,6 @@ class DashboardController extends Controller
 
             'order_stats' => view('admin-views.partials._dashboard-order-stats', compact('data'))->render(),
             'user_overview' => view('admin-views.partials._user-overview-chart', compact('data'))->render(),
-            'business_overview' => view('admin-views.partials._business-overview-chart', compact('data'))->render(),
             'monthly_graph' => view('admin-views.partials._monthly-earning-graph', compact('total_sell', 'commission'))->render(),
         ], 200);
     }
@@ -100,56 +97,23 @@ class DashboardController extends Controller
             }
         }
         session()->put('dash_params', $params);
-        //user overview
-        if ($params['zone_id'] != 'all') {
-            $restaurant_ids = Restaurant::where(['zone_id' => $params['zone_id']])->pluck('id')->toArray();
-            $zone_ids = [$params['zone_id']];
-            $user_ids = CustomerAddress::whereIn('zone_id', $zone_ids)->pluck('user_id')->toArray();
-        } else {
-            $zone_ids = Zone::pluck('id')->toArray();
-            $restaurant_ids = Restaurant::pluck('id')->toArray();
-            $user_ids = CustomerAddress::whereIn('zone_id', $zone_ids)->pluck('user_id')->toArray();
-        }
 
-        $data = self::user_overview_calc(array_unique($restaurant_ids), array_unique($zone_ids), array_unique($user_ids));
+        $data = self::user_overview_calc($params['zone_id']);
 
         return response()->json([
             'view' => view('admin-views.partials._user-overview-chart', compact('data'))->render()
         ], 200);
     }
 
-    public function business_overview(Request $request)
-    {
-        $params = session('dash_params');
-        foreach ($params as $key => $value) {
-            if ($key == 'business_overview') {
-                $params['business_overview'] = $request['business_overview'];
-            }
-        }
-        session()->put('dash_params', $params);
-        //business overview
-        if ($params['zone_id'] != 'all') {
-            $restaurant_ids = Restaurant::where(['zone_id' => $params['zone_id']])->pluck('id')->toArray();
-        } else {
-            $restaurant_ids = Restaurant::pluck('id')->toArray();
-        }
-
-        $data = self::business_overview_calc(array_unique($restaurant_ids));
-
-        return response()->json([
-            'view' => view('admin-views.partials._business-overview-chart', compact('data'))->render()
-        ], 200);
-    }
-
-    public function order_stats_calc($restaurant_ids)
+    public function order_stats_calc($zone_id)
     {
         $params = session('dash_params');
 
         if ($params['statistics_type'] == 'today') {
             $searching_for_dm = Order::SearchingForDeliveryman()->whereDate('created_at', Carbon::now());
-            $accepted_by_dm = Order::AccepteByDeliveryman()->whereDate('created_at', Carbon::now());
-            $preparing_in_rs = Order::Preparing()->whereDate('created_at', Carbon::now());
-            $picked_up = Order::FoodOnTheWay()->whereDate('created_at', Carbon::now());
+            $accepted_by_dm = Order::AccepteByDeliveryman()->whereDate('accepted', Carbon::now());
+            $preparing_in_rs = Order::Preparing()->whereDate('processing', Carbon::now());
+            $picked_up = Order::FoodOnTheWay()->whereDate('picked_up', Carbon::now());
             $delivered = Order::Delivered()->whereDate('delivered', Carbon::now());
             $canceled = Order::where(['order_status' => 'canceled'])->whereDate('canceled', Carbon::now());
             $refund_requested = Order::where(['order_status' => 'refund_requested'])->whereDate('refund_requested', Carbon::now());
@@ -165,14 +129,29 @@ class DashboardController extends Controller
             $refunded = Order::Refunded();
         }
 
-        $searching_for_dm = $searching_for_dm->OrderScheduledIn(30)->whereIn('restaurant_id', $restaurant_ids)->count();
-        $accepted_by_dm = $accepted_by_dm->whereIn('restaurant_id', $restaurant_ids)->count();
-        $preparing_in_rs = $preparing_in_rs->whereIn('restaurant_id', $restaurant_ids)->count();
-        $picked_up = $picked_up->whereIn('restaurant_id', $restaurant_ids)->count();
-        $delivered = $delivered->whereIn('restaurant_id', $restaurant_ids)->count();
-        $canceled = $canceled->whereIn('restaurant_id', $restaurant_ids)->count();
-        $refund_requested = $refund_requested->whereIn('restaurant_id', $restaurant_ids)->count();
-        $refunded = $refunded->whereIn('restaurant_id', $restaurant_ids)->count();
+        if(is_numeric($zone_id))
+        {
+            $searching_for_dm = $searching_for_dm->Notpos()->OrderScheduledIn(30)->where('zone_id', $zone_id)->count();
+            $accepted_by_dm = $accepted_by_dm->Notpos()->where('zone_id', $zone_id)->count();
+            $preparing_in_rs = $preparing_in_rs->Notpos()->where('zone_id', $zone_id)->count();
+            $picked_up = $picked_up->Notpos()->where('zone_id', $zone_id)->count();
+            $delivered = $delivered->Notpos()->where('zone_id', $zone_id)->count();
+            $canceled = $canceled->Notpos()->where('zone_id', $zone_id)->count();
+            $refund_requested = $refund_requested->Notpos()->where('zone_id', $zone_id)->count();
+            $refunded = $refunded->Notpos()->where('zone_id', $zone_id)->count();
+        }
+        else
+        {
+            $searching_for_dm = $searching_for_dm->Notpos()->OrderScheduledIn(30)->count();
+            $accepted_by_dm = $accepted_by_dm->Notpos()->count();
+            $preparing_in_rs = $preparing_in_rs->Notpos()->count();
+            $picked_up = $picked_up->Notpos()->count();
+            $delivered = $delivered->Notpos()->count();
+            $canceled = $canceled->Notpos()->count();
+            $refund_requested = $refund_requested->Notpos()->count();
+            $refunded = $refunded->Notpos()->count();            
+        }
+
 
         $data = [
             'searching_for_dm' => $searching_for_dm,
@@ -187,20 +166,33 @@ class DashboardController extends Controller
         return $data;
     }
 
-    public function user_overview_calc($restaurant_ids, $zone_ids, $user_ids)
+    public function user_overview_calc($zone_id)
     {
         $params = session('dash_params');
+        //zone
+        if(is_numeric($zone_id))
+        {
+            $customer = User::where('zone_id', $zone_id);
+            $restaurants = Restaurant::where(['zone_id' => $zone_id]);
+            $delivery_man = DeliveryMan::where('zone_id', $zone_id)->Zonewise();
+        }
+        else
+        {
+            $customer = User::whereNotNull('id');
+            $restaurants = Restaurant::whereNotNull('id');
+            $delivery_man = DeliveryMan::Zonewise();
+        }
         //user overview
         if ($params['user_overview'] == 'overall') {
-            $customer = User::whereIn('id', $user_ids)->count();
-            $restaurants = Restaurant::whereIn('id', $restaurant_ids)->count();
-            $delivery_man = DeliveryMan::whereIn('zone_id', $zone_ids)->count();
+            $customer = $customer->count();
+            $restaurants = $restaurants->count();
+            $delivery_man = $delivery_man->count();
         } else {
-            $customer = User::whereIn('id', $user_ids)->whereMonth('created_at', date('m'))
+            $customer = $customer->whereMonth('created_at', date('m'))
                 ->whereYear('created_at', date('Y'))->count();
-            $restaurants = Restaurant::whereIn('id', $restaurant_ids)->whereMonth('created_at', date('m'))
+            $restaurants = $restaurants->whereMonth('created_at', date('m'))
                 ->whereYear('created_at', date('Y'))->count();
-            $delivery_man = DeliveryMan::whereIn('zone_id', $zone_ids)->whereMonth('created_at', date('m'))
+            $delivery_man = $delivery_man->whereMonth('created_at', date('m'))
                 ->whereYear('created_at', date('Y'))->count();
         }
         $data = [
@@ -211,89 +203,53 @@ class DashboardController extends Controller
         return $data;
     }
 
-    public function business_overview_calc($restaurant_ids)
-    {
-        $params = session('dash_params');
-        //business overview
-        if ($params['business_overview'] == 'overall') {
-            $foods = Food::whereIn('restaurant_id', $restaurant_ids)->count();
-            $foods_ids = Food::whereIn('restaurant_id', $restaurant_ids)->pluck('id')->toArray();
-            $reviews = Review::whereIn('food_id', $foods_ids)->count();
-            $wishlist = Wishlist::whereIn('food_id', $foods_ids)->count();
-        } else {
-            $foods = Food::whereIn('restaurant_id', $restaurant_ids)->whereMonth('created_at', date('m'))
-                ->whereYear('created_at', date('Y'))->count();
-            $foods_ids = Food::whereIn('restaurant_id', $restaurant_ids)->pluck('id')->toArray();
-            $reviews = Review::whereIn('food_id', $foods_ids)->whereMonth('created_at', date('m'))
-                ->whereYear('created_at', date('Y'))->count();
-            $wishlist = Wishlist::whereIn('food_id', $foods_ids)->whereMonth('created_at', date('m'))
-                ->whereYear('created_at', date('Y'))->count();
-        }
-
-        $data['food'] = $foods;
-        $data['reviews'] = $reviews;
-        $data['wishlist'] = $wishlist;
-
-        return $data;
-    }
 
     public function dashboard_data()
     {
         $params = session('dash_params');
-        if ($params['zone_id'] != 'all') {
-            $restaurant_ids = Restaurant::where(['zone_id' => $params['zone_id']])->pluck('id')->toArray();
-            $zone_ids = [$params['zone_id']];
-            $user_ids = CustomerAddress::whereIn('zone_id', $zone_ids)->pluck('user_id')->toArray();
-            $vendor_ids = Restaurant::whereIn('id', $restaurant_ids)->pluck('vendor_id')->toArray();
-            $food_ids = Food::whereIn('restaurant_id', $restaurant_ids)->pluck('id')->toArray();
-        } else {
-            $zone_ids = Zone::pluck('id')->toArray();
-            $restaurant_ids = Restaurant::pluck('id')->toArray();
-            $user_ids = CustomerAddress::whereIn('zone_id', $zone_ids)->pluck('user_id')->toArray();
-            $vendor_ids = Restaurant::pluck('vendor_id')->toArray();
-            $food_ids = Food::pluck('id')->toArray();
-        }
-        $data_os = self::order_stats_calc(array_unique($restaurant_ids));
-        $data_uo = self::user_overview_calc(array_unique($restaurant_ids), array_unique($zone_ids), array_unique($user_ids));
-        $data_bo = self::business_overview_calc(array_unique($restaurant_ids));
+        $data_os = self::order_stats_calc($params['zone_id']);
+        $data_uo = self::user_overview_calc($params['zone_id']);
 
-        $popular = Wishlist::with(['restaurant'])->whereIn('restaurant_id', $restaurant_ids)->select('restaurant_id', DB::raw('COUNT(restaurant_id) as count'))->groupBy('restaurant_id')->orderBy('count', 'DESC')->limit(6)->get();
-        $top_sell = OrderDetail::with(['food'])->whereIn('food_id', $food_ids)
-            ->select('food_id', DB::raw('COUNT(food_id) as count'))
-            ->groupBy('food_id')
-            ->orderBy("count", 'desc')
+        $popular = Wishlist::with(['restaurant'])
+        ->whereHas('restaurant')
+        ->when(is_numeric($params['zone_id']), function($q)use($params){
+            return $q->whereHas('restaurant', function($query)use($params){
+                return $query->where('zone_id', $params['zone_id']);
+            });
+        })
+        ->select('restaurant_id', DB::raw('COUNT(restaurant_id) as count'))->groupBy('restaurant_id')->orderBy('count', 'DESC')->limit(6)->get();
+        $top_sell = Food::withoutGlobalScopes()
+            ->when(is_numeric($params['zone_id']),function($q)use($params){
+                return $q->whereHas('restaurant', function($query)use($params){
+                    return $query->where('zone_id', $params['zone_id']);
+                });
+            })
+            ->orderBy("order_count", 'desc')
             ->take(6)
             ->get();
-        $top_rated_foods = Food::rightJoin('reviews', 'reviews.food_id', '=', 'food.id')
-            ->whereIn('food_id', $food_ids)
-            ->groupBy('food_id')
-            ->select(['food_id',
-                DB::raw('AVG(reviews.rating) as ratings_average'),
-                DB::raw('count(*) as total')
-            ])
-            ->orderBy('total', 'desc')
-            ->take(6)
-            ->get();
-        $top_deliveryman = Order::with(['delivery_man'])->whereIn('restaurant_id', $restaurant_ids)
-            ->select('delivery_man_id', DB::raw('COUNT(delivery_man_id) as count'))
-            ->groupBy('delivery_man_id')
-            ->orderBy("count", 'desc')
+        $top_rated_foods = Food::withoutGlobalScopes()
+            ->when(is_numeric($params['zone_id']),function($q)use($params){
+                return $q->whereHas('restaurant', function($query)use($params){
+                    return $query->where('zone_id', $params['zone_id']);
+                });
+            })
+            ->orderBy('rating_count','desc')
             ->take(6)
             ->get();
 
-        $top_customer = Order::with(['customer'])->whereIn('restaurant_id', $restaurant_ids)
-            ->notpos()
-            ->select('user_id', DB::raw('COUNT(user_id) as count'))
-            ->groupBy('user_id')
-            ->orderBy("count", 'desc')
+        $top_deliveryman = DeliveryMan::
+            when(is_numeric($params['zone_id']), function($q)use($params){
+                return $q->where('zone_id', $params['zone_id']);
+            })
+            ->orderBy("order_count", 'desc')
             ->take(6)
             ->get();
 
-        $top_restaurants = Order::with(['restaurant'])->Delivered()
-            ->whereIn('restaurant_id', $restaurant_ids)
-            ->select('restaurant_id', DB::raw('COUNT(restaurant_id) as count'))
-            ->groupBy('restaurant_id')
-            ->orderBy("count", 'desc')
+        $top_restaurants = Restaurant::
+            when(is_numeric($params['zone_id']), function($q)use($params){
+                return $q->where('zone_id', $params['zone_id']);
+            })
+            ->orderBy("order_count", 'desc')
             ->take(6)
             ->get();
 
@@ -303,19 +259,26 @@ class DashboardController extends Controller
             $from = date('Y-' . $i . '-01');
             $to = date('Y-' . $i . '-30');
             $total_sell[$i] = OrderTransaction::NotRefunded()
-                ->whereIn('vendor_id', $vendor_ids)
+                ->when(is_numeric($params['zone_id']), function($q)use($params){
+                    return $q->whereHas('order.restaurant', function($query)use($params){
+                        return $query->where('zone_id', $params['zone_id']);
+                    });
+                })
                 ->whereBetween('created_at', [$from, $to])->sum('order_amount');
             $commission[$i] = OrderTransaction::NotRefunded()
-                ->whereIn('vendor_id', $vendor_ids)
+                ->when(is_numeric($params['zone_id']), function($q)use($params){
+                    return $q->whereHas('order.restaurant', function($query)use($params){
+                        return $query->where('zone_id', $params['zone_id']);
+                    });
+                })
                 ->whereBetween('created_at', [$from, $to])->sum('admin_commission');
         }
 
-        $dash_data = array_merge($data_os, $data_uo, $data_bo);
+        $dash_data = array_merge($data_os, $data_uo);
         $dash_data['popular'] = $popular;
         $dash_data['top_sell'] = $top_sell;
         $dash_data['top_rated_foods'] = $top_rated_foods;
         $dash_data['top_deliveryman'] = $top_deliveryman;
-        $dash_data['top_customer'] = $top_customer;
         $dash_data['top_restaurants'] = $top_restaurants;
         $dash_data['total_sell'] = $total_sell;
         $dash_data['commission'] = $commission;

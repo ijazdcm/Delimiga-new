@@ -1,6 +1,6 @@
 @extends('layouts.vendor.app')
 
-@section('title','Order Details')
+@section('title',__('order ').__('messages.details'))
 
 @push('css_or_js')
 
@@ -17,7 +17,7 @@
                             <li class="breadcrumb-item">
                                 <a class="breadcrumb-link"
                                    href="{{route('vendor.order.list',['status'=>'all'])}}">
-                                    Orders
+                                    {{__('messages.orders')}}
                                 </a>
                             </li>
                             <li class="breadcrumb-item active" aria-current="page">{{__('messages.order')}} {{__('messages.details')}}</li>
@@ -72,14 +72,6 @@
                             <i class="tio-print mr-1"></i> {{__('messages.print')}} {{__('messages.invoice')}}
                         </a>
 
-                        <!-- Unfold -->
-                        <div class="hs-unfold ml-1">
-                            <h5>
-                                <i class="tio-shop"></i>
-                                {{__('messages.restaurant')}} : <label
-                                    class="badge badge-secondary">{{$order->restaurant?$order->restaurant->name:'Restaurant deleted!'}}</label>
-                            </h5>
-                        </div>
                         @php($order_delivery_verification = (boolean)\App\Models\BusinessSetting::where(['key' => 'order_delivery_verification'])->first()->value)
                         <div class="hs-unfold float-right">
                             @if($order['order_status']=='pending' && $order['order_type']=='take_away')
@@ -170,22 +162,22 @@
                                     <div class="media-body">
                                         <div class="row">
                                             <div class="col-md-6 mb-3 mb-md-0">
-                                                <strong> {{$detail->food['name']}}</strong><br>
+                                                <strong> {{Str::limit($detail->food['name'],20,'...')}}</strong><br>
 
                                                 @if(count(json_decode($detail['variation'],true))>0)
                                                     <strong><u>{{__('messages.variation')}} : </u></strong>
                                                     @foreach(json_decode($detail['variation'],true)[0] as $key1 =>$variation)
                                                         <div class="font-size-sm text-body">
                                                             <span>{{$key1}} :  </span>
-                                                            <span class="font-weight-bold">{{$variation}}</span>
+                                                            <span class="font-weight-bold">{{Str::limit($variation,15,'..')}}</span>
                                                         </div>
                                                     @endforeach
                                                 @endif
 
                                                 @foreach(json_decode($detail['add_ons'],true) as $key2 =>$addon)
                                                     @if($key2==0)<strong><u>{{__('messages.addons')}} : </u></strong>@endif
-                                                    <div class="font-size-sm text-body">
-                                                        <span>{{$addon['name']}} :  </span>
+                                                    <div class="font-size-sm text-body text-break">
+                                                        <span>{{Str::limit($addon['name'],15,'...')}} :  </span>
                                                         <span class="font-weight-bold">
                                                             {{$addon['quantity']}} x {{\App\CentralLogics\Helpers::format_currency($addon['price'])}}
                                                         </span>
@@ -225,14 +217,14 @@
                                     <div class="media-body">
                                         <div class="row">
                                             <div class="col-md-6 mb-3 mb-md-0">
-                                                <strong> {{$detail->campaign['title']}}</strong><br>
+                                                <strong> {{Str::limit($detail->campaign['title'],20,'...')}}</strong><br>
 
                                                 @if(count(json_decode($detail['variation'],true))>0)
                                                     <strong><u>{{__('messages.variation')}} : </u></strong>
                                                     @foreach(json_decode($detail['variation'],true)[0] as $key1 =>$variation)
                                                         <div class="font-size-sm text-body">
                                                             <span>{{$key1}} :  </span>
-                                                            <span class="font-weight-bold">{{$variation}}</span>
+                                                            <span class="font-weight-bold">{{Str::limit($variation,15,'...')}}</span>
                                                         </div>
                                                     @endforeach
                                                 @endif
@@ -240,7 +232,7 @@
                                                 @foreach(json_decode($detail['add_ons'],true) as $key2 =>$addon)
                                                     @if($key2==0)<strong><u>{{__('messages.addons')}} : </u></strong>@endif
                                                     <div class="font-size-sm text-body">
-                                                        <span>{{$addon['name']}} :  </span>
+                                                        <span>{{Str::limit($addon['name'],15,'...')}} :  </span>
                                                         <span class="font-weight-bold">
                                                             {{$addon['quantity']}} x {{\App\CentralLogics\Helpers::format_currency($addon['price'])}}
                                                         </span>

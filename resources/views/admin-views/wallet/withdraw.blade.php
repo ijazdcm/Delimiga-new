@@ -26,19 +26,19 @@
                                 class="custom-select float-right" style="width: 200px">
                             <option
                                 value="all" {{session()->has('withdraw_status_filter') && session('withdraw_status_filter') == 'all'?'selected':''}}>
-                                All
+                                {{__('messages.all')}}
                             </option>
                             <option
                                 value="approved" {{session()->has('withdraw_status_filter') && session('withdraw_status_filter') == 'approved'?'selected':''}}>
-                                Approved
+                                {{__('messages.approved')}}
                             </option>
                             <option
                                 value="denied" {{session()->has('withdraw_status_filter') && session('withdraw_status_filter') == 'denied'?'selected':''}}>
-                                Denied
+                                {{__('messages.denied')}}
                             </option>
                             <option
                                 value="pending" {{session()->has('withdraw_status_filter') && session('withdraw_status_filter') == 'pending'?'selected':''}}>
-                                Pending
+                                {{__('messages.pending')}}
                             </option>
 
                         </select>
@@ -68,12 +68,12 @@
                                         <td>
                                             @if($wr->vendor)
                                             <a class="deco-none"
-                                               href="{{route('admin.vendor.view',[$wr->vendor['id']])}}">{{ count($wr->vendor->restaurants)>0?$wr->vendor->restaurants[0]->name:__('messages.restaurant').' '.__('messages.deleted') }}</a>
+                                               href="{{route('admin.vendor.view',[$wr->vendor['id']])}}">{{ Str::limit($wr->vendor->restaurants[0]->name, 20, '...') }}</a>
                                             @else
-                                            {{__('messages.restaurant').' '.__('messages.deleted') }}
+                                            {{__('messages.Restaurant deleted!') }}
                                             @endif
                                         </td>
-                                        <td>{{$wr->created_at}}</td>
+                                        <td>{{date('Y-m-d '.config('timeformat'),strtotime($wr->created_at))}}</td>
                                         <td>
                                             @if($wr->approved==0)
                                                 <label class="badge badge-primary">Pending</label>

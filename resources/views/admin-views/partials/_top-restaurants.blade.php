@@ -9,7 +9,7 @@
     @else
         @php($zone_name='All')
     @endif
-    <label class="badge badge-soft-info">( Zone : {{$zone_name}} )</label>
+    <label class="badge badge-soft-info">( {{__('messages.zone')}} : {{$zone_name}} )</label>
 </div>
 <!-- End Header -->
 
@@ -20,20 +20,20 @@
             <table class="table">
                 <tbody>
                 @foreach($top_restaurants as $key=>$item)
-                    <tr onclick="location.href='{{route('admin.vendor.view', $item->restaurant_id)}}'"
+                    <tr onclick="location.href='{{route('admin.vendor.view', $item->id)}}'"
                         style="cursor: pointer">
                         <td scope="row">
                             <img height="35" style="border-radius: 5px"
                                  onerror="this.src='{{asset('public/assets/admin/img/160x160/img1.jpg')}}'"
-                                 src="{{asset('storage/app/public/restaurant')}}/{{$item->restaurant['logo']}}">
+                                 src="{{asset('storage/app/public/restaurant')}}/{{$item['logo']}}">
                             <span class="ml-2">
-                                                       {{$item->restaurant->name??'Not exist!'}}
-                                                </span>
+                                    {{Str::limit($item->name??__('messages.Restaurant deleted!'), 20, '...')}}
+                            </span>
                         </td>
                         <td>
-                                                <span style="font-size: 18px">
-                                                    {{$item['count']}} <i style="color: #0d95e8" class="tio-shopping-cart"></i>
-                                                </span>
+                            <span style="font-size: 18px">
+                                {{$item['order_count']}} <i style="color: #0d95e8" class="tio-shopping-cart"></i>
+                            </span>
                         </td>
                     </tr>
                 @endforeach

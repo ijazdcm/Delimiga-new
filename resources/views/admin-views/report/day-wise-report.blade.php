@@ -14,10 +14,11 @@
                 <div class="col-sm mb-2 mb-sm-0">
                     <h1 class="page-header-title"><i class="tio-filter-list"></i> {{__('messages.day_wise_report')}} <span class="h6 badge badge-soft-success ml-2" id="itemCount">( {{session('from_date')}} - {{session('to_date')}} )</span></h1>
                 </div>
+                @if(!isset(auth('admin')->user()->zone_id))
                 <div class="col-sm-auto" style="width: 306px;">
                     <select name="zone_id" class="form-control js-select2-custom"
                             onchange="set_zone_filter('{{url()->full()}}',this.value)">
-                        <option value="all">All Zones</option>
+                        <option value="all">{{__('messages.all')}} {{__('messages.zone')}}</option>
                         @foreach(\App\Models\Zone::orderBy('name')->get() as $z)
                             <option
                                 value="{{$z['id']}}" {{isset($zone) && $zone->id == $z['id']?'selected':''}}>
@@ -26,6 +27,7 @@
                         @endforeach
                     </select>
                 </div>
+                @endif
             </div>
         </div>
         <!-- End Page Header -->
@@ -70,7 +72,7 @@
                         return $query->whereHas('restaurant', function($q)use($zone){
                             return $q->where('zone_id', $zone->id);
                         });
-                    })->whereBetween('created_at', [$from, $to])->count();
+                    })->whereBetween('created_at', [$from, $to])->Notpos()->count();
                     if($total==0){
                     $total=.01;
                     }
@@ -200,7 +202,7 @@
                         return $query->whereHas('restaurant', function($q)use($zone){
                             return $q->where('zone_id', $zone->id);
                         });
-                    })->whereIn('order_status',['pending','accepted', 'confirmed', 'processing','handover','picked_up'])->whereBetween('created_at', [$from, $to])->count()
+                    })->whereIn('order_status',['pending','accepted', 'confirmed', 'processing','handover','picked_up'])->whereBetween('created_at', [$from, $to])->Notpos()->count()
                 @endphp
                     <!-- Card -->
                     <div class="card card-sm">
@@ -254,7 +256,7 @@
                         return $query->whereHas('restaurant', function($q)use($zone){
                             return $q->where('zone_id', $zone->id);
                         });
-                    })->where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->count()
+                    })->where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->Notpos()->count()
                 @endphp
                     <!-- Card -->
                     <div class="card card-sm">
@@ -308,7 +310,7 @@
                         return $query->whereHas('restaurant', function($q)use($zone){
                             return $q->where('zone_id', $zone->id);
                         });
-                    })->where(['order_status'=>'failed'])->whereBetween('created_at', [$from, $to])->count()
+                    })->where(['order_status'=>'failed'])->whereBetween('created_at', [$from, $to])->Notpos()->count()
                 @endphp
                 <!-- Card -->
                     <div class="card card-sm">
@@ -362,7 +364,7 @@
                         return $query->whereHas('restaurant', function($q)use($zone){
                             return $q->where('zone_id', $zone->id);
                         });
-                    })->where(['order_status'=>'canceled'])->whereBetween('created_at', [$from, $to])->count()
+                    })->where(['order_status'=>'canceled'])->whereBetween('created_at', [$from, $to])->Notpos()->count()
                 @endphp
                 <!-- Card -->
                     <div class="card card-sm">

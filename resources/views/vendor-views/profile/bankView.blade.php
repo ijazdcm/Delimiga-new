@@ -1,5 +1,5 @@
 @extends('layouts.vendor.app')
-@section('title','Bandk Info View')
+@section('title',__('messages.Bank Info View'))
 @push('css_or_js')
     <!-- Custom styles for this page -->
     <link href="{{asset('public/assets/back-end')}}/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
@@ -25,12 +25,12 @@
                     <div class="card-body">
                         <div class="col-md-8 mt-4">
                             <h4>{{__('messages.bank_name')}}
-                                : {{$data->bank_name ? $data->bank_name : 'No Data found'}}</h4>
-                            <h6>{{__('messages.branch')}} : {{$data->branch ? $data->branch : 'No Data found'}}</h6>
+                                : {{$data->bank_name ? $data->bank_name : __('messages.No Data found')}}</h4>
+                            <h6>{{__('messages.branch')}} : {{$data->branch ? $data->branch : __('messages.No Data found')}}</h6>
                             <h6>{{__('messages.holder_name')}}
-                                : {{$data->holder_name ? $data->holder_name : 'No Data found'}}</h6>
+                                : {{$data->holder_name ? $data->holder_name : __('messages.No Data found')}}</h6>
                             <h6>{{__('messages.account_no')}}
-                                : {{$data->account_no ? $data->account_no : 'No Data found'}}</h6>
+                                : {{$data->account_no ? $data->account_no : __('messages.No Data found')}}</h6>
 
 
                             <a class="btn btn-primary"

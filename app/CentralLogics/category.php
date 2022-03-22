@@ -26,7 +26,7 @@ class CategoryLogic
         ->whereHas('category',function($q)use($category_id){
             return $q->whereId($category_id)->orWhere('parent_id', $category_id);
         })
-        ->active()->type($type)->with(['rating'])->latest()->paginate($limit, ['*'], 'page', $offset);
+        ->active()->type($type)->latest()->paginate($limit, ['*'], 'page', $offset);
 
         return [
             'total_size' => $paginator->total(),
@@ -39,7 +39,7 @@ class CategoryLogic
 
     public static function restaurants(int $category_id, int $zone_id, int $limit,int $offset, $type)
     {
-        $paginator = Restaurant::where('zone_id', $zone_id)
+        $paginator = Restaurant::withOpen()->where('zone_id', $zone_id)
         ->whereHas('foods.category', function($query)use($category_id){
             return $query->whereId($category_id)->orWhere('parent_id', $category_id);
         })
@@ -78,6 +78,6 @@ class CategoryLogic
         //     }
         // }
 
-        return Food::with('rating')->whereIn('category_id', $cate_ids)->get();
+        return Food::whereIn('category_id', $cate_ids)->get();
     }
 }

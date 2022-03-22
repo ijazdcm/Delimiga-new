@@ -69,7 +69,7 @@
                                 <tr>
                                     <td>{{$key+$campaigns->firstItem()}}</td>
                                     <td>
-                                        <span class="d-block text-body"><a href="{{route('admin.campaign.view',['basic',$campaign->id])}}">{{$campaign['title']}}</a>
+                                        <span class="d-block text-body"><a href="{{route('admin.campaign.view',['basic',$campaign->id])}}">{{Str::limit($campaign['title'],25, '...')}}</a>
                                         </span>
                                     </td>
                                     <td>

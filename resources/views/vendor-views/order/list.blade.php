@@ -196,6 +196,19 @@
                                                 </label>
                                                 <!-- End Checkbox Switch -->
                                             </div>
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <span class="mr-2">{{__('messages.order')}} {{__('messages.type')}}</span>
+
+                                                <!-- Checkbox Switch -->
+                                                <label class="toggle-switch toggle-switch-sm" for="toggleColumn_order_type">
+                                                    <input type="checkbox" class="toggle-switch-input"
+                                                           id="toggleColumn_order_type" checked>
+                                                    <span class="toggle-switch-label">
+                                                    <span class="toggle-switch-indicator"></span>
+                                                  </span>
+                                                </label>
+                                                <!-- End Checkbox Switch -->
+                                            </div>
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <span class="mr-2">{{__('messages.actions')}}</span>
 
@@ -480,6 +493,12 @@
             $('#toggleColumn_order_status').change(function (e) {
                 datatable.columns(6).visible(e.target.checked)
             })
+
+
+            $('#toggleColumn_order_type').change(function (e) {
+                datatable.columns(7).visible(e.target.checked)
+            })
+
 
             $('#toggleColumn_total').change(function (e) {
                 datatable.columns(5).visible(e.target.checked)

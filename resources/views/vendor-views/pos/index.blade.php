@@ -757,12 +757,11 @@
     //     form.submit();
     // });
 
-    $('#order_place').submit(function(eventObj) {
-        if($('#customer').val())
+    $( "#customer" ).change(function() {
+        if($(this).val())
         {
-            $(this).append('<input type="hidden" name="user_id" value="'+$('#customer').val()+'" /> ');
+            $('#customer_id').val($(this).val());
         }
-        return true;
     });
 
 </script>

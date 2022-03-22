@@ -440,6 +440,13 @@
                                         <span class="text-truncate">{{__('messages.list')}}</span>
                                     </a>
                                 </li>
+                                <li class="nav-item {{Request::is('admin/food/reviews')?'active':''}}">
+                                    <a class="nav-link " href="{{route('admin.food.reviews')}}"
+                                       title="{{__('messages.review')}} {{__('messages.list')}}">
+                                        <span class="tio-circle nav-indicator-icon"></span>
+                                        <span class="text-truncate">{{__('messages.review')}}</span>
+                                    </a>
+                                </li>
                                 <li class="nav-item {{Request::is('admin/food/bulk-import')?'active':''}}">
                                     <a class="nav-link " href="{{route('admin.food.bulk-import')}}"
                                        title="{{__('messages.bulk_import')}}">

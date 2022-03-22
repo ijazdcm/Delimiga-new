@@ -12,7 +12,7 @@
         <div class="page-header">
             <div class="row">
                 <div class="col-6">
-                    <h1 class="page-header-title">{{$product['name']}}</h1>
+                    <h1 class="page-header-title text-break">{{$product['name']}}</h1>
                 </div>
                 <div class="col-6">
                     <a href="{{route('vendor.food.edit',[$product['id']])}}" class="btn btn-primary float-right">
@@ -35,7 +35,7 @@
                                  onerror="this.src='{{asset('public/assets/admin/img/160x160/img2.jpg')}}'"
                                  alt="Image Description">
                             <div class="d-block">
-                                <h4 class="display-2 text-dark mb-0">{{count($product->rating)>0?number_format($product->rating[0]->average, 2, '.', ' '):0}}</h4>
+                                <h4 class="display-2 text-dark mb-0">{{round($product->avg_rating,1)}}</h4>
                                 <p> {{__('messages.of')}} {{$product->reviews->count()}} {{__('messages.reviews')}}
                                     <span class="badge badge-soft-dark badge-pill ml-1"></span>
                                 </p>
@@ -46,17 +46,17 @@
                     <div class="col-md">
                         <ul class="list-unstyled list-unstyled-py-2 mb-0">
 
-                        @php($total=$product->reviews->count())
+                        @php($total=$product->rating?array_sum(json_decode($product->rating, true)):0)
                         <!-- Review Ratings -->
                             <li class="d-flex align-items-center font-size-sm">
-                                @php($five=\App\CentralLogics\Helpers::rating_count($product['id'],5))
+                                @php($five=$product->rating?json_decode($product->rating, true)[5]:0)
                                 <span
-                                    class="mr-3">5 star</span>
+                                    class="mr-3">5 {{__('messages.star')}}</span>
                                 <div class="progress flex-grow-1">
                                     <div class="progress-bar" role="progressbar"
-                                         style="width: {{$total==0?0:($five/$total)*100}}%;"
-                                         aria-valuenow="{{$total==0?0:($five/$total)*100}}"
-                                         aria-valuemin="0" aria-valuemax="100"></div>
+                                        style="width: {{$total==0?0:($five/$total)*100}}%;"
+                                        aria-valuenow="{{$total==0?0:($five/$total)*100}}"
+                                        aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                                 <span class="ml-3">{{$five}}</span>
                             </li>
@@ -64,13 +64,13 @@
 
                             <!-- Review Ratings -->
                             <li class="d-flex align-items-center font-size-sm">
-                                @php($four=\App\CentralLogics\Helpers::rating_count($product['id'],4))
-                                <span class="mr-3">4 star</span>
+                                @php($four=$product->rating?json_decode($product->rating, true)[4]:0)
+                                <span class="mr-3">4 {{__('messages.star')}}</span>
                                 <div class="progress flex-grow-1">
                                     <div class="progress-bar" role="progressbar"
-                                         style="width: {{$total==0?0:($four/$total)*100}}%;"
-                                         aria-valuenow="{{$total==0?0:($four/$total)*100}}"
-                                         aria-valuemin="0" aria-valuemax="100"></div>
+                                        style="width: {{$total==0?0:($four/$total)*100}}%;"
+                                        aria-valuenow="{{$total==0?0:($four/$total)*100}}"
+                                        aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                                 <span class="ml-3">{{$four}}</span>
                             </li>
@@ -78,13 +78,13 @@
 
                             <!-- Review Ratings -->
                             <li class="d-flex align-items-center font-size-sm">
-                                @php($three=\App\CentralLogics\Helpers::rating_count($product['id'],3))
-                                <span class="mr-3">3 star</span>
+                                @php($three=$product->rating?json_decode($product->rating, true)[3]:0)
+                                <span class="mr-3">3 {{__('messages.star')}}</span>
                                 <div class="progress flex-grow-1">
                                     <div class="progress-bar" role="progressbar"
-                                         style="width: {{$total==0?0:($three/$total)*100}}%;"
-                                         aria-valuenow="{{$total==0?0:($three/$total)*100}}"
-                                         aria-valuemin="0" aria-valuemax="100"></div>
+                                        style="width: {{$total==0?0:($three/$total)*100}}%;"
+                                        aria-valuenow="{{$total==0?0:($three/$total)*100}}"
+                                        aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                                 <span class="ml-3">{{$three}}</span>
                             </li>
@@ -92,13 +92,13 @@
 
                             <!-- Review Ratings -->
                             <li class="d-flex align-items-center font-size-sm">
-                                @php($two=\App\CentralLogics\Helpers::rating_count($product['id'],2))
-                                <span class="mr-3">2 star</span>
+                                @php($two=$product->rating?json_decode($product->rating, true)[2]:0)
+                                <span class="mr-3">2 {{__('messages.star')}}</span>
                                 <div class="progress flex-grow-1">
                                     <div class="progress-bar" role="progressbar"
-                                         style="width: {{$total==0?0:($two/$total)*100}}%;"
-                                         aria-valuenow="{{$total==0?0:($two/$total)*100}}"
-                                         aria-valuemin="0" aria-valuemax="100"></div>
+                                        style="width: {{$total==0?0:($two/$total)*100}}%;"
+                                        aria-valuenow="{{$total==0?0:($two/$total)*100}}"
+                                        aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                                 <span class="ml-3">{{$two}}</span>
                             </li>
@@ -106,13 +106,13 @@
 
                             <!-- Review Ratings -->
                             <li class="d-flex align-items-center font-size-sm">
-                                @php($one=\App\CentralLogics\Helpers::rating_count($product['id'],1))
-                                <span class="mr-3">1 star</span>
+                                @php($one=$product->rating?json_decode($product->rating, true)[1]:0)
+                                <span class="mr-3">1 {{__('messages.star')}}</span>
                                 <div class="progress flex-grow-1">
                                     <div class="progress-bar" role="progressbar"
-                                         style="width: {{$total==0?0:($one/$total)*100}}%;"
-                                         aria-valuenow="{{$total==0?0:($one/$total)*100}}"
-                                         aria-valuemin="0" aria-valuemax="100"></div>
+                                        style="width: {{$total==0?0:($one/$total)*100}}%;"
+                                        aria-valuenow="{{$total==0?0:($one/$total)*100}}"
+                                        aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                                 <span class="ml-3">{{$one}}</span>
                             </li>
@@ -198,21 +198,26 @@
                     @foreach($reviews as $review)
                         <tr>
                             <td>
-                                <a class="d-flex align-items-center"
-                                   href="{{route('admin.customer.view',[$review['user_id']])}}">
-                                    <div class="avatar avatar-circle">
-                                        <img class="avatar-img" width="75" height="75"
-                                             onerror="this.src='{{asset('public/assets/admin/img/160x160/img1.jpg')}}'"
-                                             src="{{asset('storage/app/public/profile/'.$review->customer->image)}}"
-                                             alt="Image Description">
-                                    </div>
-                                    <div class="ml-3">
-                                    <span class="d-block h5 text-hover-primary mb-0">{{$review->customer['f_name']." ".$review->customer['l_name']}} <i
-                                            class="tio-verified text-primary" data-toggle="tooltip" data-placement="top"
-                                            title="Verified Customer"></i></span>
-                                        <span class="d-block font-size-sm text-body">{{$review->customer->email}}</span>
-                                    </div>
-                                </a>
+                                @if ($review->customer)
+                                    <a class="d-flex align-items-center"
+                                    href="{{route('admin.customer.view',[$review['user_id']])}}">
+                                        <div class="avatar avatar-circle">
+                                            <img class="avatar-img" width="75" height="75"
+                                                onerror="this.src='{{asset('public/assets/admin/img/160x160/img1.jpg')}}'"
+                                                src="{{asset('storage/app/public/profile/'.$review->customer->image)}}"
+                                                alt="Image Description">
+                                        </div>
+                                        <div class="ml-3">
+                                        <span class="d-block h5 text-hover-primary mb-0">{{$review->customer['f_name']." ".$review->customer['l_name']}} <i
+                                                class="tio-verified text-primary" data-toggle="tooltip" data-placement="top"
+                                                title="Verified Customer"></i></span>
+                                            <span class="d-block font-size-sm text-body">{{$review->customer->email}}</span>
+                                        </div>
+                                    </a>
+                                @else
+                                    {{__('messages.customer_not_found')}}
+                                @endif
+
                             </td>
                             <td>
                                 <div class="text-wrap" style="width: 18rem;">

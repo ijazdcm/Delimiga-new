@@ -84,7 +84,7 @@
                                     <td>{{$key+$campaigns->firstItem()}}</td>
                                     <td>
                                         <span class="d-block font-size-sm text-body">
-                                            {{$campaign['title']}}
+                                            {{Str::limit($campaign['title'],25,'...')}}
                                         </span>
                                     </td>
                                     <td>

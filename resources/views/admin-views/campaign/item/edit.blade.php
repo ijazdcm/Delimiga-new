@@ -22,11 +22,58 @@
                 <form action="javascript:" method="post" id="campaign_form"
                       enctype="multipart/form-data">
                     @csrf
-
-                    <div class="form-group">
-                        <label class="input-label" for="title">{{__('messages.title')}}</label>
-                        <input type="text" name="title" class="form-control" placeholder="{{__('messages.new_campaign')}}" required value="{{$campaign->title}}">
+                    @php($language=\App\Models\BusinessSetting::where('key','language')->first())
+                    @php($language = $language->value ?? null)
+                    @php($default_lang = 'bn')
+                    @if($language)
+                        @php($default_lang = json_decode($language)[0])
+                        <ul class="nav nav-tabs mb-4">
+                            @foreach(json_decode($language) as $lang)
+                                <li class="nav-item">
+                                    <a class="nav-link lang_link {{$lang == $default_lang? 'active':''}}" href="#" id="{{$lang}}-link">{{\App\CentralLogics\Helpers::get_language_name($lang).'('.strtoupper($lang).')'}}</a>
+                                </li>
+                            @endforeach
+                        </ul>
+                        @foreach(json_decode($language) as $lang)
+                            <?php
+                                if(count($campaign['translations'])){
+                                    $translate = [];
+                                    foreach($campaign['translations'] as $t)
+                                    {
+                                        if($t->locale == $lang && $t->key=="title"){
+                                            $translate[$lang]['title'] = $t->value;
+                                        }
+                                        if($t->locale == $lang && $t->key=="description"){
+                                            $translate[$lang]['description'] = $t->value;
+                                        }
+                                    }
+                                }
+                            ?>
+                            <div class="card p-4 {{$lang != $default_lang ? 'd-none':''}} lang_form" id="{{$lang}}-form">
+                                <div class="form-group">
+                                    <label class="input-label" for="{{$lang}}_title">{{__('messages.title')}} ({{strtoupper($lang)}})</label>
+                                    <input type="text" {{$lang == $default_lang? 'required':''}} name="title[]" id="{{$lang}}_title" class="form-control" placeholder="{{__('messages.new_campaign')}}" value="{{$translate[$lang]['title']??$campaign['title']}}" oninvalid="document.getElementById('en-link').click()">
+                                </div>
+                                <input type="hidden" name="lang[]" value="{{$lang}}">
+                                <div class="form-group pt-4">
+                                    <label class="input-label" for="exampleFormControlInput1">{{__('messages.short')}} {{__('messages.description')}} ({{strtoupper($lang)}})</label>
+                                    <textarea type="text" name="description[]" class="form-control ckeditor">{!! $translate[$lang]['description']??$campaign['description'] !!}</textarea>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                    <div class="card p-4" id="{{$default_lang}}-form">
+                        <div class="form-group">
+                            <label class="input-label" for="exampleFormControlInput1">{{__('messages.title')}} (EN)</label>
+                            <input type="text" name="title[]" class="form-control" placeholder="{{__('messages.new_campaign')}}" value="{{$campaign['title']}}" required>
+                        </div>
+                        <input type="hidden" name="lang[]" value="en">
+                        <div class="form-group pt-4">
+                            <label class="input-label" for="exampleFormControlInput1">{{__('messages.short')}} {{__('messages.description')}}</label>
+                            <textarea type="text" name="description[]" class="form-control ckeditor">{!! $campaign['description'] !!}</textarea>
+                        </div>
                     </div>
+                    @endif
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -90,26 +137,36 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4 col-6">
+                        <div class="col-md-3 col-6">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.price')}}</label>
                                 <input type="number" min="1" max="100000" step="0.01" value="{{$campaign->price}}" name="price" class="form-control"
                                        placeholder="Ex : 100" required>
                             </div>
                         </div>
-                        <div class="col-md-4 col-6">
+                        <div class="col-md-3 col-6">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.discount')}}</label>
                                 <input type="number" min="0" max="100000" value="{{$campaign->discount}}" name="discount" class="form-control"
                                        placeholder="Ex : 100" >
                             </div>
                         </div>
-                        <div class="col-md-4 col-6">
+                        <div class="col-md-3 col-6">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.discount')}} {{__('messages.type')}}</label>
                                 <select name="discount_type" class="form-control js-select2-custom">
                                     <option value="percent" {{$campaign->discount_type == 'percent'?'selected':''}}>{{__('messages.percent')}}</option>
                                     <option value="amount" {{$campaign->discount_type == 'amount'?'selected':''}}>{{__('messages.amount')}}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-6">
+                            <div class="form-group">
+                                <label class="input-label" for="exampleFormControlInput1">{{__('messages.item_type')}}</label>
+                                <select name="veg" class="form-control js-select2-custom">
+                                    <option value="0" {{$campaign['veg']==0?'selected':''}}>{{__('messages.non_veg')}}</option>
+                                    <option value="1" {{$campaign['veg']==1?'selected':''}}>{{__('messages.veg')}}</option>
                                 </select>
                             </div>
                         </div>
@@ -182,11 +239,6 @@
                                 </select>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="input-label" for="exampleFormControlInput1">{{__('messages.short')}} {{__('messages.description')}}</label>
-                        <textarea type="text" name="description" class="form-control">{{$campaign->description}}</textarea>
                     </div>
 
                     <div class="form-group">
@@ -406,5 +458,26 @@
                 }
             });
         });
+    </script>
+    <script>
+        $(".lang_link").click(function(e){
+            e.preventDefault();
+            $(".lang_link").removeClass('active');
+            $(".lang_form").addClass('d-none');
+            $(this).addClass('active');
+
+            let form_id = this.id;
+            let lang = form_id.split("-")[0];
+            console.log(lang);
+            $("#"+lang+"-form").removeClass('d-none');
+            if(lang == 'en')
+            {
+                $("#from_part_2").removeClass('d-none');
+            }
+            else
+            {
+                $("#from_part_2").addClass('d-none');
+            }
+        })
     </script>
 @endpush

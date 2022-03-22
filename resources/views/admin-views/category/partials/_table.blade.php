@@ -4,7 +4,7 @@
     <td>{{$category->id}}</td>
     <td>
     <span class="d-block font-size-sm text-body">
-        {{$category['name']}}
+        {{Str::limit($category['name'], 20, '...')}}
     </span>
     </td>
     <td>

@@ -141,7 +141,7 @@ class CustomerController extends Controller
 
         $details = OrderDetail::where(['order_id' => $request['order_id']])->get();
         foreach ($details as $det) {
-            $det['product_details'] = Helpers::product_data_formatting(json_decode($det['product_details'], true));
+            $det['product_details'] = json_decode($det['product_details'], true);
         }
 
         return response()->json($details, 200);
@@ -260,7 +260,23 @@ class CustomerController extends Controller
         ->when($interest == null, function($q){
             return $q->popular();
         })->limit(5)->get();
-        $products = Helpers::product_data_formatting($products, true);
+        $products = Helpers::product_data_formatting($products, true, false, app()->getLocale());
         return response()->json($products, 200);
+    }
+
+    public function update_zone(Request $request)
+    {
+        if (!$request->hasHeader('zoneId') && is_numeric($request->header('zoneId'))) {
+            $errors = [];
+            array_push($errors, ['code' => 'zoneId', 'message' => trans('messages.zone_id_required')]);
+            return response()->json([
+                'errors' => $errors
+            ], 403);
+        }
+
+        $customer = $request->user();
+        $customer->zone_id = (integer)$request->header('zoneId');
+        $customer->save();
+        return response()->json([], 200);
     }
 }

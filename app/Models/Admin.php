@@ -12,4 +12,13 @@ class Admin extends Authenticatable
     public function role(){
         return $this->belongsTo(AdminRole::class,'role_id');
     }
+
+    public function scopeZone($query)
+    {
+        if(isset(auth('admin')->user()->zone_id))
+        {
+            return $query->where('zone_id', auth('admin')->user()->zone_id);
+        }
+        return $query;
+    }
 }

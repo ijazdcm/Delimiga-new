@@ -17,23 +17,25 @@ class ProfileController extends Controller
     
     public function bank_view()
     {
-        $data = Vendor::where('id', Helpers::get_restaurant_id())->first();
+        $data = Helpers::get_vendor_data();
         return view('vendor-views.profile.bankView', compact('data'));
     }
 
     public function edit()
     {
-        $data = Vendor::where('id',Helpers::get_restaurant_id())->first();
+        $data = Helpers::get_vendor_data();
         return view('vendor-views.profile.edit', compact('data'));
     }
 
     public function update(Request $request)
     {
         $table=auth('vendor')->check()?'vendors':'vendor_employees';
+        $seller = auth('vendor')->check()?auth('vendor')->user():auth('vendor_employee')->user();
         $request->validate([
-            'f_name' => 'required',
-            'email' => 'required|unique:'.$table.',email,'.Helpers::get_vendor_id(),
-            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|unique:'.$table.',phone,'.Helpers::get_vendor_id(),
+            'f_name' => 'required|max:100',
+            'l_name' => 'nullable|max:100',
+            'email' => 'required|unique:'.$table.',email,'.$seller->id,
+            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:20|unique:'.$table.',phone,'.$seller->id,
         ], [
             'f_name.required' => trans('messages.first_name_is_required'),
         ]);
@@ -58,7 +60,7 @@ class ProfileController extends Controller
             'confirm_password' => 'required',
         ]);
 
-        $seller = Vendor::find(Helpers::get_restaurant_id());
+        $seller = auth('vendor')->check()?Helpers::get_vendor_data():auth('vendor_employee')->user();
         $seller->password = bcrypt($request['password']);
         $seller->save();
         Toastr::success(trans('messages.vendor_pasword_updated_successfully'));
@@ -67,7 +69,13 @@ class ProfileController extends Controller
 
     public function bank_update(Request $request)
     {
-        $bank = Vendor::find(Helpers::get_restaurant_id());
+        $request->validate([
+            'bank_name' => 'required|max:191',
+            'branch' => 'required|max:191',
+            'holder_name' => 'required|max:191',
+            'account_no' => 'required|max:191',
+        ]);
+        $bank = Helpers::get_vendor_data();
         $bank->bank_name = $request->bank_name;
         $bank->branch = $request->branch;
         $bank->holder_name = $request->holder_name;
@@ -79,7 +87,7 @@ class ProfileController extends Controller
 
     public function bank_edit()
     {
-        $data = Vendor::where('id', Helpers::get_restaurant_id())->first();
+        $data = Helpers::get_vendor_data();
         return view('vendor-views.profile.bankEdit', compact('data'));
     }
 

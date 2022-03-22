@@ -52,6 +52,7 @@
                                 <tr>
                                     <td>{{$key+$reviews->firstItem()}}</td>
                                     <td>
+                                        @if ($review->food)
                                         <a class="media align-items-center" href="{{route('vendor.food.view',[$review->food['id']])}}">
                                             <img class="avatar avatar-lg mr-3" src="{{asset('storage/app/public/product')}}/{{$review->food['image']}}" 
                                                 onerror="this.src='{{asset('public/assets/admin/img/160x160/img2.jpg')}}'" alt="{{$review->food->name}} image">
@@ -59,8 +60,12 @@
                                                 <h5 class="text-hover-primary mb-0">{{Str::limit($review->food['name'],10)}}</h5>
                                             </div>
                                         </a>
+                                        @else
+                                            {{__('messages.Food deleted!')}}
+                                        @endif
                                     </td>
                                     <td>
+                                        @if($review->customer)
                                         <div class="d-flex align-items-center">
                                             <div class="avatar avatar-circle">
                                                 <img class="avatar-img" width="75" height="75"
@@ -75,6 +80,9 @@
                                                 <span class="d-block font-size-sm text-body">{{Str::limit($review->customer->email, 20)}}</span>
                                             </div>
                                         </div>
+                                        @else
+                                        {{__('messages.customer_not_found')}}
+                                        @endif
                                     </td>
                                     <td>
                                         <div class="text-wrap" style="width: 18rem;">

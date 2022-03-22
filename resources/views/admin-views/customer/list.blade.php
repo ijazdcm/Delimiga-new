@@ -27,7 +27,8 @@
             <div class="card-header">
                 <div class="row justify-content-between align-items-center flex-grow-1">
                     <div class="col-lg-6 mb-3 mb-lg-0">
-                        <form action="javascript:" id="search-form">
+                        <!-- <form action="javascript:" id="search-form"> -->
+                        <form action="{{route('admin.customer.list')}}">
                             <!-- Search -->
                             <div class="input-group input-group-merge input-group-flush">
                                 <div class="input-group-prepend">
@@ -35,10 +36,12 @@
                                         <i class="tio-search"></i>
                                     </div>
                                 </div>
-                                <input id="datatableSearch_" type="search" name="search" class="form-control"
+                                <input id="datatableSearch_" type="search" name="search" class="form-control" value="{{request()->get('search')}}"
                                        placeholder="{{__('messages.search')}}" aria-label="Search" required>
-                                <button type="submit" class="btn btn-primary">search</button>
-
+                                <button type="submit" class="btn btn-primary">{{__('messages.search')}}</button>
+                                @if(request()->get('search'))
+                                <button type="reset" class="btn btn-info mx-1" onclick="location.href = '{{route('admin.customer.list')}}'">{{__('messages.reset')}}</button>
+                                @endif
                             </div>
                             <!-- End Search -->
                         </form>
@@ -172,6 +175,21 @@
                                             </div>
 
                                             <div class="d-flex justify-content-between align-items-center">
+                                                <span class="mr-2">{{__('messages.status')}}</span>
+
+                                                <!-- Checkbox Switch -->
+                                                <label class="toggle-switch toggle-switch-sm"
+                                                       for="toggleColumn_status">
+                                                    <input type="checkbox" class="toggle-switch-input"
+                                                           id="toggleColumn_status" checked>
+                                                    <span class="toggle-switch-label">
+                                                    <span class="toggle-switch-indicator"></span>
+                                                  </span>
+                                                </label>
+                                                <!-- End Checkbox Switch -->
+                                            </div>
+
+                                            <div class="d-flex justify-content-between align-items-center">
                                                 <span class="mr-2">{{__('messages.actions')}}</span>
 
                                                 <!-- Checkbox Switch -->
@@ -251,7 +269,7 @@
                             </td>
                             <td>
                                 <label class="badge badge-soft-info">
-                                    {{$customer->orders->count()}}
+                                    {{$customer->order_count}}
                                 </label>
                             </td>
                             <td>
@@ -421,6 +439,10 @@
 
             $('#toggleColumn_total_order').change(function (e) {
                 datatable.columns(4).visible(e.target.checked)
+            })
+
+            $('#toggleColumn_status').change(function (e) {
+                datatable.columns(5).visible(e.target.checked)
             })
 
             $('#toggleColumn_actions').change(function (e) {

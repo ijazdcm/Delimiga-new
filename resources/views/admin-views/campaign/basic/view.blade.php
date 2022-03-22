@@ -12,7 +12,7 @@
         <div class="page-header">
             <div class="row">
                 <div class="col-6">
-                    <h1 class="page-header-title">{{$campaign->title}}</h1>
+                    <h1 class="page-header-title text-break">{{$campaign->title}}</h1>
                 </div>
                 <div class="col-6">
                     {{--<a href="{{url()->previous()}}" class="btn btn-primary float-right">

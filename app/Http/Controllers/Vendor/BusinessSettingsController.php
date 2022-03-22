@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Restaurant;
+use App\Models\RestaurantSchedule;
 use App\Models\Currency;
 use App\Models\BusinessSetting;
 use Brian2694\Toastr\Facades\Toastr;
@@ -12,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\CentralLogics\Helpers;
+use Illuminate\Support\Facades\Validator;
 
 class BusinessSettingsController extends Controller
 {
@@ -66,7 +68,7 @@ class BusinessSettingsController extends Controller
         
         $restaurant[$request->menu] = $request->status;
         $restaurant->save();
-        Toastr::success('Restaurant settings updated!');
+        Toastr::success(trans('messages.Restaurant settings updated!'));
         return back();
     }
 
@@ -76,5 +78,55 @@ class BusinessSettingsController extends Controller
         $restaurant->active = $restaurant->active?0:1;
         $restaurant->save();
         return response()->json(['message' => $restaurant->active?trans('messages.restaurant_opened'):trans('messages.restaurant_temporarily_closed')], 200);
+    }
+
+    public function add_schedule(Request $request)
+    {
+        $validator = Validator::make($request->all(),[
+            'start_time'=>'required|date_format:H:i',
+            'end_time'=>'required|date_format:H:i|after:start_time',
+        ],[
+            'end_time.after'=>trans('messages.End time must be after the start time')
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => Helpers::error_processor($validator)]);
+        }
+        $temp = RestaurantSchedule::where('day', $request->day)->where('restaurant_id',Helpers::get_restaurant_id())
+        ->where(function($q)use($request){
+            return $q->where(function($query)use($request){
+                return $query->where('opening_time', '<=' , $request->start_time)->where('closing_time', '>=', $request->start_time);
+            })->orWhere(function($query)use($request){
+                return $query->where('opening_time', '<=' , $request->end_time)->where('closing_time', '>=', $request->end_time);
+            });
+        })
+        ->first();
+
+        if(isset($temp))
+        {
+            return response()->json(['errors' => [
+                ['code'=>'time', 'message'=>trans('messages.schedule_overlapping_warning')]
+            ]]);
+        }
+
+        $restaurant = Helpers::get_restaurant_data();
+        $restaurant_schedule = RestaurantSchedule::insert(['restaurant_id'=>Helpers::get_restaurant_id(),'day'=>$request->day,'opening_time'=>$request->start_time,'closing_time'=>$request->end_time]);
+        return response()->json([
+            'view' => view('admin-views.vendor.view.partials._schedule', compact('restaurant'))->render(),
+        ]);
+    }
+
+    public function remove_schedule($restaurant_schedule)
+    {
+        $restaurant = Helpers::get_restaurant_data();
+        $schedule = RestaurantSchedule::where('restaurant_id', $restaurant->id)->find($restaurant_schedule);
+        if(!$schedule)
+        {
+            return response()->json([],404);
+        }
+        $schedule->delete();
+        return response()->json([
+            'view' => view('admin-views.vendor.view.partials._schedule', compact('restaurant'))->render(),
+        ]);
     }
 }

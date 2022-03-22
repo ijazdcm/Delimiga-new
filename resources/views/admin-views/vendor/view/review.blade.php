@@ -21,7 +21,7 @@
     <div class="page-header">
         <div class="row">
             <div class="col-6">
-                <h1 class="page-header-title">{{$restaurant->name}}</h1>
+                <h1 class="page-header-title text-break">{{$restaurant->name}}</h1>
             </div>
             <div class="col-6">
                 <a href="{{route('admin.vendor.edit',[$restaurant->id])}}" class="btn btn-primary float-right">
@@ -101,14 +101,15 @@
                                 </thead>
 
                                 <tbody id="set-rows">
-                                @php($reviews = \App\Models\Review::whereHas('food', function($query)use($restaurant){
-                                    return $query->where('restaurant_id', $restaurant->id);
+                                @php($reviews = $restaurant->reviews()->with('food',function($query){
+                                    $query->withoutGlobalScope(\App\Scopes\RestaurantScope::class);
                                 })->latest()->paginate(25))
 
                                 @foreach($reviews as $key=>$review)
                                     <tr>
                                         <td>{{$key+$reviews->firstItem()}}</td>
                                         <td>
+                                        @if ($review->food)
                                             <a class="media align-items-center" href="{{route('admin.food.view',[$review->food['id']])}}">
                                                 <img class="avatar avatar-lg mr-3" src="{{asset('storage/app/public/product')}}/{{$review->food['image']}}" 
                                                     onerror="this.src='{{asset('public/assets/admin/img/160x160/img2.jpg')}}'" alt="{{$review->food->name}} image">
@@ -116,8 +117,12 @@
                                                     <h5 class="text-hover-primary mb-0">{{Str::limit($review->food['name'],10)}}</h5>
                                                 </div>
                                             </a>
+                                        @else
+                                            {{__('messages.Food deleted!')}}
+                                        @endif
                                         </td>
                                         <td>
+                                        @if($review->customer)
                                             <a class="d-flex align-items-center"
                                             href="{{route('admin.customer.view',[$review['user_id']])}}">
                                                 <div class="avatar avatar-circle">
@@ -133,6 +138,9 @@
                                                     <span class="d-block font-size-sm text-body">{{Str::limit($review->customer->email, 20)}}</span>
                                                 </div>
                                             </a>
+                                        @else
+                                            {{__('messages.customer_not_found')}}
+                                        @endif
                                         </td>
                                         <td>
                                             <div class="text-wrap" style="width: 18rem;">

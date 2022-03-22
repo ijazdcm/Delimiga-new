@@ -20,7 +20,7 @@
     <!-- Page Header -->
     <div class="page-header">
 
-        <h1 class="page-header-title">{{$restaurant->name}}</h1>
+        <h1 class="page-header-title text-break">{{$restaurant->name}}</h1>
         
         <!-- Nav Scroller -->
         <div class="js-nav-scroller hs-nav-scroller-horizontal">
@@ -52,6 +52,9 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{route('admin.vendor.view', ['restaurant'=>$restaurant->id, 'tab'=> 'settings'])}}"  aria-disabled="true">{{__('messages.settings')}}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{route('admin.vendor.view', ['restaurant'=>$restaurant->id, 'tab'=> 'transaction'])}}"  aria-disabled="true">{{__('messages.transaction')}}</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{route('admin.vendor.view', ['restaurant'=>$restaurant->id, 'tab'=> 'reviews'])}}"  aria-disabled="true">{{__('messages.reviews')}}</a>

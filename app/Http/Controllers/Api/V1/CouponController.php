@@ -50,7 +50,7 @@ class CouponController extends Controller
                 }
             }
 
-            return response()->json($coupons, 200);
+            return response()->json($data, 200);
         // } catch (\Exception $e) {
         //     return response()->json(['errors' => $e], 403);
         // }

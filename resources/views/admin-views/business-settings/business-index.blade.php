@@ -155,7 +155,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-4 col-sm-6 col-12">
+                        <div class="col-md-6 col-sm-6 col-12">
                             <div class="form-group">
                                 <label class="input-label text-capitalize d-inline" for="country">{{__('messages.country')}}</label>
                                 <select id="country" name="country" class="form-control  js-select2-custom">
@@ -411,10 +411,10 @@
                                 </select>
                             </div>
                         </div>
-                        {{--<div class="col-md-6 col-sm-6 col-12">
+                        <div class="col-md-6 col-sm-6 col-12">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{trans('messages.language')}} </label>
-                                <select name="language[]" id="language" data-maximum-selection-length="3" class="form-control js-select2-custom" required multiple=true>
+                                <select name="language[]" id="language" data-maximum-selection-length="3" class="form-control js-select2-custom" required multiple=true data-toggle="tooltip" title="{{__('messages.add_language_warrning')}}">
                                     <option value="en">English(default)</option>
                                     <option value="af">Afrikaans</option>
                                     <option value="sq">Albanian - shqip</option>
@@ -559,8 +559,8 @@
                                     <option value="zu">Zulu - isiZulu</option>
                                 </select>
                             </div>
-                        </div>--}}
-                        <div class="col-md-4 col-sm-6 col-12">
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-12">
                             @php($tz=\App\Models\BusinessSetting::where('key','timezone')->first())
                             @php($tz=$tz?$tz->value:0)
                             <div class="form-group">
@@ -652,7 +652,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4 col-sm-6 col-12">
+                        <div class="col-md-6 col-sm-6 col-12">
                             @php($tf=\App\Models\BusinessSetting::where('key','timeformat')->first())
                             @php($tf=$tf?$tf->value:'24')
                             <div class="form-group">
@@ -1005,6 +1005,22 @@
 
                     <div class="row">
                         <div class="col-md-6 col-12">
+                        @php($schedule_order_slot_duration=\App\Models\BusinessSetting::where('key','schedule_order_slot_duration')->first())
+                            <div class="form-group p-2">
+                                <label class="input-label text-capitalize" for="schedule_order_slot_duration">{{__('messages.Schedule order slot duration')}} {{__('messages.minute')}}</label>
+                                <input type="number" name="schedule_order_slot_duration" class="form-control" id="schedule_order_slot_duration" value="{{$schedule_order_slot_duration?$schedule_order_slot_duration->value:0}}" min="0" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-12">
+                        @php($digit_after_decimal_point=\App\Models\BusinessSetting::where('key','digit_after_decimal_point')->first())
+                            <div class="form-group p-2">
+                                <label class="input-label text-capitalize" for="digit_after_decimal_point">{{__('messages.Digit after decimal point')}}</label>
+                                <input type="number" name="digit_after_decimal_point" class="form-control" id="digit_after_decimal_point" value="{{$digit_after_decimal_point?$digit_after_decimal_point->value:0}}" min="0" max="4" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-12">
                         @php($admin_commission=\App\Models\BusinessSetting::where('key','admin_commission')->first())
                             <div class="form-group p-2">
                                 <label class="input-label text-capitalize" for="admin_commission">{{__('messages.default_admin_commission')}}</label>
@@ -1115,22 +1131,43 @@
                         </div>
                     </div>
 
-                    @php($logo=\App\Models\BusinessSetting::where('key','logo')->first())
-                    @php($logo=$logo->value??'')
-                    <div class="form-group">
-                        <label class="input-label d-inline">{{__('messages.logo')}}</label><small style="color: red">* ( {{__('messages.ratio')}} 3:1 )</small>
-                        <div class="custom-file">
-                            <input type="file" name="logo" id="customFileEg1" class="custom-file-input"
-                                   accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*">
-                            <label class="custom-file-label" for="customFileEg1">{{__('messages.choose')}} {{__('messages.file')}}</label>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            @php($logo=\App\Models\BusinessSetting::where('key','logo')->first())
+                            @php($logo=$logo->value??'')
+                            <div class="form-group">
+                                <label class="input-label d-inline">{{__('messages.logo')}}</label><small style="color: red">* ( {{__('messages.ratio')}} 3:1 )</small>
+                                <div class="custom-file mb-3">
+                                    <input type="file" name="logo" id="customFileEg1" class="custom-file-input"
+                                        accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*">
+                                    <label class="custom-file-label" for="customFileEg1">{{__('messages.choose')}} {{__('messages.file')}}</label>
+                                </div>
+                                <center>
+                                    <img style="height: 100px;border: 1px solid; border-radius: 10px;" id="viewer"
+                                        onerror="this.src='{{asset('public/assets/admin/img/160x160/img2.jpg')}}'"
+                                        src="{{asset('storage/app/public/business/'.$logo)}}" alt="logo image"/>
+                                </center>
+                            </div>
                         </div>
-                        <hr>
-                        <center>
-                            <img style="height: 100px;border: 1px solid; border-radius: 10px;" id="viewer"
-                                 onerror="this.src='{{asset('public/assets/admin/img/160x160/img2.jpg')}}'"
-                                 src="{{asset('storage/app/public/business/'.$logo)}}" alt="logo image"/>
-                        </center>
+                        <div class="col-sm-6">
+                            @php($icon=\App\Models\BusinessSetting::where('key','icon')->first())
+                            @php($icon=$icon->value??'')
+                            <div class="form-group">
+                                <label class="input-label d-inline">{{__('messages.Fav Icon')}}</label><small style="color: red">* ( {{__('messages.ratio')}} 1:1 )</small>
+                                <div class="custom-file mb-3">
+                                    <input type="file" name="icon" id="favIconUpload" class="custom-file-input"
+                                        accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*">
+                                    <label class="custom-file-label" for="favIconUpload">{{__('messages.choose')}} {{__('messages.file')}}</label>
+                                </div>
+                                <center>
+                                    <img style="height: 100px;border: 1px solid; border-radius: 10px;" id="iconViewer"
+                                        onerror="this.src='{{asset('public/assets/admin/img/160x160/img2.jpg')}}'"
+                                        src="{{asset('storage/app/public/business/'.$icon)}}" alt="Fav icon"/>
+                                </center>
+                            </div>
+                        </div>
                     </div>
+
                     <hr>
                     <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}" onclick="{{env('APP_MODE')!='demo'?'':'call_demo()'}}" class="btn btn-primary mb-2">{{trans('messages.submit')}}</button>
                 </form>
@@ -1142,10 +1179,10 @@
 
 @push('script_2')
     <script>
-        {{--@php($language=\App\Models\BusinessSetting::where('key','language')->first())
+        @php($language=\App\Models\BusinessSetting::where('key','language')->first())
         @php($language = $language->value ?? null)
         let language = <?php echo($language); ?>;
-        $('[id=language]').val(language);--}}
+        $('[id=language]').val(language);
 
         function maintenance_mode() {
         @if(env('APP_MODE')=='demo')
@@ -1184,20 +1221,22 @@
         @endif
         };
 
-        function readURL(input) {
+        function readURL(input, viewer) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
-
                 reader.onload = function (e) {
-                    $('#viewer').attr('src', e.target.result);
+                    $('#'+viewer).attr('src', e.target.result);
                 }
-
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
         $("#customFileEg1").change(function () {
-            readURL(this);
+            readURL(this, 'viewer');
+        });
+
+        $("#favIconUpload").change(function () {
+            readURL(this, 'iconViewer');
         });
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key={{\App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value}}&libraries=places&v=3.45.8"></script>

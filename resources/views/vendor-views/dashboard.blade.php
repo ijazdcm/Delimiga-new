@@ -55,15 +55,15 @@
                         <select class="custom-select" name="statistics_type" onchange="order_stats_update(this.value)">
                             <option
                                 value="overall" {{$params['statistics_type'] == 'overall'?'selected':''}}>
-                                Overall Statistics
+                                {{__('messages.Overall Statistics')}}
                             </option>
                             <option
                                 value="today" {{$params['statistics_type'] == 'today'?'selected':''}}>
-                                Today's Statistics
+                                {{__("messages.Today's Statistics")}}
                             </option>
                             <option
                                 value="this_month" {{$params['statistics_type'] == 'this_month'?'selected':''}}>
-                                This Month's Statistics
+                                {{__("messages.This Month's Statistics")}}
                             </option>
                         </select>
                     </div>

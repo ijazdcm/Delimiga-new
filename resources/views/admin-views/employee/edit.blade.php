@@ -99,7 +99,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <label class="input-label qcont" for="name">{{__('messages.phone')}}</label>
-                                    <input type="text" value="{{$e['phone']}}" required name="phone" class="form-control" id="phone"
+                                    <input type="tel" value="{{$e['phone']}}" required name="phone" class="form-control" id="phone"
                                            placeholder="Ex : +88017********">
                                 </div>
 

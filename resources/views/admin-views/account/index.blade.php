@@ -58,19 +58,19 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="input-label" for="method">{{__('messages.method')}}<span class="input-label-secondary"></span></label>
-                            <input class="form-control" type="text" name="method" id="method" required>
+                            <input class="form-control" type="text" name="method" id="method" required maxlength="191">
                         </div>  
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="input-label" for="ref">{{__('messages.reference')}}<span class="input-label-secondary"></span></label>
-                            <input  class="form-control" type="text" name="ref" id="ref">
+                            <input  class="form-control" type="text" name="ref" id="ref" maxlength="191">
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label class="input-label" for="amount">{{__('messages.amount')}}<span class="input-label-secondary" id="account_info"></span></label>
-                            <input class="form-control" type="number" min="1" step="0.01" name="amount" id="amount">
+                            <input class="form-control" type="number" min=".01" step="0.01" name="amount" id="amount" max="999999999999.99">
                         </div>
                     </div>  
                 </div>
@@ -108,7 +108,7 @@
                                     <td scope="row">{{$k+$account_transaction->firstItem()}}</td>
                                     <td>
                                         @if($at->restaurant)
-                                        <a href="{{route('admin.vendor.view',[$at->restaurant['id']])}}">{{ $at->restaurant->name }}</a>
+                                        <a href="{{route('admin.vendor.view',[$at->restaurant['id']])}}">{{ Str::limit($at->restaurant->name, 20, '...') }}</a>
                                         @elseif($at->deliveryman)
                                         <a href="{{route('admin.delivery-man.preview',[$at->deliveryman->id])}}">{{ $at->deliveryman->f_name }} {{ $at->deliveryman->l_name }}</a>
                                         @else

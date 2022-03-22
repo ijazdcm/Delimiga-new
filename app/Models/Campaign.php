@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Campaign extends Model
 {
@@ -15,6 +16,11 @@ class Campaign extends Model
         'status' => 'integer',
         'admin_id' => 'integer',
     ];
+
+    public function translations()
+    {
+        return $this->morphMany(Translation::class, 'translationable');
+    }
 
     public function getStartTimeAttribute($value)
     {
@@ -46,5 +52,14 @@ class Campaign extends Model
             })->where(function($q){
                 $q->whereTime('end_time', '>=', date('H:i:s'))->orWhereNull('end_time');
             });       
+    }
+
+    protected static function booted()
+    {
+        static::addGlobalScope('translate', function (Builder $builder) {
+            $builder->with(['translations' => function ($query) {
+                return $query->where('locale', app()->getLocale());
+            }]);
+        });
     }
 }

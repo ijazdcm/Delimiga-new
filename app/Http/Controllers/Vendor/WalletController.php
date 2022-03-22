@@ -20,7 +20,7 @@ class WalletController extends Controller
     public function w_request(Request $request)
     {
         $w = RestaurantWallet::where('vendor_id', Helpers::get_vendor_id())->first();
-        if ($w->balance >= $request['amount'] && $request['amount'] > 1) {
+        if ($w->balance >= $request['amount'] && $request['amount'] > .01) {
             $data = [
                 'vendor_id' => Helpers::get_vendor_id(),
                 'amount' => $request['amount'],

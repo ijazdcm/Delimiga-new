@@ -50,8 +50,8 @@ Route::group(['namespace' => 'Vendor', 'as' => 'vendor.'], function () {
 
         Route::group(['prefix' => 'category', 'as' => 'category.', 'middleware' => ['module:food']], function () {
             Route::get('get-all', 'CategoryController@get_all')->name('get-all');
-            Route::get('add', 'CategoryController@index')->name('add');
-            Route::get('add-sub-category', 'CategoryController@sub_index')->name('add-sub-category');
+            Route::get('list', 'CategoryController@index')->name('add');
+            Route::get('sub-category-list', 'CategoryController@sub_index')->name('add-sub-category');
             Route::post('search', 'CategoryController@search')->name('search');
         });
 
@@ -166,6 +166,8 @@ Route::group(['namespace' => 'Vendor', 'as' => 'vendor.'], function () {
 
         Route::group(['prefix' => 'business-settings', 'as' => 'business-settings.', 'middleware' => ['module:restaurant_setup']], function () {
             Route::get('restaurant-setup', 'BusinessSettingsController@restaurant_index')->name('restaurant-setup');
+            Route::post('add-schedule', 'BusinessSettingsController@add_schedule')->name('add-schedule');
+            Route::get('remove-schedule/{restaurant_schedule}', 'BusinessSettingsController@remove_schedule')->name('remove-schedule');
             Route::get('update-active-status', 'BusinessSettingsController@active_status')->name('update-active-status');
             Route::post('update-setup/{restaurant}', 'BusinessSettingsController@restaurant_setup')->name('update-setup');
             Route::get('toggle-settings-status/{restaurant}/{status}/{menu}', 'BusinessSettingsController@restaurant_status')->name('toggle-settings');
@@ -181,7 +183,7 @@ Route::group(['namespace' => 'Vendor', 'as' => 'vendor.'], function () {
             Route::post('bank-update', 'ProfileController@bank_update')->name('bank_update');
         });
 
-        Route::group(['prefix' => 'shop', 'as' => 'shop.', 'middleware' => ['module:my_shop']], function () {
+        Route::group(['prefix' => 'restaurant', 'as' => 'shop.', 'middleware' => ['module:my_shop']], function () {
             Route::get('view', 'RestaurantController@view')->name('view');
             Route::get('edit', 'RestaurantController@edit')->name('edit');
             Route::post('update', 'RestaurantController@update')->name('update');

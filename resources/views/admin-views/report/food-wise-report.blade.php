@@ -148,7 +148,7 @@
                             </td>
                             <td>
                                 @if($food->restaurant)
-                                {{$food->restaurant->name}}
+                                {{Str::limit($food->restaurant->name,25,'...')}}
                                 @else
                                 {{__('messages.restaurant')}} {{__('messages.deleted')}}
                                 @endif

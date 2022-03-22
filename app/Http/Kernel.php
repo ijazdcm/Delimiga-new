@@ -70,6 +70,7 @@ class Kernel extends HttpKernel
         'dm.api' => \App\Http\Middleware\DmTokenIsValid::class,
         'module' => \App\Http\Middleware\ModulePermissionMiddleware::class,
         'installation-check' => InstallationMiddleware::class,
-        'actch' => ActivationCheckMiddleware::class
+        'actch' => ActivationCheckMiddleware::class,
+        'localization' => \App\Http\Middleware\LocalizationMiddleware::class,
     ];
 }

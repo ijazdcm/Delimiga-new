@@ -1,6 +1,6 @@
 @extends('layouts.admin.app')
 
-@section('title','Update Attribute')
+@section('title',__('messages.Update Attribute'))
 
 @push('css_or_js')
 
@@ -21,10 +21,15 @@
             <div class="col-sm-12 col-lg-12 mb-3 mb-lg-2">
                 <form action="{{route('admin.attribute.update',[$attribute['id']])}}" method="post">
                     @csrf
-                    <div class="form-group">
-                        <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}}</label>
-                        <input type="text" name="name" value="{{$attribute['name']}}" class="form-control" placeholder="{{__('messages.new_attribute')}}" required>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group lang_form">
+                                <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}}</label>
+                                <input type="text" name="name" class="form-control" placeholder="{{__('messages.new_attribute')}}" maxlength="191" value="{{ $attribute['name'] }}" required>
+                            </div>
+                        </div>
                     </div>
+   
                     <button type="submit" class="btn btn-primary">{{__('messages.update')}}</button>
                 </form>
             </div>

@@ -35,7 +35,7 @@
                             aria-label="Toggle navigation" aria-expanded="false" aria-controls="navbarVerticalNavMenu"
                             data-toggle="collapse" data-target="#navbarVerticalNavMenu">
                 <span class="d-flex justify-content-between align-items-center">
-                  <span class="h5 mb-0">Nav menu</span>
+                  <span class="h5 mb-0">{{__('messages.nav_menu')}}</span>
 
                   <span class="navbar-toggle-default">
                     <i class="tio-menu-hamburger"></i>

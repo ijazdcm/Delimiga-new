@@ -5,7 +5,7 @@
     @else
         @php($zone_name='All')
     @endif
-    <label class="badge badge-soft-info">( Zone : {{$zone_name}} )</label>
+    <label class="badge badge-soft-info">( {{__('messages.zone')}} : {{$zone_name}} )</label>
 </div>
 
 <div class="col-sm-6 col-lg-3 mb-3 mb-lg-5">

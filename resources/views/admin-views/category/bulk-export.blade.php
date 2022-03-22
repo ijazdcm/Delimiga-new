@@ -1,6 +1,6 @@
 @extends('layouts.admin.app')
 
-@section('title','Category Bulk Export')
+@section('title',__('messages.Category Bulk Export'))
 
 @push('css_or_js')
 

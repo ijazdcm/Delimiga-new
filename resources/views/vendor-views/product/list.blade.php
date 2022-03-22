@@ -199,7 +199,7 @@
                             <tbody id="set-rows">
                             @foreach($foods as $key=>$food)
                                 <tr>
-                                    <td>{{$key+1}}</td>
+                                    <td>{{$key+$foods->firstItem()}}</td>
                                     <td>
                                         <a class="media align-items-center" href="{{route('vendor.food.view',[$food['id']])}}">
                                             <img class="avatar avatar-lg mr-3" src="{{asset('storage/app/public/product')}}/{{$food['image']}}" 

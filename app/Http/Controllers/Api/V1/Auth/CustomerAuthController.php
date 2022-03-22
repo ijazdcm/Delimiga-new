@@ -239,10 +239,11 @@ class CustomerAuthController extends Controller
                     ], 405);
                 }
             }
+            
             return response()->json(['token' => $token, 'is_phone_verified'=>auth()->user()->is_phone_verified], 200);
         } else {
             $errors = [];
-            array_push($errors, ['code' => 'auth-001', 'message' => 'Unauthorized.']);
+            array_push($errors, ['code' => 'auth-001', 'message' => trans('messages.Unauthorized')]);
             return response()->json([
                 'errors' => $errors
             ], 401);

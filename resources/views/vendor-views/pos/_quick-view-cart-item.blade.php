@@ -41,6 +41,9 @@
 </div>
 <div class="modal-body">
     <div class="d-flex flex-row">
+        @if(config('toggle_veg_non_veg'))
+            <span class="badge badge-{{$product->veg?'success':'danger'}} position-absolute">{{$product->veg?__('messages.veg'):__('messages.non_veg')}}</span>
+        @endif
         <!-- Product gallery-->
         <div class="d-flex align-items-center justify-content-center active" style="height:9.5rem;">
             <img class="img-responsive" style="height:100%;width:auto;overflow:hidden;border-radius: 5%;"
@@ -52,7 +55,7 @@
         </div>
         <!-- Product details-->
         <div class="details pl-2">
-            <a href="{{route('vendor.food.view',$product->id)}}" class="h3 mb-2 product-title">{{$product->name}}</a>
+            <a href="{{route('vendor.food.view',$product->id)}}" class="h3 mb-2 product-title text-break">{{$product->name}}</a>
 
             <div class="mb-3 text-dark">
                 <span class="h3 font-weight-normal text-accent mr-1">
@@ -67,7 +70,7 @@
 
             @if($product->discount > 0 || \App\CentralLogics\Helpers::get_restaurant_discount($product->restaurant))
                 <div class="mb-3 text-dark">
-                    <strong>Discount : </strong>
+                    <strong>{{__('messages.discount')}} : </strong>
                     <strong id="set-discount-amount">{{\App\CentralLogics\Helpers::get_product_discount($product)}}</strong>
                 </div>
             @endif
@@ -78,7 +81,7 @@
     <div class="row pt-2">
         <div class="col-12">
             <h2>{{__('messages.description')}}</h2>
-            <span class="d-block text-dark">
+            <span class="d-block text-dark text-break">
                 {!! $product->description !!}
             </span>
             <form id="add-to-cart-form" class="mb-2">
@@ -96,15 +99,15 @@
                                         id="{{ $choice->name }}-{{ $option }}"
                                         name="{{ $choice->name }}" value="{{ $option }}"
                                         {{ trim($option) == $cart_item[$choice->name]?'checked':'' }} autocomplete="off" >
-                                <label class="btn btn-sm check-label mx-1 choice-input"
-                                    for="{{ $choice->name }}-{{ $option }}">{{ $option }}</label>
+                                <label class="btn btn-sm check-label mx-1 choice-input  text-break"
+                                    for="{{ $choice->name }}-{{ $option }}">{{ Str::limit($option, 20, '...') }}</label>
                             @endforeach
                         </div>
                 @endforeach
 
                 <!-- Quantity + Add to cart -->
                 <div class="d-flex justify-content-between">
-                    <div class="product-description-label mt-2 text-dark h3">{{__('Quantity')}}:</div>
+                    <div class="product-description-label mt-2 text-dark h3">{{__('messages.quantity')}}:</div>
                     <div class="product-quantity d-flex align-items-center">
                         <div class="input-group input-group--style-2 pr-3"
                                 style="width: 160px;">
@@ -133,15 +136,15 @@
                 </div>
                 
                 <div class="d-flex justify-content-left flex-wrap">
-                @foreach (\App\Models\AddOn::whereIn('id', $add_ons)->get() as $key => $add_on)
+                @foreach (\App\Models\AddOn::whereIn('id', $add_ons)->active()->get() as $key => $add_on)
                     <div class="flex-column pb-2">
                         <input type="hidden" name="addon-price{{ $add_on->id }}" value="{{$add_on->price}}">
                         <input class="btn-check addon-chek" type="checkbox"
                                 id="addon{{ $key }}" onchange="addon_quantity_input_toggle(event)"
                                 name="addon_id[]" value="{{ $add_on->id }}" {{in_array( $add_on->id, $cart_item['add_ons'])?'checked':''}}
                                 autocomplete="off">
-                        <label class="d-flex align-items-center btn btn-sm check-label mx-1 addon-input" 
-                            for="addon{{ $key }}">{{ $add_on->name }} <br> {{ \App\CentralLogics\Helpers::format_currency($add_on->price) }}</label>
+                        <label class="d-flex align-items-center btn btn-sm check-label mx-1 addon-input text-break" 
+                            for="addon{{ $key }}">{{ Str::limit($add_on->name, 20, '...') }} <br> {{ \App\CentralLogics\Helpers::format_currency($add_on->price) }}</label>
                         <label class="input-group addon-quantity-input mx-1 shadow bg-white rounded px-1" for="addon{{ $key }}" @if(in_array( $add_on->id, $cart_item['add_ons'])) style="visibility:visible;" @endif>
                             <button class="btn btn-sm h-100 text-dark px-0" type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown(), getVariantPrice()"><i class="tio-remove  font-weight-bold"></i></button>
                             <input type="number" name="addon-quantity{{ $add_on->id }}"
@@ -155,7 +158,7 @@
                 @endif
                 <div class="row no-gutters d-none mt-2 text-dark" id="chosen_price_div" >
                     <div class="col-2">
-                        <div class="product-description-label">{{__('Total Price')}}:</div>
+                        <div class="product-description-label">{{__('messages.Total Price')}}:</div>
                     </div>
                     <div class="col-10">
                         <div class="product-price">
@@ -170,7 +173,7 @@
                             type="button"
                             style="width:37%; height: 45px">
                             <i class="tio-shopping-cart"></i>
-                        {{trans('messages.update')}}
+                        {{__('messages.update')}}
                     </button>
                 </div>
             </form>

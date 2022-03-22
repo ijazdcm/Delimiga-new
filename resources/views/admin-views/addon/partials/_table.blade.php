@@ -3,11 +3,11 @@
         <td>{{$key+ 1}}</td>
         <td>
         <span class="d-block font-size-sm text-body">
-            {{$addon['name']}}
+            {{Str::limit($addon['name'],20,'...')}}
         </span>
         </td>
         <td>{{\App\CentralLogics\Helpers::format_currency($addon['price'])}}</td>
-        <td>{{$addon->restaurant->name}}</td>
+        <td>{{Str::limit($addon->restaurant?$addon->restaurant->name:__('messages.restaurant').' '.__('messages.deleted'),20,'...')}}</td>
         <td>    
             <label class="toggle-switch toggle-switch-sm" for="stausCheckbox{{$addon->id}}">
             <input type="checkbox" onclick="location.href='{{route('admin.addon.status',[$addon['id'],$addon->status?0:1])}}'"class="toggle-switch-input" id="stausCheckbox{{$addon->id}}" {{$addon->status?'checked':''}}>

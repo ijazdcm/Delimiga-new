@@ -39,7 +39,7 @@
     <div class="page-header">
         <div class="row">
             <div class="col-6">
-                <h1 class="page-header-title">{{$restaurant->name}}</h1>
+                <h1 class="page-header-title text-break">{{$restaurant->name}}</h1>
             </div>
             <div class="col-6">
                 @if($restaurant->vendor->status)

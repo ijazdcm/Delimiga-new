@@ -1,6 +1,6 @@
 @extends('layouts.admin.app')
 
-@section('title','Add new notification')
+@section('title',__('messages.notification'))
 
 @push('css_or_js')
 
@@ -25,14 +25,14 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.title')}}</label>
-                                <input type="text" name="notification_title" class="form-control" placeholder="{{__('messages.new_notification')}}" required>
+                                <input type="text" name="notification_title" class="form-control" placeholder="{{__('messages.new_notification')}}" required maxlength="191">
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.zone')}}</label>
                                 <select name="zone" class="form-control js-select2-custom" >
-                                    <option value="all">All Zones</option>
+                                    <option value="all">{{__('messages.all')}}</option>
                                     @foreach(\App\Models\Zone::orderBy('name')->get() as $z)
                                         <option value="{{$z['id']}}">{{$z['name']}}</option>
                                     @endforeach
@@ -239,8 +239,8 @@
             var formData = new FormData(this);
             
             Swal.fire({
-                title: 'Are you sure?',
-                text: 'you want to sent notification to '+$('#tergat').val()+'?',
+                title: '{{__('messages.are_you_sure')}}',
+                text: '{{__('messages.you want to sent notification to')}}'+$('#tergat').val()+'?',
                 type: 'info',
                 showCancelButton: true,
                 cancelButtonColor: 'default',

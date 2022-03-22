@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+ini_set('max_execution_time', 180);
+
 use App\CentralLogics\Helpers;
+use App\CentralLogics\ProductLogic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +22,7 @@ class UpdateController extends Controller
         Helpers::setEnvironmentValue('BUYER_USERNAME',$request['username']);
         Helpers::setEnvironmentValue('PURCHASE_CODE',$request['purchase_key']);
         Helpers::setEnvironmentValue('APP_MODE','live');
-        Helpers::setEnvironmentValue('SOFTWARE_VERSION','5.1');
+        Helpers::setEnvironmentValue('SOFTWARE_VERSION','5.3');
         Helpers::setEnvironmentValue('APP_NAME','stackfood'.time());
 
         $data = Helpers::requestSender();
@@ -78,7 +81,12 @@ class UpdateController extends Controller
         Helpers::insert_business_settings_key('toggle_dm_registration', 0);
         Helpers::insert_business_settings_key('toggle_restaurant_registration', 0);
         Helpers::insert_business_settings_key('recaptcha', '{"status":"0","site_key":null,"secret_key":null}');
+        Helpers::insert_business_settings_key('schedule_order_slot_duration', 30);
+        Helpers::insert_business_settings_key('digit_after_decimal_point', 2);
+        Helpers::insert_business_settings_key('language', '["en"]');
+        Helpers::insert_business_settings_key('icon', 'icon.png');
 
+        ProductLogic::update_food_ratings();
         return redirect('/admin/auth/login');
     }
 }

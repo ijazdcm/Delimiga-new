@@ -325,9 +325,7 @@
                                 @endif
                             </td>
                             <td>
-
-                                    <label class="badge badge-soft-primary"><a href="{{route('admin.vendor.view', $order->restaurant_id)}}" alt="view restaurant">{{$order->restaurant?$order->restaurant->name:'Restaurant deleted!'}}</a></label>
-
+                                <label class="badge badge-soft-primary"><a href="{{route('admin.vendor.view', $order->restaurant_id)}}" alt="view restaurant">{{Str::limit($order->restaurant?$order->restaurant->name:__('messages.Restaurant deleted!'),20,'...')}}</a></label>
                             </td>
                             <td>
                                 @if($order->payment_status=='paid')

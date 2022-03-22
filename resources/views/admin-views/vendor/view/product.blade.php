@@ -21,7 +21,7 @@
     <div class="page-header">
         <div class="row">
             <div class="col-6">
-                <h1 class="page-header-title">{{$restaurant->name}}</h1>
+                <h1 class="page-header-title text-break">{{$restaurant->name}}</h1>
             </div>
             <div class="col-6">
                 <a href="{{route('admin.vendor.edit',[$restaurant->id])}}" class="btn btn-primary float-right">
@@ -73,13 +73,14 @@
     </div>
         <!-- End Page Header -->
     <!-- Page Heading -->
+    @php($foods = \App\Models\Food::withoutGlobalScope(\App\Scopes\RestaurantScope::class)->where('restaurant_id', $restaurant->id)->latest()->paginate(25))
     <div class="tab-content">
         <div class="tab-pane fade show active" id="product">
             <div class="row pt-2">
                 <div class="col-md-12">
                     <div class="card h-100">
                         <div class="card-header">
-                            {{__('messages.products')}} {{$restaurant->foods->count()}}
+                            <h3>{{__('messages.products')}} <span class="badge badge-soft-dark ml-2">{{$foods->total()}}</span></h3>
                             
                             <a href="{{route('admin.food.add-new')}}" class="btn btn-primary pull-right"><i
                                         class="tio-add-circle"></i> {{__('messages.add')}} {{__('messages.new')}} {{__('messages.food')}}</a>
@@ -106,73 +107,20 @@
                                 <tbody id="set-rows">
                                 @php($foods = \App\Models\Food::withoutGlobalScope(\App\Scopes\RestaurantScope::class)->where('restaurant_id', $restaurant->id)->latest()->paginate(25))
                                 @foreach($foods as $key=>$food)
-                                    {{--<tr>
-                                        <td>{{$key+1}}</td>
-                                        <td>
-                                            <span class="d-block font-size-sm text-body">
-                                                    <a href="{{route('admin.food.view',[$food['id']])}}">
-                                                    {{$food['name']}}
-                                                    </a>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div style="height: 100px; width: 100px; overflow-x: hidden;overflow-y: hidden">
-                                                <img src="{{asset('storage/app/public/product')}}/{{$food['image']}}" style="width: 100px"
-                                                        onerror="this.src='{{asset('public/assets/admin/img/160x160/img2.jpg')}}'">
-                                            </div>
-                                        </td>
-                                        <td>
-                                        {{$food->restaurant->name}}
-                                        </td>
-                                        <td>
-                                            @if($food['status']==1)
-                                                <div style="padding: 10px;border: 1px solid;cursor: pointer"
-                                                        onclick="location.href='{{route('admin.food.status',[$food['id'],0])}}'">
-                                                    <span class="legend-indicator bg-success"></span>{{__('messages.active')}}
-                                                </div>
-                                            @else
-                                                <div style="padding: 10px;border: 1px solid;cursor: pointer"
-                                                        onclick="location.href='{{route('admin.food.status',[$food['id'],1])}}'">
-                                                    <span class="legend-indicator bg-danger"></span>{{__('messages.disabled')}}
-                                                </div>
-                                            @endif
-                                        </td>
-                                        <td>{{\App\CentralLogics\Helpers::format_currency($food['price'])}}</td>
-                                        <td>
-                                            <!-- Dropdown -->
-                                            <div class="dropdown">
-                                                <button class="btn btn-secondary dropdown-toggle" type="button"
-                                                        id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
-                                                        aria-expanded="false">
-                                                    <i class="tio-settings"></i>
-                                                </button>
-                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                    <a class="dropdown-item"
-                                                        href="{{route('admin.food.edit',[$food['id']])}}">{{__('messages.edit')}}</a>
-                                                    <a class="dropdown-item" href="javascript:"
-                                                        onclick="form_alert('food-{{$food['id']}}','Want to delete this item ?')">{{__('messages.delete')}}</a>
-                                                    <form action="{{route('admin.food.delete',[$food['id']])}}"
-                                                            method="post" id="food-{{$food['id']}}">
-                                                        @csrf @method('delete')
-                                                    </form>
-                                                </div>
-                                            </div>
-                                            <!-- End Dropdown -->
-                                        </td>
-                                    </tr>--}}
-                                    <tr>
+                                    
+                                <tr>
                                     <td>{{$key+1}}</td>
                                     <td>
                                         <a class="media align-items-center" href="{{route('admin.food.view',[$food['id']])}}">
                                             <img class="avatar avatar-lg mr-3" src="{{asset('storage/app/public/product')}}/{{$food['image']}}" 
                                                  onerror="this.src='{{asset('public/assets/admin/img/160x160/img2.jpg')}}'" alt="{{$food->name}} image">
                                             <div class="media-body">
-                                                <h5 class="text-hover-primary mb-0">{{$food['name']}}</h5>
+                                                <h5 class="text-hover-primary mb-0">{{Str::limit($food['name'],20,'...')}}</h5>
                                             </div>
                                         </a>
                                     </td>
                                     <td>
-                                    {{$food->category}}
+                                    {{Str::limit($food->category,20,'...')}}
                                     </td>
                                     <td>{{\App\CentralLogics\Helpers::format_currency($food['price'])}}</td>
                                     <td>

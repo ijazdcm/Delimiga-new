@@ -1,6 +1,6 @@
 @extends('layouts.vendor.app')
 
-@section('title','Bank Info')
+@section('title',__('messages.bank_info'))
 
 @push('css_or_js')
     <!-- Custom styles for this page -->
@@ -14,7 +14,7 @@
     <div class="content container-fluid">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{route('vendor.dashboard')}}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{route('vendor.dashboard')}}">{{__('messages.dashboard')}}</a></li>
                 <li class="breadcrumb-item" aria-current="page">{{__('messages.owner')}}</li>
                 <li class="breadcrumb-item">{{__('messages.bank_info')}}</li>
             </ol>
@@ -41,13 +41,13 @@
                                         <label for="name">{{__('messages.bank_name')}} <span class="text-danger">*</span></label>
                                         <input type="text" name="bank_name" value="{{$data->bank_name}}"
                                                class="form-control" id="name"
-                                               required>
+                                               required maxlength="191">
                                     </div>
                                     <div class="col-md-6">
                                         <label for="name">{{__('messages.branch')}} {{__('messages.name')}}<span class="text-danger">*</span></label>
                                         <input type="text" name="branch" value="{{$data->branch}}" class="form-control"
                                                id="name"
-                                               required>
+                                               required maxlength="191">
                                     </div>
                                 </div>
 
@@ -58,13 +58,13 @@
                                         <label for="account_no">{{__('messages.holder_name')}} <span class="text-danger">*</span></label>
                                         <input type="text" name="holder_name" value="{{$data->holder_name}}"
                                                class="form-control" id="account_no"
-                                               required>
+                                               required maxlength="191">
                                     </div>
                                     <div class="col-md-6">
                                         <label for="account_no">{{__('messages.account_no')}} <span class="text-danger">*</span></label>
-                                        <input type="number" name="account_no" value="{{$data->account_no}}"
+                                        <input type="text" name="account_no" value="{{$data->account_no}}"
                                                class="form-control" id="account_no"
-                                               required>
+                                               required maxlength="191">
                                     </div>
 
                                 </div>
@@ -72,7 +72,7 @@
                             </div>
 
                             <button type="submit" class="btn btn-primary" id="btn_update">{{__('messages.update')}}</button>
-                            <a class="btn btn-danger" href="{{route('vendor.profile.view')}}">{{__('messages.cancel')}}</a>
+                            <a class="btn btn-danger" href="{{route('vendor.profile.bankView')}}">{{__('messages.cancel')}}</a>
                         </form>
                     </div>
                 </div>

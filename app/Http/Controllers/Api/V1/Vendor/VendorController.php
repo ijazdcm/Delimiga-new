@@ -28,7 +28,10 @@ class VendorController extends Controller
     {
         $vendor = $request['vendor'];
         $restaurant = Helpers::restaurant_data_formatting($vendor->restaurants[0], false);
-        $restaurant['discount']=$vendor->restaurants[0]->discount;
+        $discount=Helpers::get_restaurant_discount($vendor->restaurants[0]);
+        unset($restaurant['discount']);
+        $restaurant['discount']=$discount;
+        $restaurant['schedules']=$restaurant->schedules()->get();
 
         $vendor['order_count'] =$vendor->orders->count();
         $vendor['todays_order_count'] =$vendor->todaysorders->count();
@@ -78,8 +81,8 @@ class VendorController extends Controller
             'phone' => 'required|unique:vendors,phone,'.$vendor->id,
             'password'=>'nullable|min:6',
         ], [
-            'f_name.required' => 'First name is required!',
-            'l_name.required' => 'Last name is required!',
+            'f_name.required' => trans('messages.first_name_is_required'),
+            'l_name.required' => trans('messages.Last name is required!'),
         ]);
 
         if ($validator->fails()) {
@@ -259,7 +262,15 @@ class VendorController extends Controller
         }
 
         if ($request->status == 'delivered' && $order->transaction == null) {
-            $ol = OrderLogic::create_transaction($order,'restaurant', null);
+            if($order->payment_method == 'cash_on_delivery')
+            {
+                $ol = OrderLogic::create_transaction($order,'restaurant', null);
+            }
+            else
+            {
+                $ol = OrderLogic::create_transaction($order,'admin', null);
+            }
+            
             $order->payment_status = 'paid';
         } 
 
@@ -272,6 +283,7 @@ class VendorController extends Controller
                 }
             });
             $order->customer->increment('order_count');
+            $order->restaurant->increment('order_count');
         }
         if($request->status == 'canceled' || $request->status == 'delivered')
         {
@@ -385,6 +397,13 @@ class VendorController extends Controller
                 $item['available_date_ends']=$item->end_date->format('Y-m-d');
                 unset($item['end_date']);
             }
+
+            if (count($item['translations'])>0 ) {
+                $translate = array_column($item['translations']->toArray(), 'value', 'key');
+                $item['title'] = $translate['title'];
+                $item['description'] = $translate['description'];
+            }
+
             $item['is_joined'] = in_array($restaurant_id, $restaurant_ids)?true:false;
             unset($item['restaurants']);
             array_push($data, $item);
@@ -445,12 +464,12 @@ class VendorController extends Controller
 
         $type = $request->query('type', 'all');
 
-        $paginator = Food::type($type)->where('restaurant_id', $request['vendor']->restaurants[0]->id)->latest()->paginate($limit, ['*'], 'page', $offset);
+        $paginator = Food::withoutGlobalScope('translate')->type($type)->where('restaurant_id', $request['vendor']->restaurants[0]->id)->latest()->paginate($limit, ['*'], 'page', $offset);
         $data = [
             'total_size' => $paginator->total(),
             'limit' => $limit,
             'offset' => $offset,
-            'products' => Helpers::product_data_formatting($paginator->items(), true)
+            'products' => Helpers::product_data_formatting($paginator->items(), true, true, app()->getLocale())
         ];   
 
         return response()->json($data, 200);
@@ -459,10 +478,10 @@ class VendorController extends Controller
     public function update_bank_info(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'bank_name' => 'required',
-            'branch' => 'required',
-            'holder_name' => 'required',
-            'account_no' => 'required'
+            'bank_name' => 'required|max:191',
+            'branch' => 'required|max:191',
+            'holder_name' => 'required|max:191',
+            'account_no' => 'required|max:191'
         ]);
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);

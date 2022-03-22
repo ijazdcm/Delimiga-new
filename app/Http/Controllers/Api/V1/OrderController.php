@@ -78,7 +78,7 @@ class OrderController extends Controller
                 ]
             ], 406);
         }
-        $restaurant = Restaurant::with('discount')->where('id', $request->restaurant_id)->first();
+        $restaurant = Restaurant::with('discount')->selectRaw('*, IF(((select count(*) from `restaurant_schedule` where `restaurants`.`id` = `restaurant_schedule`.`restaurant_id` and `restaurant_schedule`.`day` = '.$schedule_at->format('w').' and `restaurant_schedule`.`opening_time` < "'.$schedule_at->format('H:i:s').'" and `restaurant_schedule`.`closing_time` >"'.$schedule_at->format('H:i:s').'") > 0), true, false) as open')->where('id', $request->restaurant_id)->first();
 
         if(!$restaurant)
         {
@@ -98,12 +98,8 @@ class OrderController extends Controller
             ], 406);
         }
         
-        if($restaurant->opening_time > $restaurant->closeing_time)
-        {
-            $restaurant->closeing_time->addHours(12);
-        }
 
-        if($restaurant->opening_time->format('H:i') > $schedule_at->format('H:i') && $restaurant->closeing_time->format('H:i') < $schedule_at->format('H:i'))
+        if($restaurant->open == false)
         {
             return response()->json([
                 'errors' => [
@@ -113,14 +109,14 @@ class OrderController extends Controller
         }
         
 
-        if(str_contains($restaurant->off_day, $schedule_at->dayOfWeek))
-        {
-            return response()->json([
-                'errors' => [
-                    ['code' => 'order_time', 'message' => trans('messages.scheduled_date_is_restaurant_offday')]
-                ]
-            ], 406);
-        }
+        // if(str_contains($restaurant->off_day, $schedule_at->dayOfWeek))
+        // {
+        //     return response()->json([
+        //         'errors' => [
+        //             ['code' => 'order_time', 'message' => trans('messages.scheduled_date_is_restaurant_offday')]
+        //         ]
+        //     ], 406);
+        // }
 
         if ($request['coupon_code']) {
             $coupon = Coupon::active()->where(['code' => $request['coupon_code']])->first();
@@ -228,6 +224,7 @@ class OrderController extends Controller
         $order->schedule_at = $schedule_at;
         $order->scheduled = $request->schedule_at?1:0;
         $order->otp = rand(1000, 9999);
+        $order->zone_id = $restaurant->zone_id;
         $order->pending = now();
         $order->created_at = now();
         $order->updated_at = now();
@@ -241,7 +238,7 @@ class OrderController extends Controller
                         $price = $product['price'];
                     }
                     $product->tax = $restaurant->tax;
-                    $product = Helpers::product_data_formatting($product);
+                    $product = Helpers::product_data_formatting($product, false, false, app()->getLocale());
                     $addon_data = Helpers::calculate_addon_price(\App\Models\AddOn::whereIn('id',$c['add_on_ids'])->get(), $c['add_on_qtys']);
                     $or_d = [
                         'food_id' => null,
@@ -279,7 +276,7 @@ class OrderController extends Controller
                         $price = $product['price'];
                     }
                     $product->tax = $restaurant->tax;
-                    $product = Helpers::product_data_formatting($product);
+                    $product = Helpers::product_data_formatting($product, false, false, app()->getLocale());
                     $addon_data = Helpers::calculate_addon_price(\App\Models\AddOn::whereIn('id',$c['add_on_ids'])->get(), $c['add_on_qtys']);
                     $or_d = [
                         'food_id' => $c['food_id'],
@@ -365,6 +362,12 @@ class OrderController extends Controller
             }
             OrderDetail::insert($order_details);
             Helpers::send_order_notification($order);
+
+            $customer = $request->user();
+            $customer->zone_id = $restaurant->zone_id;
+            $customer->save();
+
+            $restaurant->increment('total_order');
     
             return response()->json([
                 'message' => trans('messages.order_placed_successfully'),
@@ -513,6 +516,15 @@ class OrderController extends Controller
 
     public function update_payment_method(Request $request)
     {
+        $config=Helpers::get_business_settings('cash_on_delivery');
+        if($config['status']==0)
+        {
+            return response()->json([
+                'errors' => [
+                    ['code' => 'cod', 'message' => trans('messages.Cash on delivery order not available at this time')]
+                ]
+            ], 403);
+        }
         $order = Order::where(['user_id' => $request->user()->id, 'id' => $request['order_id']])->Notpos()->first();
         if ($order) {
             Order::where(['user_id' => $request->user()->id, 'id' => $request['order_id']])->update([
@@ -558,6 +570,6 @@ class OrderController extends Controller
             'errors' => [
                 ['code' => 'order', 'message' => trans('messages.not_found')]
             ]
-        ], 401);
+        ], 404);
     }
 }

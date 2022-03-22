@@ -97,6 +97,7 @@ class OrderLogic
                 'original_delivery_charge'=>$order->original_delivery_charge,
                 'tax'=>$order->total_tax_amount,
                 'received_by'=> $received_by?$received_by:'admin',
+                'zone_id'=>$order->zone_id,
                 'status'=> $status,
                 'created_at' => now(),
                 'updated_at' => now()
@@ -114,10 +115,6 @@ class OrderLogic
             if($order->restaurant->self_delivery_system)
             {
                 $vendorWallet->total_earning = $vendorWallet->total_earning + $order->delivery_charge;
-                if($order->payment_method == 'cash_on_delivery')
-                {
-                    $vendorWallet->collected_cash = $vendorWallet->collected_cash + $order->delivery_charge;
-                }
             }
             else{
                 $adminWallet->delivery_charge = $adminWallet->delivery_charge+$order->delivery_charge;
@@ -148,10 +145,10 @@ class OrderLogic
                     $dmWallet->collected_cash=$dmWallet->collected_cash+$order->order_amount;
                     $dmWallet->save();
                 }
-                else if($order->restaurant->self_delivery_system)
-                {
-                    $vendorWallet->collected_cash = $vendorWallet->collected_cash+$order->order_amount - $order->delivery_charge;
-                }
+                // else if($order->restaurant->self_delivery_system)
+                // {
+                //     $vendorWallet->collected_cash = $vendorWallet->collected_cash+$order->order_amount - $order->delivery_charge;
+                // }
                 $adminWallet->save();
                 $vendorWallet->save();
                 DB::commit();

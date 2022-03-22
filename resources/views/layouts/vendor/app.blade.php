@@ -6,7 +6,9 @@
     <!-- Title -->
     <title>@yield('title')</title>
     <!-- Favicon -->
+    @php($logo=\App\Models\BusinessSetting::where(['key'=>'icon'])->first()->value)
     <link rel="shortcut icon" href="">
+    <link rel="icon" type="image/x-icon" href="{{asset('storage/app/public/business/'.$logo??'')}}">
     <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&amp;display=swap" rel="stylesheet">
     <!-- CSS Implementing Plugins -->
@@ -131,10 +133,10 @@
                         <div class="col-12">
                             <center>
                                 <h2 style="color: rgba(96,96,96,0.68)">
-                                    <i class="tio-shopping-cart-outlined"></i> You have new order, Check Please.
+                                    <i class="tio-shopping-cart-outlined"></i> {{__('messages.You have new order, Check Please.')}}
                                 </h2>
                                 <hr>
-                                <button onclick="check_order()" class="btn btn-primary">Ok, let me check</button>
+                                <button onclick="check_order()" class="btn btn-primary">{{__('messages.Ok, let me check')}}</button>
                             </center>
                         </div>
                     </div>
@@ -305,6 +307,7 @@
     }
 </script>
 <script>
+    @if(\App\CentralLogics\Helpers::employee_module_permission_check('order'))
     var order_type = 'all';
     setInterval(function () {
         $.get({
@@ -326,7 +329,7 @@
             },
         });
     }, 10000);
-
+    @endif
     function check_order() {
         location.href = '{{url('/')}}/vendor-panel/order/list/'+order_type;
     }

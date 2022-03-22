@@ -1,5 +1,5 @@
 @extends('layouts.admin.app')
-@section('title','Create Role')
+@section('title',__('messages.custom_role'))
 @push('css_or_js')
 
 @endpush
@@ -31,7 +31,7 @@
                         <div class="form-group">
                             <label class="input-label qcont" for="name">{{__('messages.role_name')}}</label>
                             <input type="text" name="name" class="form-control" id="name" aria-describedby="emailHelp"
-                                   placeholder="Ex : Store" required>
+                                   placeholder="Ex : Store" required value="{{old('name')}}">
                         </div>
 
                         <label class="input-label qcont" for="name">{{__('messages.module_permission')}} : </label>
@@ -210,7 +210,7 @@
                 <div class="card-body">
                     <div class="table-responsive datatable-custom">
                         <table id="columnSearchDatatable"
-                               class="table table-borderless table-thead-bordered table-nowrap table-align-middle card-table"
+                               class="table table-borderless table-thead-bordered table-align-middle card-table"
                                data-hs-datatables-options='{
                                  "order": [],
                                  "orderCellsTop": true,
@@ -218,11 +218,11 @@
                                }'>
                             <thead class="thead-light">
                             <tr>
-                                <th scope="col" style="width: 50px">SL#</th>
+                                <th scope="col" style="width: 50px">{{__('messages.sl#')}}</th>
                                 <th scope="col" style="width: 50px">{{__('messages.role_name')}}</th>
                                 <th scope="col" style="width: 200px">{{__('messages.modules')}}</th>
                                 <th scope="col" style="width: 50px">{{__('messages.created_at')}}</th>
-                                <th scope="col" style="width: 50px">{{__('messages.status')}}</th>
+                                {{--<th scope="col" style="width: 50px">{{__('messages.status')}}</th>--}}
                                 <th scope="col" style="width: 50px">{{__('messages.action')}}</th>
                             </tr>
                             </thead>
@@ -230,7 +230,7 @@
                             @foreach($rl as $k=>$r)
                                 <tr>
                                     <td scope="row">{{$k+$rl->firstItem()}}</td>
-                                    <td>{{$r['name']}}</td>
+                                    <td>{{Str::limit($r['name'],25,'...')}}</td>
                                     <td class="text-capitalize">
                                         @if($r['modules']!=null)
                                             @foreach((array)json_decode($r['modules']) as $key=>$m)
@@ -239,9 +239,9 @@
                                         @endif
                                     </td>
                                     <td>{{date('d-M-y',strtotime($r['created_at']))}}</td>
-                                    <td>
+                                    {{--<td>
                                         {{$r->status?'Active':'Inactive'}}
-                                    </td>
+                                    </td>--}}
                                     <td>
                                         <a class="btn btn-sm btn-white"
                                             href="{{route('admin.custom-role.edit',[$r['id']])}}" title="{{__('messages.edit')}} {{__('messages.role')}}"><i class="tio-edit"></i>

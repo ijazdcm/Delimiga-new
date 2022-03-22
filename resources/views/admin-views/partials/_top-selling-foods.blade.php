@@ -9,7 +9,7 @@
     @else
         @php($zone_name='All')
     @endif
-    <label class="badge badge-soft-info">( Zone : {{$zone_name}} )</label>
+    <label class="badge badge-soft-info">( {{__('messages.zone')}} : {{$zone_name}} )</label>
 </div>
 <!-- End Header -->
 
@@ -18,16 +18,16 @@
     <div class="row">
         @foreach($top_sell as $key=>$item)
             <div class="col-md-4 col-sm-6 mt-2"
-                 onclick="location.href='{{route('admin.food.view',[$item['food_id']])}}'"
+                 onclick="location.href='{{route('admin.food.view',[$item['id']])}}'"
                  style="cursor: pointer;padding-right: 6px;padding-left: 6px">
                 <div class="grid-card">
-                    <label class="label_1">Sold : {{$item['count']}}</label>
+                    <label class="label_1">{{__('messages.sold')}} : {{$item['order_count']}}</label>
                     <img style="width: 100%;height: 120px"
-                         src="{{asset('storage/app/public/product')}}/{{$item->food['image']}}"
+                         src="{{asset('storage/app/public/product')}}/{{$item['image']}}"
                          onerror="this.src='{{asset('public/assets/admin/img/160x160/img2.jpg')}}'"
-                         alt="{{$item->food->name}} image">
+                         alt="{{$item->name}} image">
                     <div class="text-center mt-2">
-                        <span class="" style="font-size: 10px">{{$item->food['name']}}</span>
+                        <span class="" style="font-size: 10px">{{Str::limit($item['name'],20,'...')}}</span>
                     </div>
                 </div>
             </div>

@@ -58,7 +58,7 @@ class Helpers
         return $result;
     }
 
-    public static function product_data_formatting($data, $multi_data = false)
+    public static function product_data_formatting($data, $multi_data = false, $trans = false, $local='en')
     {
         $storage = [];
         if ($multi_data == true) {
@@ -96,10 +96,9 @@ class Helpers
                     $categories[] = ['id'=>(string)$value->id, 'position'=>$value->position];
                 }
                 $item['category_ids'] = $categories;
-                // $item['category_ids'] = json_decode($item['category_ids']);
                 $item['attributes'] = json_decode($item['attributes']);
                 $item['choice_options'] = json_decode($item['choice_options']);
-                $item['add_ons'] = AddOn::whereIn('id', json_decode($item['add_ons']))->get();
+                $item['add_ons'] = self::addon_data_formatting(AddOn::withoutGlobalScope('translate')->whereIn('id', json_decode($item['add_ons']))->active()->get(), true, $trans, $local);
                 foreach (json_decode($item['variations'], true) as $var) {
                     array_push($variations, [
                         'type' => $var['type'],
@@ -113,8 +112,55 @@ class Helpers
                 $item['restaurant_closing_time'] = $item->restaurant->closeing_time?$item->restaurant->closeing_time->format('H:i'):null;
                 $item['schedule_order'] = $item->restaurant->schedule_order;
                 $item['tax'] = $item->restaurant->tax;
-                $item['avg_rating'] = (double)(!empty($item->rating[0])?$item->rating[0]->average:0);
-                $item['rating_count'] = (integer)(!empty($item->rating[0])?$item->rating[0]->rating_count:0);
+                $item['rating_count'] = (integer)($item->rating?array_sum(json_decode($item->rating, true)):0);
+                $item['avg_rating'] = (double)($item->avg_rating?$item->avg_rating:0);
+
+                if($trans)
+                {
+                    $item['translations'][]=[
+                        'translationable_type' => 'App\Models\Food',
+                        'translationable_id' => $item->id,
+                        'locale' => 'en',
+                        'key' => 'name',
+                        'value' => $item->name
+                    ];
+
+                    $item['translations'][]=[
+                        'translationable_type' => 'App\Models\Food',
+                        'translationable_id' => $item->id,
+                        'locale' => 'en',
+                        'key' => 'description',
+                        'value' => $item->description
+                    ];
+                }
+
+                if (count($item['translations'])>0 ) {
+                    foreach($item['translations'] as $translation)
+                    {
+                        if($translation['locale']==$local)
+                        {
+                            if($translation['key']=='name')
+                            {
+                                $item['name'] = $translation['value'];
+                            }
+
+                            if($translation['key']=='title')
+                            {
+                                $item['name'] = $translation['value'];
+                            }
+
+                            if($translation['key']=='description')
+                            {
+                                $item['description'] = $translation['value'];
+                            }
+                        }
+                    }
+                }
+                if(!$trans)
+                {
+                    unset($item['translations']);
+                }
+
                 unset($item['restaurant']);
                 unset($item['rating']);
                 array_push($storage, $item);
@@ -131,7 +177,7 @@ class Helpers
             // $data['category_ids'] = json_decode($data['category_ids']);
             $data['attributes'] = json_decode($data['attributes']);
             $data['choice_options'] = json_decode($data['choice_options']);
-            $data['add_ons'] = AddOn::whereIn('id', json_decode($data['add_ons']))->get();
+            $data['add_ons'] = self::addon_data_formatting(AddOn::whereIn('id', json_decode($data['add_ons']))->active()->get(), true, $trans, $local);
             foreach (json_decode($data['variations'], true) as $var) {
                 array_push($variations, [
                     'type' => $var['type'],
@@ -169,12 +215,166 @@ class Helpers
             $data['restaurant_opening_time'] = $data->restaurant->opening_time?$data->restaurant->opening_time->format('H:i'):null;
             $data['restaurant_closing_time'] = $data->restaurant->closeing_time?$data->restaurant->closeing_time->format('H:i'):null;
             $data['schedule_order'] = $data->restaurant->schedule_order;
-            $data['avg_rating'] = (double)(!empty($data->rating[0])?$data->rating[0]->average:0);
-            $data['rating_count'] = (integer)(!empty($data->rating[0])?$data->rating[0]->rating_count:0);
+            $data['rating_count'] = (integer)($data->rating?array_sum(json_decode($data->rating, true)):0);
+            $data['avg_rating'] = (double)($data->avg_rating?$data->avg_rating:0);
+
+            if($trans)
+            {
+                $data['translations'][]=[
+                    'translationable_type' => 'App\Models\Food',
+                    'translationable_id' => $data->id,
+                    'locale' => 'en',
+                    'key' => 'name',
+                    'value' => $data->name
+                ];
+
+                $data['translations'][]=[
+                    'translationable_type' => 'App\Models\Food',
+                    'translationable_id' => $data->id,
+                    'locale' => 'en',
+                    'key' => 'description',
+                    'value' => $data->description
+                ];
+            }
+
+            if (count($data['translations']) > 0 ) {
+                foreach($data['translations'] as $translation)
+                {
+                    if($translation['locale']==$local){
+                        if($translation['key']=='name')
+                        {
+                            $data['name'] = $translation['value'];
+                        }
+
+                        if($translation['key']=='title')
+                        {
+                            $item['name'] = $translation['value'];
+                        }
+
+                        if($translation['key']=='description')
+                        {
+                            $data['description'] = $translation['value'];
+                        }
+                    }
+
+                }
+            }
+            if(!$trans)
+            {
+                unset($data['translations']);
+            }
+            
             unset($data['restaurant']);
             unset($data['rating']);
         }
 
+        return $data;
+    }
+
+    public static function addon_data_formatting($data, $multi_data = false, $trans = false, $local='en')
+    {   
+        $storage = [];
+        if($multi_data == true)
+        {
+            foreach($data as $item)
+            {
+                if($trans)
+                {
+                    $item['translations'][]=[
+                        'translationable_type' => 'App\Models\AddOn',
+                        'translationable_id' => $item->id,
+                        'locale' => 'en',
+                        'key' => 'name',
+                        'value' => $item->name
+                    ];
+                }
+                if(count($item->translations) > 0 )
+                {
+                    foreach($item['translations'] as $translation)
+                    {
+                        if($translation['locale']==$local && $translation['key']=='name')
+                        {
+                            $item['name'] = $translation['value'];
+                        }
+                    }
+                }
+
+                if(!$trans)
+                {
+                    unset($item['translations']);
+                }
+                
+                $storage[] = $item;
+            }
+            $data = $storage;
+        }
+        else if(isset($data))
+        {
+            if($trans)
+            {
+                $data['translations'][]=[
+                    'translationable_type' => 'App\Models\AddOn',
+                    'translationable_id' => $data->id,
+                    'locale' => 'en',
+                    'key' => 'name',
+                    'value' => $data->name
+                ];
+            }
+
+            if(count($data->translations) > 0 )
+            {
+                foreach($data['translations'] as $translation)
+                {
+                    if($translation['locale']==$local && $translation['key']=='name')
+                    {
+                        $data['name'] = $translation['value'];
+                    }
+                }
+            }
+            
+            if(!$trans)
+            {
+                unset($data['translations']);
+            }
+            
+        }
+        return $data;
+    }
+
+    public static function category_data_formatting($data, $multi_data = false, $trans = false)
+    {   
+        $storage = [];
+        if($multi_data == true)
+        {
+            foreach($data as $item)
+            {
+                if(count($item->translations) > 0 )
+                {
+                    $item->name = $item->translations[0]['value'];
+                }
+
+                if(!$trans)
+                {
+                    unset($item['translations']);
+                }
+                
+                $storage[] = $item;
+            }
+            $data = $storage;
+        }
+        else if(isset($data))
+        {
+            if(count($data->translations) > 0 )
+            {
+                $data->name = $data->translations[0]['value'];
+            }
+            
+            if(!$trans)
+            {
+                unset($data['translations']);
+            }
+            
+        }
         return $data;
     }
 
@@ -195,6 +395,13 @@ class Helpers
                     $item['available_date_ends']=$item->end_date->format('Y-m-d');
                     unset($item['end_date']);
                 }
+
+                if (count($item['translations'])>0 ) {
+                    $translate = array_column($item['translations']->toArray(), 'value', 'key');
+                    $item['title'] = $translate['title'];
+                    $item['description'] = $translate['description'];
+                }
+
                 array_push($storage, $item);
             }
             $data = $storage;
@@ -208,6 +415,12 @@ class Helpers
             {
                 $data['available_date_ends']=$data->end_date->format('Y-m-d');
                 unset($data['end_date']);
+            }
+
+            if (count($data['translations'])>0 ) {
+                $translate = array_column($data['translations']->toArray(), 'value', 'key');
+                $data['title'] = $translate['title'];
+                $data['description'] = $translate['description'];
             }
         }
 
@@ -269,7 +482,7 @@ class Helpers
             foreach ($data as $item) {
                 if($item->food)
                 {
-                    $foods[] = self::product_data_formatting($item->food);
+                    $foods[] = self::product_data_formatting($item->food,false, false, app()->getLocale());
                 }
                 if($item->restaurant)
                 {
@@ -279,7 +492,7 @@ class Helpers
         } else {
             if($item->food)
             {
-                $foods[] = self::product_data_formatting($item->food);
+                $foods[] = self::product_data_formatting($item->food, false, false, app()->getLocale());
             }
             if($item->restaurant)
             {
@@ -452,7 +665,7 @@ class Helpers
     {
         $currency_symbol_position = BusinessSetting::where(['key' => 'currency_symbol_position'])->first()->value;
 
-        return $currency_symbol_position=='right'?$value.' '.self::currency_symbol():self::currency_symbol().' '.$value;
+        return $currency_symbol_position=='right'?round($value,config('round_up_to_digit')).' '.self::currency_symbol():self::currency_symbol().' '.round($value, config('round_up_to_digit'));
     }
     public static function send_push_notif_to_device($fcm_token, $data)
     {
@@ -483,7 +696,8 @@ class Helpers
                 "type":"' . $data['type'] . '",
                 "is_read": 0,
                 "icon" : "new",
-                "sound" : "default"
+                "sound": "notification.wav",
+                "android_channel_id": "stackfood"
             }
         }';
         $ch = curl_init();
@@ -534,7 +748,8 @@ class Helpers
                     "type":"'.$type.'",
                     "is_read": 0,
                     "icon" : "new",
-                    "sound" : "default"
+                    "sound": "notification.wav",
+                    "android_channel_id": "stackfood"
                   }
             }';
         }
@@ -557,7 +772,8 @@ class Helpers
                     "type":"'.$type.'",
                     "is_read": 0,
                     "icon" : "new",
-                    "sound" : "default"
+                    "sound": "notification.wav",
+                    "android_channel_id": "stackfood"
                   }
             }';
         }
@@ -747,9 +963,14 @@ class Helpers
         }
         elseif ($status == 'accepted') {
             $data = BusinessSetting::where('key', 'delivery_boy_assign_message')->first()->value;
-        } elseif ($status == 'canceled') {
+        } 
+        elseif ($status == 'canceled') {
             $data = BusinessSetting::where('key', 'order_cancled_message')->first()->value;
-        } else {
+        }
+        elseif ($status == 'refunded') {
+            $data = BusinessSetting::where('key', 'order_refunded_message')->first()->value;
+        }
+        else {
             $data = '{"status":"0","message":""}';
         }
 

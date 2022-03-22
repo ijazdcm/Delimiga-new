@@ -104,14 +104,14 @@
                                 name="{{ $choice->name }}" value="{{ $option }}"
                                 {{ (count($temp)>0 && str_replace(' ','',$option) == $variations[$key])?'checked':'' }} autocomplete="off" >
                         <label class="btn btn-sm check-label mx-1 choice-input"
-                            for="{{ $choice->name }}-{{ $option }}">{{ $option }}</label>
+                            for="{{ $choice->name }}-{{ $option }}">{{ Str::limit($option, 20, '...') }}</label>
                     @endforeach
                 </div>
                 @endforeach
 
                 <!-- Quantity + Add to cart -->
                 <div class="d-flex justify-content-between">
-                    <div class="product-description-label mt-2 text-dark h3">{{__('Quantity')}}:</div>
+                    <div class="product-description-label mt-2 text-dark h3">{{__('messages.quantity')}}:</div>
                     <div class="product-quantity d-flex align-items-center">
                         <div class="input-group input-group--style-2 pr-3"
                                 style="width: 160px;">
@@ -141,7 +141,7 @@
                 
                 <div class="d-flex justify-content-left flex-wrap">
                 @php($addons = array_column(json_decode($cart_item['add_ons'], true), 'quantity','id'))
-                @foreach (\App\Models\AddOn::whereIn('id', $add_ons)->get() as $key => $add_on)
+                @foreach (\App\Models\AddOn::whereIn('id', $add_ons)->active()->get() as $key => $add_on)
                     @php($checked = array_key_exists($add_on->id, $addons))
                     <div class="flex-column pb-2">
                         <input type="hidden" name="addon-price{{ $add_on->id }}" value="{{$add_on->price}}">
@@ -150,7 +150,7 @@
                                 name="addon_id[]" value="{{ $add_on->id }}" {{$checked?'checked':''}}
                                 autocomplete="off">
                         <label class="d-flex align-items-center btn btn-sm check-label mx-1 addon-input" 
-                            for="addon{{ $key }}">{{ $add_on->name }} <br> {{ \App\CentralLogics\Helpers::format_currency($add_on->price) }}</label>
+                            for="addon{{ $key }}">{{ Str::limit($add_on->name, 20, '...') }} <br> {{ \App\CentralLogics\Helpers::format_currency($add_on->price) }}</label>
                         <label class="input-group addon-quantity-input mx-1 shadow bg-white rounded px-1" for="addon{{ $key }}" @if($checked) style="visibility:visible;" @endif>
                             <button class="btn btn-sm h-100 text-dark px-0" type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown(), getVariantPrice()"><i class="tio-remove  font-weight-bold"></i></button>
                             <input type="number" name="addon-quantity{{ $add_on->id }}"

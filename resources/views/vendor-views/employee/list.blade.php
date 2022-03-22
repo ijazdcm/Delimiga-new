@@ -72,7 +72,7 @@
                             @foreach($em as $k=>$e)
                                 <tr>
                                     <th scope="row">{{$k+$em->firstItem()}}</th>
-                                    <td class="text-capitalize">{{$e['f_name']}} {{$e['l_name']}}</td>
+                                    <td class="text-capitalize text-break">{{$e['f_name']}} {{$e['l_name']}}</td>
                                     <td >
                                       {{$e['email']}}
                                     </td>

@@ -23,10 +23,11 @@ class EmployeeController extends Controller
     {
         $request->validate([
             'f_name' => 'required',
+            'l_name' => 'nullable|max:100',
             'role_id' => 'required',
             'image' => 'required',
             'email' => 'required|unique:admins',
-            'phone' => 'required|unique:admins',
+            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:20|unique:admins',
             'password' =>'required|min:6'
 
         ]);
@@ -55,13 +56,13 @@ class EmployeeController extends Controller
 
     function list()
     {
-        $em = Admin::with(['role'])->where('role_id', '!=','1')->latest()->paginate(config('default_pagination'));
+        $em = Admin::zone()->with(['role'])->where('role_id', '!=','1')->latest()->paginate(config('default_pagination'));
         return view('admin-views.employee.list', compact('em'));
     }
 
     public function edit($id)
     {
-        $e = Admin::where('role_id', '!=','1')->where(['id' => $id])->first();
+        $e = Admin::zone()->where('role_id', '!=','1')->where(['id' => $id])->first();
         $rls = AdminRole::whereNotIn('id', [1])->get();
         return view('admin-views.employee.edit', compact('rls', 'e'));
     }
@@ -69,10 +70,11 @@ class EmployeeController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'f_name' => 'required',
+            'f_name' => 'required|max:100',
+            'l_name' => 'nullable|max:100',
             'role_id' => 'required',
             'email' => 'required|unique:admins,email,'.$id,
-            'phone' => 'required|unique:admins,phone,'.$id,
+            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:20|unique:admins,phone,'.$id,
         ], [
             'f_name.required' => trans('messages.first_name_is_required'),
         ]);
@@ -82,7 +84,7 @@ class EmployeeController extends Controller
             return back();
         }
 
-        $e = Admin::find($id);
+        $e = Admin::where('role_id','!=',1)->findOrFail($id);
         if ($request['password'] == null) {
             $pass = $e['password'];
         } else {
@@ -115,14 +117,14 @@ class EmployeeController extends Controller
 
     public function distroy($id)
     {
-        $role=Admin::where('role_id', '!=','1')->where(['id'=>$id])->delete();
+        $role=Admin::zone()->where('role_id', '!=','1')->where(['id'=>$id])->delete();
         Toastr::info(trans('messages.employee_deleted_successfully'));
         return back();
     }
 
     public function search(Request $request){
         $key = explode(' ', $request['search']);
-        $employees=Admin::where('role_id', '!=','1')
+        $employees=Admin::zone()->where('role_id', '!=','1')
         ->where(function ($q) use ($key) {
             foreach ($key as $value) {
                 $q->orWhere('f_name', 'like', "%{$value}%");

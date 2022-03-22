@@ -12,7 +12,7 @@
         <div class="page-header">
             <div class="row">
                 <div class="col-6">
-                    <h1 class="page-header-title">{{$campaign['title']}}</h1>
+                    <h1 class="page-header-title text-break">{{$campaign['title']}}</h1>
                 </div>
                 <div class="col-6">
                     <a href="{{route('admin.campaign.edit',['item',$campaign['id']])}}" class="btn btn-primary float-right">
@@ -192,7 +192,7 @@
             <!-- End Body -->
         </div>
         <!-- End Card -->
-        @php($orders = $campaign->orderdetails()->paginate(2))
+        @php($orders = $campaign->orderdetails()->paginate(config('default_pagination')))
         <!-- Card -->
         <div class="card">
             <div class="table-responsive datatable-custom">
@@ -227,7 +227,6 @@
                         <th>{{__('messages.payment')}} {{__('messages.status')}}</th>
                         <th>{{__('messages.total')}}</th>
                         <th>{{__('messages.order')}} {{__('messages.status')}}</th>
-                        <th>{{__('messages.actions')}}</th>
                     </tr>
                     </thead>
 
@@ -239,22 +238,22 @@
                                 {{$key+1}}
                             </td>
                             <td class="table-column-pl-0">
-                                <a href="{{route('admin.order.details',['id'=>$order['id']])}}">{{$order['id']}}</a>
+                                <a href="{{route('admin.order.details',['id'=>$order['order_id']])}}">{{$order->order['id']}}</a>
                             </td>
-                            <td>{{date('d M Y',strtotime($order['created_at']))}}</td>
+                            <td>{{date('d M Y',strtotime($order->order['created_at']))}}</td>
                             <td>
-                                @if($order->customer)
+                                @if($order->order->customer)
                                     <a class="text-body text-capitalize"
-                                       href="{{route('admin.customer.view',[$order['user_id']])}}">{{$order->customer['f_name'].' '.$order->customer['l_name']}}</a>
+                                       href="{{route('admin.customer.view',[$order->order['user_id']])}}">{{$order->order->customer['f_name'].' '.$order->order->customer['l_name']}}</a>
                                 @else
                                     <label class="badge badge-danger">{{__('messages.invalid')}} {{__('messages.customer')}} {{__('messages.data')}}</label>
                                 @endif
                             </td>
                             <td>
-                                <label class="badge badge-soft-primary">{{$order->restaurant?$order->restaurant->name:'Vendor deleted!'}}</label>
+                                <label class="badge badge-soft-primary">{{Str::limit($order->order->restaurant?$order->order->restaurant->name:__('messages.Restaurant deleted!'),20,'...')}}</label>
                             </td>
                             <td>
-                                @if($order->payment_status=='paid')
+                                @if($order->order->payment_status=='paid')
                                     <span class="badge badge-soft-success">
                                       <span class="legend-indicator bg-success"></span>{{__('messages.paid')}}
                                     </span>
@@ -264,50 +263,33 @@
                                     </span>
                                 @endif
                             </td>
-                            <td>{{\App\CentralLogics\Helpers::format_currency($order['order_amount'])}}</td>
+                            <td>{{\App\CentralLogics\Helpers::format_currency($order->order['order_amount'])}}</td>
                             <td class="text-capitalize">
-                                @if($order['order_status']=='pending')
+                                @if($order->order['order_status']=='pending')
                                     <span class="badge badge-soft-info ml-2 ml-sm-3">
                                       <span class="legend-indicator bg-info"></span>{{__('messages.pending')}}
                                     </span>
-                                @elseif($order['order_status']=='confirmed')
+                                @elseif($order->order['order_status']=='confirmed')
                                     <span class="badge badge-soft-info ml-2 ml-sm-3">
                                       <span class="legend-indicator bg-info"></span>{{__('messages.confirmed')}}
                                     </span>
-                                @elseif($order['order_status']=='processing')
+                                @elseif($order->order['order_status']=='processing')
                                     <span class="badge badge-soft-warning ml-2 ml-sm-3">
                                       <span class="legend-indicator bg-warning"></span>{{__('messages.processing')}}
                                     </span>
-                                @elseif($order['order_status']=='out_for_delivery')
+                                @elseif($order->order['order_status']=='out_for_delivery')
                                     <span class="badge badge-soft-warning ml-2 ml-sm-3">
                                       <span class="legend-indicator bg-warning"></span>{{__('messages.out_for_delivery')}}
                                     </span>
-                                @elseif($order['order_status']=='delivered')
+                                @elseif($order->order['order_status']=='delivered')
                                     <span class="badge badge-soft-success ml-2 ml-sm-3">
                                       <span class="legend-indicator bg-success"></span>{{__('messages.delivered')}}
                                     </span>
                                 @else
                                     <span class="badge badge-soft-danger ml-2 ml-sm-3">
-                                      <span class="legend-indicator bg-danger"></span>{{str_replace('_',' ',$order['order_status'])}}
+                                      <span class="legend-indicator bg-danger"></span>{{str_replace('_',' ',$order->order['order_status'])}}
                                     </span>
                                 @endif
-                            </td>
-                            <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                            id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="false">
-                                        <i class="tio-settings"></i>
-                                    </button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item"
-                                           href="{{route('admin.order.details',['id'=>$order['id']])}}"><i
-                                                class="tio-visible"></i> {{__('messages.view')}}</a>
-                                        <a class="dropdown-item" target="_blank"
-                                           href="{{route('admin.order.generate-invoice',[$order['id']])}}"><i
-                                                class="tio-download"></i> {{__('messages.invoice')}}</a>
-                                    </div>
-                                </div>
                             </td>
                         </tr>
 

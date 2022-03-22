@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use App\CentralLogics\Helpers;
 use Rap2hpoutre\FastExcel\FastExcel;
 use Illuminate\Support\Facades\DB;
+use App\Models\Translation;
 
 class CategoryController extends Controller
 {
@@ -24,19 +25,6 @@ class CategoryController extends Controller
     {
         $categories=Category::with(['parent'])->where(['position'=>1])->latest()->paginate(config('default_pagination'));
         return view('admin-views.category.sub-index',compact('categories'));
-    }
-
-    public function search(Request $request){
-        $key = explode(' ', $request['search']);
-        $categories=Category::where(function ($q) use ($key) {
-            foreach ($key as $value) {
-                $q->orWhere('name', 'like', "%{$value}%");
-            }
-        })->limit(50)->get();
-        return response()->json([
-            'view'=>view('admin-views.category.partials._table',compact('categories'))->render(),
-            'count'=>$categories->count()
-        ]);
     }
 
     function sub_sub_index()
@@ -57,29 +45,50 @@ class CategoryController extends Controller
     function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|unique:categories',
+            'name' => 'required|unique:categories|max:100',
         ], [
-            'name.required' => 'Name is required!',
+            'name.required' => trans('messages.Name is required!'),
         ]);
 
         $category = new Category();
-        $category->name = $request->name;
+        $category->name = $request->name[array_search('en', $request->lang)];
         $category->image = Helpers::upload('category/', 'png', $request->file('image'));
         $category->parent_id = $request->parent_id == null ? 0 : $request->parent_id;
         $category->position = $request->position;
         $category->save();
+
+        $data = [];
+        foreach($request->lang as $index=>$key)
+        {
+            if($request->name[$index] && $key != 'en')
+            {
+                array_push($data, Array(
+                    'translationable_type'  => 'App\Models\Category',
+                    'translationable_id'    => $category->id,
+                    'locale'                => $key,
+                    'key'                   => 'name',
+                    'value'                 => $request->name[$index],
+                ));
+            }
+        }
+        if(count($data))
+        {
+            Translation::insert($data);
+        }
+
+        Toastr::success(trans('messages.category_added_successfully'));
         return back();
     }
 
     public function edit($id)
     {
-        $category = category::find($id);
+        $category = Category::withoutGlobalScope('translate')->findOrFail($id);
         return view('admin-views.category.edit', compact('category'));
     }
 
     public function status(Request $request)
     {
-        $category = category::find($request->id);
+        $category = Category::find($request->id);
         $category->status = $request->status;
         $category->save();
         Toastr::success(trans('messages.category_status_updated'));
@@ -89,20 +98,33 @@ class CategoryController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|unique:categories,name,'.$id,
+            'name' => 'required|max:100|unique:categories,name,'.$id,
         ]);
-        $category = category::find($id);
+        $category = Category::find($id);
 
-        $category->name = $request->name;
+        $category->name = $request->name[array_search('en', $request->lang)];
         $category->image = $request->has('image') ? Helpers::update('category/', $category->image, 'png', $request->file('image')) : $category->image;
         $category->save();
+        foreach($request->lang as $index=>$key)
+        {
+            if($request->name[$index] && $key != 'en')
+            {
+                Translation::updateOrInsert(
+                    ['translationable_type'  => 'App\Models\Category',
+                        'translationable_id'    => $category->id,
+                        'locale'                => $key,
+                        'key'                   => 'name'],
+                    ['value'                 => $request->name[$index]]
+                );
+            }
+        }
         Toastr::success(trans('messages.category_updated_successfully'));
         return back();
     }
 
     public function delete(Request $request)
     {
-        $category = category::find($request->id);
+        $category = Category::findOrFail($request->id);
         if ($category->childes->count()==0){
             $category->delete();
             Toastr::success('Category removed!');
@@ -156,7 +178,7 @@ class CategoryController extends Controller
                 'name' => $collection['name'],
                 'image' => $collection['image'],
                 'parent_id' => $parent_id,
-                'position' => $parent_id == 0?0:1,
+                'position' => $collection['position'],
                 'status' => empty($collection['status'])?1:$collection['status'],
                 'created_at'=>now(),
                 'updated_at'=>now()
@@ -189,5 +211,30 @@ class CategoryController extends Controller
         })
         ->get();
         return (new FastExcel($categories))->download('Categories.xlsx');
+    }
+
+    public function search(Request $request){
+        $key = explode(' ', $request['search']);
+        $categories=Category::
+        when($request->sub_category, function($query){
+            return $query->where('position','1');
+        })
+        ->where(function ($q) use ($key) {
+            foreach ($key as $value) {
+                $q->orWhere('name', 'like', "%{$value}%");
+            }
+        })->limit(50)->get();
+
+        if($request->sub_category)
+        {
+            return response()->json([
+                'view'=>view('admin-views.category.partials._sub_category_table',compact('categories'))->render(),
+                'count'=>$categories->count()
+            ]);
+        }
+        return response()->json([
+            'view'=>view('admin-views.category.partials._table',compact('categories'))->render(),
+            'count'=>$categories->count()
+        ]);
     }
 }

@@ -17,7 +17,7 @@
             @endif
         </td>
         <td>
-            <label class="badge badge-soft-primary">{{$order->restaurant?$order->restaurant->name:'Restaurant deleted!'}}</label>
+            <label class="badge badge-soft-primary">{{Str::limit($order->restaurant?$order->restaurant->name:__('messages.Restaurant deleted!'), 25, '...')}}</label>
         </td>
         <td>
             @if($order->payment_status=='paid')

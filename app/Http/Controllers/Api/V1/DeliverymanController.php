@@ -22,8 +22,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
 
-Carbon::setWeekStartsAt(Carbon::SUNDAY);
-Carbon::setWeekEndsAt(Carbon::SATURDAY);
+// Carbon::setWeekStartsAt(Carbon::SUNDAY);
+// Carbon::setWeekEndsAt(Carbon::SATURDAY);
 
 
 class DeliverymanController extends Controller
@@ -188,6 +188,8 @@ class DeliverymanController extends Controller
         $dm->current_orders = $dm->current_orders+1;
         $dm->save();
 
+        $dm->increment('assigned_order_count');
+
         $fcm_token=$order->customer->cm_firebase_token;
 
         $value = Helpers::order_status_update_message('accepted');
@@ -215,15 +217,7 @@ class DeliverymanController extends Controller
     public function record_location_data(Request $request)
     {
         $dm = DeliveryMan::where(['auth_token' => $request['token']])->first();
-        $order = Order::whereIn('order_status', ['accepted','confirmed','pending', 'processing', 'picked_up'])
-        ->when($request['order_id'], function($q)use($request){
-            return $q->where('id', $request['order_id']);
-        })
-        ->where('delivery_man_id', $dm['id'])
-        ->Notpos()
-        ->first();
         DB::table('delivery_histories')->insert([
-            'order_id' => $order?$order->id:null,
             'delivery_man_id' => $dm['id'],
             'longitude' => $request['longitude'],
             'latitude' => $request['latitude'],
@@ -345,6 +339,9 @@ class DeliverymanController extends Controller
             $dm->current_orders = $dm->current_orders>1?$dm->current_orders-1:0;
             $dm->save();
 
+            $dm->increment('order_count');
+            $order->restaurant->increment('order_count');
+
         }
         else if($request->status == 'canceled')
         {
@@ -426,7 +423,9 @@ class DeliverymanController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
-        $last_data = DeliveryHistory::where(['order_id' => $request['order_id']])->latest()->first();
+        $last_data = DeliveryHistory::whereHas('delivery_man.orders', function($query) use($request){
+            return $query->where('id',$request->order_id);
+        })->latest()->first();
         return response()->json($last_data, 200);
     }
 

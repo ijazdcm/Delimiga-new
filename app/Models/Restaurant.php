@@ -56,6 +56,12 @@ class Restaurant extends Model
     {
         return $this->hasMany(Food::class);
     }
+
+    public function schedules()
+    {
+        return $this->hasMany(RestaurantSchedule::class)->orderBy('opening_time');
+    }
+
     public function deliverymen()
     {
         return $this->hasMany(DeliveryMan::class);
@@ -134,6 +140,11 @@ class Restaurant extends Model
     public function scopeOpened($query)
     {
         return $query->where('active', 1);
+    }
+
+    public function scopeWithOpen($query)
+    {
+        $query->selectRaw('*, IF(((select count(*) from `restaurant_schedule` where `restaurants`.`id` = `restaurant_schedule`.`restaurant_id` and `restaurant_schedule`.`day` = '.now()->dayOfWeek.' and `restaurant_schedule`.`opening_time` < "'.now()->format('H:i:s').'" and `restaurant_schedule`.`closing_time` >"'.now()->format('H:i:s').'") > 0), true, false) as open');
     }
 
     public function scopeWeekday($query)

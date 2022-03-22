@@ -98,14 +98,14 @@
                                         name="{{ $choice->name }}" value="{{ $option }}"
                                         @if($key == 0) checked @endif autocomplete="off" >
                                 <label class="btn btn-sm check-label mx-1 choice-input"
-                                    for="{{ $choice->name }}-{{ $option }}">{{ $option }}</label>
+                                    for="{{ $choice->name }}-{{ $option }}">{{ Str::limit($option, 20, '...') }}</label>
                             @endforeach
                         </div>
                 @endforeach
 
                 <!-- Quantity + Add to cart -->
                 <div class="d-flex justify-content-between">
-                    <div class="product-description-label mt-2 text-dark h3">{{__('Quantity')}}:</div>
+                    <div class="product-description-label mt-2 text-dark h3">{{__('messages.quantity')}}:</div>
                     <div class="product-quantity d-flex align-items-center">
                         <div class="input-group input-group--style-2 pr-3"
                                 style="width: 160px;">
@@ -134,7 +134,7 @@
                 </div>
                 
                 <div class="d-flex justify-content-left flex-wrap">
-                @foreach (\App\Models\AddOn::whereIn('id', $add_ons)->get() as $key => $add_on)
+                @foreach (\App\Models\AddOn::whereIn('id', $add_ons)->active()->get() as $key => $add_on)
                     <div class="flex-column pb-2">
                         <input type="hidden" name="addon-price{{ $add_on->id }}" value="{{$add_on->price}}">
                         <input class="btn-check addon-chek" type="checkbox"
@@ -142,7 +142,7 @@
                                 name="addon_id[]" value="{{ $add_on->id }}"
                                 autocomplete="off">
                         <label class="d-flex align-items-center btn btn-sm check-label mx-1 addon-input" 
-                            for="addon{{ $key }}">{{ $add_on->name }} <br> {{ \App\CentralLogics\Helpers::format_currency($add_on->price) }}</label>
+                            for="addon{{ $key }}">{{ Str::limit($add_on->name, 20, '...') }} <br> {{ \App\CentralLogics\Helpers::format_currency($add_on->price) }}</label>
                         <label class="input-group addon-quantity-input mx-1 shadow bg-white rounded px-1" for="addon{{ $key }}">
                             <button class="btn btn-sm h-100 text-dark px-0" type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown(), getVariantPrice()"><i class="tio-remove  font-weight-bold"></i></button>
                             <input type="number" name="addon-quantity{{ $add_on->id }}"

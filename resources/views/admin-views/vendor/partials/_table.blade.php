@@ -12,8 +12,8 @@
         <td>
             <a href="{{route('admin.vendor.view', $dm->id)}}" alt="view restaurant">
                 <span class="d-block font-size-sm text-body">
-                    {{$dm->name}}<br>
-                    ID:{{$dm->id}}
+                    {{Str::limit($dm->name,25,'...')}}<br>
+                    {{__('messages.id')}}:{{$dm->id}}
                 </span>
             </a>
         </td>

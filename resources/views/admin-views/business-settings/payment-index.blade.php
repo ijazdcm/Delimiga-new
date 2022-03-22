@@ -516,21 +516,141 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-md-6 mt-4" style="display: block">
+                <div class="card">
+                    <div class="card-body" style="padding: 20px">
+                        <h5 class="text-center">{{__('messages.bkash')}}</h5>
+                        @php($config=\App\CentralLogics\Helpers::get_business_settings('bkash'))
+                        <form
+                            action="{{env('APP_MODE')!='demo'?route('admin.business-settings.payment-method-update',['bkash']):'javascript:'}}"
+                            method="post">
+                            @csrf
+                            @if(isset($config))
+                                <div class="form-group mb-2">
+                                    <label class="control-label">{{__('messages.bkash')}}</label>
+                                </div>
+
+                                <div class="form-group mb-2 mt-2">
+                                    <input type="radio" name="status" value="1" {{$config['status']==1?'checked':''}}>
+                                    <label style="padding-left: 10px">{{__('messages.active')}}</label>
+                                    <br>
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <input type="radio" name="status" value="0" {{$config['status']==0?'checked':''}}>
+                                    <label style="padding-left: 10px">{{__('messages.inactive')}} </label>
+                                    <br>
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <label style="padding-left: 10px">{{__('api_key')}}</label><br>
+                                    <input type="text" class="form-control" name="api_key"
+                                           value="{{env('APP_MODE')!='demo'?$config['api_key']:''}}">
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <label style="padding-left: 10px">{{__('messages.api_secret')}}</label><br>
+                                    <input type="text" class="form-control" name="api_secret"
+                                           value="{{env('APP_MODE')!='demo'?$config['api_secret']:''}}">
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{__('messages.username')}}</label><br>
+                                    <input type="text" class="form-control" name="username"
+                                           value="{{env('APP_MODE')!='demo'?$config['username']:''}}">
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <label style="padding-left: 10px">{{__('messages.password')}}</label><br>
+                                    <input type="text" class="form-control" name="password"
+                                           value="{{env('APP_MODE')!='demo'?$config['password']:''}}">
+                                </div>
+
+
+                                <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}"
+                                        onclick="{{env('APP_MODE')!='demo'?'':'call_demo()'}}"
+                                        class="btn btn-primary mb-2">{{__('messages.save')}}</button>
+                            @else
+                                <button type="submit"
+                                        class="btn btn-primary mb-2">{{__('messages.configure')}}</button>
+                            @endif
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mt-4" style="display: block">
+                <div class="card">
+                    <div class="card-body" style="padding: 20px">
+                        <h5 class="text-center">{{__('messages.paytabs')}}</h5>
+                        @php($config=\App\CentralLogics\Helpers::get_business_settings('paytabs'))
+                        <form
+                            action="{{env('APP_MODE')!='demo'?route('admin.business-settings.payment-method-update',['paytabs']):'javascript:'}}"
+                            method="post">
+                            @csrf
+                            @if(isset($config))
+                                <div class="form-group mb-2">
+                                    <label class="control-label">{{__('messages.paytabs')}}</label>
+                                </div>
+
+                                <div class="form-group mb-2 mt-2">
+                                    <input type="radio" name="status" value="1" {{$config['status']==1?'checked':''}}>
+                                    <label style="padding-left: 10px">{{__('messages.active')}}</label>
+                                    <br>
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <input type="radio" name="status" value="0" {{$config['status']==0?'checked':''}}>
+                                    <label style="padding-left: 10px">{{__('messages.inactive')}} </label>
+                                    <br>
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <label style="padding-left: 10px">{{__('messages.profile_id')}}</label><br>
+                                    <input type="text" class="form-control" name="profile_id"
+                                           value="{{env('APP_MODE')!='demo'?$config['profile_id']:''}}">
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <label style="padding-left: 10px">{{__('messages.server')}}</label><br>
+                                    <input type="text" class="form-control" name="server_key"
+                                           value="{{env('APP_MODE')!='demo'?$config['server_key']:''}}">
+                                </div>
+
+                                <div class="form-group mb-2">
+                                    <label
+                                        style="padding-left: 10px">{{__('messages.base_url_by_region')}}</label><br>
+                                    <input type="text" class="form-control" name="base_url"
+                                           value="{{env('APP_MODE')!='demo'?$config['base_url']:''}}">
+                                </div>
+
+
+                                <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}"
+                                        onclick="{{env('APP_MODE')!='demo'?'':'call_demo()'}}"
+                                        class="btn btn-primary mb-2">{{__('messages.save')}}</button>
+                            @else
+                                <button type="submit"
+                                        class="btn btn-primary mb-2">{{__('messages.configure')}}</button>
+                            @endif
+                        </form>
+                    </div>
+                </div>
+            </div>
             
-            {{-- onepay--}}
             <div class="col-md-6 mt-4">
                 <div class="card">
                     <div class="card-body" style="padding: 20px">
-                        <h5 class="text-center">{{__('messages.onepay_accept')}}</h5>
-                        @php($config=\App\CentralLogics\Helpers::get_business_settings('onepay'))
+                        <h5 class="text-center">{{__('messages.paytm')}}</h5>
+                        @php($config=\App\CentralLogics\Helpers::get_business_settings('paytm'))
                         <form
-                            action="{{env('APP_MODE')!='demo'?route('admin.business-settings.payment-method-update',['onepay']):'javascript:'}}"
+                            action="{{env('APP_MODE')!='demo'?route('admin.business-settings.payment-method-update',['paytm']):'javascript:'}}"
                             method="post">
                             @csrf
-
                             @if(isset($config))
                                 <div class="form-group mb-2">
-                                    <label class="control-label">{{__('messages.onepay_accept')}}</label>
+                                    <label class="control-label">{{__('messages.paytm')}}</label>
                                 </div>
                                 <div class="form-group mb-2 mt-2">
                                     <input type="radio" name="status" value="1" {{$config['status']==1?'checked':''}}>
@@ -544,31 +664,22 @@
                                 </div>
 
                                 <div class="form-group mb-2">
-                                    <label
-                                        style="padding-{{Session::get('direction') === "rtl" ? 'right' : 'left'}}: 10px">{{__('messages.callback')}}</label>
-                                    <span class="btn btn-secondary btn-sm m-2"
-                                          onclick="copyToClipboard('#id_onepay_accept')"><i class="tio-copy"></i> {{__('messages.copy_callback')}}</span>
-                                    <br>
-                                    <p class="form-control" id="id_onepay_accept">{{ url('/') }}/response</p>
-                                </div>
-                                <input type="hidden" name='one_pay_callback_url'  value={{ url('/').'/response' }}>
-                                <div class="form-group mb-2">
-                                    <label style="padding-left: 10px">{{__('messages.onepay_app_id')}}</label><br>
-                                    <input type="text" class="form-control" name="onepay_app_id"
-                                           value="{{env('APP_MODE')!='demo'?$config['onepay_app_id']:''}}">
+                                    <label style="padding-left: 10px">{{__('messages.paytm_merchant_key')}}</label><br>
+                                    <input type="text" class="form-control" name="paytm_merchant_key"
+                                           value="{{env('APP_MODE')!='demo'?$config['paytm_merchant_key']:''}}">
                                 </div>
 
                                 <div class="form-group mb-2">
-                                    <label style="padding-left: 10px">{{__('messages.onepay_app_token')}}</label><br>
-                                    <input type="text" class="form-control" name="onepay_app_token"
-                                           value="{{env('APP_MODE')!='demo'?$config['onepay_app_token']:''}}">
+                                    <label style="padding-left: 10px">{{__('messages.paytm_merchant_mid')}}</label><br>
+                                    <input type="text" class="form-control" name="paytm_merchant_mid"
+                                           value="{{env('APP_MODE')!='demo'?$config['paytm_merchant_mid']:''}}">
                                 </div>
 
                                 <div class="form-group mb-2">
                                     <label
-                                        style="padding-left: 10px">{{__('messages.onepay_hash')}}</label><br>
-                                    <input type="text" class="form-control" name="onepay_app_hash"
-                                           value="{{env('APP_MODE')!='demo'?$config['onepay_app_hash']:''}}">
+                                        style="padding-left: 10px">{{__('messages.paytm_merchant_website')}}</label><br>
+                                    <input type="text" class="form-control" name="paytm_merchant_website"
+                                           value="{{env('APP_MODE')!='demo'?$config['paytm_merchant_website']:''}}">
                                 </div>
 
                                 <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}"
@@ -582,8 +693,52 @@
                     </div>
                 </div>
             </div>
-            {{-- onepay--}}
-            
+
+            <div class="col-md-6 pt-4">
+                <div class="card">
+                    <div class="card-body" style="padding: 20px">
+                        <h5 class="text-center">{{__('messages.liqpay')}}</h5>
+                        @php($config=\App\CentralLogics\Helpers::get_business_settings('liqpay'))
+                        <form action="{{env('APP_MODE')!='demo'?route('admin.business-settings.payment-method-update',['liqpay']):'javascript:'}}"
+                              method="post">
+                            @csrf
+                            @if(isset($config))
+                                <div class="form-group mb-2">
+                                    <label class="control-label">{{__('messages.liqpay')}}</label>
+                                </div>
+                                <div class="form-group mb-2 mt-2">
+                                    <input type="radio" name="status" value="1" {{$config['status']==1?'checked':''}}>
+                                    <label style="padding-left: 10px">{{__('messages.active')}}</label>
+                                    <br>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <input type="radio" name="status" value="0" {{$config['status']==0?'checked':''}}>
+                                    <label style="padding-left: 10px">{{__('messages.inactive')}} </label>
+                                    <br>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label class="text-capitalize"
+                                           style="padding-left: 10px">{{__('messages.publicKey')}}</label><br>
+                                    <input type="text" class="form-control" name="public_key"
+                                           value="{{env('APP_MODE')!='demo'?$config['public_key']:''}}">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label class="text-capitalize"
+                                           style="padding-left: 10px">{{__('messages.privateKey')}}</label><br>
+                                    <input type="text" class="form-control" name="private_key"
+                                           value="{{env('APP_MODE')!='demo'?$config['private_key']:''}}">
+                                </div>
+
+                                <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}" onclick="{{env('APP_MODE')!='demo'?'':'call_demo()'}}" class="btn btn-primary mb-2">{{__('messages.save')}}</button>
+                            @else
+                                <button type="submit"
+                                        class="btn btn-primary mb-2">{{__('messages.configure')}}</button>
+                            @endif
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 @endsection

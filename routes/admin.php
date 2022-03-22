@@ -65,6 +65,7 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
             Route::get('status/{id}/{status}', 'FoodController@status')->name('status');
             Route::get('review-status/{id}/{status}', 'FoodController@reviews_status')->name('reviews.status');
             Route::post('search', 'FoodController@search')->name('search');
+            Route::get('reviews', 'FoodController@review_list')->name('reviews');
 
             Route::get('view/{id}', 'FoodController@view')->name('view');
             //ajax request
@@ -159,6 +160,9 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
                 Route::post('bulk-import', 'VendorController@bulk_import_data');
                 Route::get('bulk-export', 'VendorController@bulk_export_index')->name('bulk-export-index');
                 Route::post('bulk-export', 'VendorController@bulk_export_data')->name('bulk-export');
+                //Restaurant shcedule
+                Route::post('add-schedule', 'VendorController@add_schedule')->name('add-schedule');
+                Route::get('remove-schedule/{restaurant_schedule}', 'VendorController@remove_schedule')->name('remove-schedule');
             });
 
             Route::group(['middleware' => ['module:withdraw_list']], function () {

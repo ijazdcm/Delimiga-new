@@ -72,9 +72,11 @@ class DeliveryManController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'f_name' => 'required',
+            'f_name' => 'required|max:100',
+            'l_name' => 'nullable|max:100',
+            'identity_number' => 'required|max:30',
             'email' => 'required|unique:delivery_men',
-            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|unique:delivery_men',
+            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:20|unique:delivery_men',
             'zone_id' => 'required',
             'earning' => 'required',
             'password'=>'required|min:6',
@@ -201,7 +203,9 @@ class DeliveryManController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'f_name' => 'required',
+            'f_name' => 'required|max:100',
+            'l_name' => 'nullable|max:100',
+            'identity_number' => 'required|max:30',
             'email' => 'required|unique:delivery_men,email,'.$id,
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|unique:delivery_men,phone,'.$id,
             'earning' => 'required',

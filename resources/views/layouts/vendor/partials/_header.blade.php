@@ -100,7 +100,11 @@
                                     denyButtonText: `Don't Logout`,
                                     }).then((result) => {
                                     if (result.value) {
-                                    location.href='{{route('vendor.auth.logout')}}';
+                                        @if(auth('vendor')->check())
+                                        location.href='{{route('vendor.auth.logout')}}';
+                                        @elseif (auth('vendor_employee')->check())
+                                        location.href='{{route('vendor.auth.employee.logout')}}';
+                                        @endif
                                     } else{
                                     Swal.fire('Canceled', '', 'info')
                                     }

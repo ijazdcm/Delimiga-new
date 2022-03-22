@@ -15,7 +15,7 @@ class EmployeeController extends Controller
 
     public function add_new()
     {
-        $rls = EmployeeRole::get();
+        $rls = EmployeeRole::where('restaurant_id',Helpers::get_restaurant_id())->get();
         return view('vendor-views.employee.add-new', compact('rls'));
     }
 
@@ -23,10 +23,11 @@ class EmployeeController extends Controller
     {
         $request->validate([
             'f_name' => 'required',
+            'l_name' => 'nullable|max:100',
             'role_id' => 'required',
             'image' => 'required',
             'email' => 'required|unique:vendor_employees',
-            'phone' => 'required|unique:vendor_employees',
+            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|max:20|unique:vendor_employees',
             'password' => 'required|min:8',
         ]);
 
@@ -50,14 +51,14 @@ class EmployeeController extends Controller
 
     function list()
     {
-        $em = VendorEmployee::with(['role'])->latest()->paginate(config('default_pagination'));
+        $em = VendorEmployee::where('restaurant_id', Helpers::get_restaurant_id())->with(['role'])->latest()->paginate(config('default_pagination'));
         return view('vendor-views.employee.list', compact('em'));
     }
 
     public function edit($id)
     {
-        $e = VendorEmployee::where(['id' => $id])->first();
-        $rls = EmployeeRole::get();
+        $e = VendorEmployee::where('restaurant_id', Helpers::get_restaurant_id())->where(['id' => $id])->first();
+        $rls = EmployeeRole::where('restaurant_id',Helpers::get_restaurant_id())->get();
         return view('vendor-views.employee.edit', compact('rls', 'e'));
     }
 
@@ -65,14 +66,15 @@ class EmployeeController extends Controller
     {
         $request->validate([
             'f_name' => 'required',
+            'l_name' => 'nullable|max:100',
             'role_id' => 'required',
             'email' => 'required|unique:vendor_employees,email,'.$id,
-            'phone' => 'required|unique:vendor_employees,phone,'.$id,
+            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|max:20|unique:vendor_employees,phone,'.$id,
         ], [
             'f_name.required' => trans('messages.first_name_is_required'),
         ]);
 
-        $e = VendorEmployee::find($id);
+        $e = VendorEmployee::where('restaurant_id', Helpers::get_restaurant_id())->find($id);
         if ($request['password'] == null) {
             $pass = $e['password'];
         } else {
@@ -106,14 +108,14 @@ class EmployeeController extends Controller
 
     public function distroy($id)
     {
-        $role=VendorEmployee::where(['id'=>$id])->delete();
+        $role=VendorEmployee::where('restaurant_id', Helpers::get_restaurant_id())->where(['id'=>$id])->delete();
         Toastr::info(trans('messages.employee_deleted_successfully'));
         return back();
     }
 
     public function search(Request $request){
         $key = explode(' ', $request['search']);
-        $employees=VendorEmployee::
+        $employees=VendorEmployee::where('restaurant_id', Helpers::get_restaurant_id())->
         where(function ($q) use ($key) {
             foreach ($key as $value) {
                 $q->orWhere('f_name', 'like', "%{$value}%");

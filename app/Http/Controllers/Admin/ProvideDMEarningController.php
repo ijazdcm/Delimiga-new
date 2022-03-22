@@ -43,7 +43,9 @@ class ProvideDMEarningController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'deliveryman_id' => 'required',
-            'amount' => 'required|numeric',
+            'method'=>'max:191',
+            'ref'=>'max:191',
+            'amount' => 'required|numeric|between:0.01,999999999999.99',
         ]);
 
 

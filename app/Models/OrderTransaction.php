@@ -11,6 +11,11 @@ class OrderTransaction extends Model
 
     protected $fillable = array('delivery_man_id');
 
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
+
     public function scopeNotRefunded($query)
     {
         return $query->where(function($query){

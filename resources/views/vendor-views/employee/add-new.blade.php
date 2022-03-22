@@ -63,7 +63,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <label class="input-label qcont" for="phone">{{__('messages.phone')}}</label>
-                                    <input type="text" name="phone" value="{{old('phone')}}" class="form-control" id="phone"
+                                    <input type="tel" name="phone" value="{{old('phone')}}" class="form-control" id="phone"
                                            placeholder="Ex : +88017********" required>
                                 </div>
                                 <div class="col-md-6">

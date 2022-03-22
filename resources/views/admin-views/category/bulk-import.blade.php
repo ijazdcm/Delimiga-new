@@ -33,9 +33,10 @@
 
                     <p> 4. After uploading categories you need to edit them and set category's images.</p>
 
-                    <p> 5. For parent category "Prsition" will 0 and for sub category it will be 1.</p>
+                    <p> 5. For parent category "position" will 0 and for sub category it will be 1.</p>
 
                     <p> 6. By default status will be 1, please input the right ids.</p>
+                    <p> 7. For a category parent_id will be empty, for sub category it will be the category id.</p>
 
                 </div>
             </div>
@@ -46,9 +47,9 @@
                     @csrf
                     <div class="card mt-2 rest-part">
                         <div class="card-header">
-                            <h4>Import Categories File</h4>
+                            <h4>{{__('messages.Import Categories File')}}</h4>
                             <a href="{{asset('public/assets/categories_bulk_format.xlsx')}}" download=""
-                               class="btn btn-secondary">Download Format</a>
+                               class="btn btn-secondary">{{__('messages.Download Format')}}</a>
                         </div>
                         <div class="card-body">
                             <div class="form-group">
@@ -64,7 +65,7 @@
                     <div class="card card-footer">
                         <div class="row">
                             <div class="col-md-12" style="padding-top: 20px">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-primary">{{__('messages.Submit')}}</button>
                             </div>
                         </div>
                     </div>

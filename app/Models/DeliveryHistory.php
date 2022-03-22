@@ -13,4 +13,9 @@ class DeliveryHistory extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
+
+    public function delivery_man()
+    {
+        return $this->belongsTo(DeliveryMan::class, 'delivery_man_id');
+    }
 }

@@ -23,8 +23,8 @@ class NotificationController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'notification_title' => 'required',
-            'description' => 'required',
+            'notification_title' => 'required|max:191',
+            'description' => 'required|max:1000',
             'tergat' => 'required',
             'zone'=>'required'
         ], [
@@ -79,21 +79,19 @@ class NotificationController extends Controller
 
     public function edit($id)
     {
-        $notification = Notification::find($id);
+        $notification = Notification::findOrFail($id);
         return view('admin-views.notification.edit', compact('notification'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'notification_title' => 'required',
-            'description' => 'required',
+            'notification_title' => 'required|max:191',
+            'description' => 'required|max:1000',
             'tergat' => 'required',
-        ], [
-            'title.required' => 'title is required!',
         ]);
 
-        $notification = Notification::find($id);
+        $notification = Notification::findOrFail($id);
 
         if ($request->has('image')) {
             $image_name = Helpers::update('notification/', $notification->image, 'png', $request->file('image'));
@@ -137,7 +135,7 @@ class NotificationController extends Controller
 
     public function status(Request $request)
     {
-        $notification = Notification::find($request->id);
+        $notification = Notification::findOrFail($request->id);
         $notification->status = $request->status;
         $notification->save();
         Toastr::success(trans('messages.notification_status_updated'));
@@ -146,7 +144,7 @@ class NotificationController extends Controller
 
     public function delete(Request $request)
     {
-        $notification = Notification::find($request->id);
+        $notification = Notification::findOrFail($request->id);
         if (Storage::disk('public')->exists('notification/' . $notification['image'])) {
             Storage::disk('public')->delete('notification/' . $notification['image']);
         }

@@ -14,7 +14,7 @@ class CampaignController extends Controller
     public function get_basic_campaigns(Request $request){
         if (!$request->hasHeader('zoneId')) {
             $errors = [];
-            array_push($errors, ['code' => 'zoneId', 'message' => 'Zone id is required!']);
+            array_push($errors, ['code' => 'zoneId', 'message' => trans('messages.zone_id_required')]);
             return response()->json([
                 'errors' => $errors
             ], 200);
@@ -33,7 +33,7 @@ class CampaignController extends Controller
     public function basic_campaign_details(Request $request){
         if (!$request->hasHeader('zoneId')) {
             $errors = [];
-            array_push($errors, ['code' => 'zoneId', 'message' => 'Zone id is required!']);
+            array_push($errors, ['code' => 'zoneId', 'message' => trans('messages.zone_id_required')]);
             return response()->json([
                 'errors' => $errors
             ], 200);
@@ -51,7 +51,11 @@ class CampaignController extends Controller
             $campaign = Campaign::with(['restaurants'=>function($q)use($zone_id){
                 $q->where('zone_id', $zone_id);
             }])->running()->active()->whereId($request->basic_campaign_id)->first();
+
+            $campaign=Helpers::basic_campaign_data_formatting($campaign, false);
+
             $campaign['restaurants'] = Helpers::restaurant_data_formatting($campaign['restaurants'], true);
+
             return response()->json($campaign, 200);
         } catch (\Exception $e) {
             return response()->json([], 200);
@@ -60,7 +64,7 @@ class CampaignController extends Controller
     public function get_item_campaigns(Request $request){
         if (!$request->hasHeader('zoneId')) {
             $errors = [];
-            array_push($errors, ['code' => 'zoneId', 'message' => 'Zone id is required!']);
+            array_push($errors, ['code' => 'zoneId', 'message' => trans('messages.zone_id_required')]);
             return response()->json([
                 'errors' => $errors
             ], 200);
@@ -70,7 +74,7 @@ class CampaignController extends Controller
             $campaigns = ItemCampaign::active()->whereHas('restaurant', function($query)use($zone_id){
                 $query->where('zone_id', $zone_id);
             })->running()->active()->get();
-            $campaigns= Helpers::product_data_formatting($campaigns, true);
+            $campaigns= Helpers::product_data_formatting($campaigns, true, false, app()->getLocale());
             return response()->json($campaigns, 200);
         } catch (\Exception $e) {
             return response()->json([], 200);

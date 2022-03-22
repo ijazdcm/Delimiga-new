@@ -1,6 +1,6 @@
 @extends('layouts.admin.app')
 
-@section('title','Add new category')
+@section('title',__('messages.Add new category'))
 
 @push('css_or_js')
 
@@ -26,10 +26,38 @@
             <div class="card-body">
                 <form action="{{isset($category)?route('admin.category.update',[$category['id']]):route('admin.category.store')}}" method="post" enctype="multipart/form-data">
                     @csrf
-                    <div class="form-group">
+                    @php($language=\App\Models\BusinessSetting::where('key','language')->first())
+                    @php($language = $language->value ?? null)
+                    @php($default_lang = 'en')
+                    @if($language)
+                        @php($default_lang = json_decode($language)[0])
+                        <ul class="nav nav-tabs mb-4">
+                            @foreach(json_decode($language) as $lang)
+                                <li class="nav-item">
+                                    <a class="nav-link lang_link {{$lang == $default_lang? 'active':''}}" href="#" id="{{$lang}}-link">{{\App\CentralLogics\Helpers::get_language_name($lang).'('.strtoupper($lang).')'}}</a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                    @if ($language)
+                        @foreach(json_decode($language) as $lang)
+                            <div class="form-group {{$lang != $default_lang ? 'd-none':''}} lang_form" id="{{$lang}}-form">
+                                <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}} ({{strtoupper($lang)}})</label>
+                                <input type="text" name="name[]" class="form-control" placeholder="{{__('messages.new_category')}}" maxlength="191" {{$lang == $default_lang? 'required':''}} oninvalid="document.getElementById('en-link').click()">
+                            </div>
+                            <input type="hidden" name="lang[]" value="{{$lang}}">
+                        @endforeach
+                    @else
+                        <div class="form-group">
+                            <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}}</label>
+                            <input type="text" name="name" class="form-control" placeholder="{{__('messages.new_category')}}" value="{{old('name')}}" required maxlength="191">
+                        </div>
+                        <input type="hidden" name="lang[]" value="{{$lang}}">
+                    @endif
+                    <!-- <div class="form-group">
                         <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}}</label>
                         <input type="text" name="name" value="{{isset($category)?$category['name']:''}}" class="form-control" placeholder="New Category" required>
-                    </div>
+                    </div> -->
                     <input name="position" value="0" style="display: none">
                     <div class="form-group">
                         <label>{{__('messages.image')}}</label><small style="color: red">* ( {{__('messages.ratio')}} 1:1)</small>
@@ -51,7 +79,7 @@
                         </center>
                     </div>
                     <div class="form-group pt-2">
-                        <button type="submit" class="btn btn-primary">{{isset($category)?__('messages.update'):__('messages.save')}}</button>
+                        <button type="submit" class="btn btn-primary">{{isset($category)?__('messages.update'):__('messages.add')}}</button>
                     </div>
                     
                 </form>
@@ -103,7 +131,7 @@
                                 <td>{{$category->id}}</td>
                                 <td>
                                 <span class="d-block font-size-sm text-body">
-                                    {{$category['name']}}
+                                    {{Str::limit($category['name'], 20,'...')}}
                                 </span>
                                 </td>
                                 <td>
@@ -217,6 +245,27 @@
 
         $("#customFileEg1").change(function () {
             readURL(this);
+        });
+    </script>
+    <script>
+        $(".lang_link").click(function(e){
+            e.preventDefault();
+            $(".lang_link").removeClass('active');
+            $(".lang_form").addClass('d-none');
+            $(this).addClass('active');
+
+            let form_id = this.id;
+            let lang = form_id.split("-")[0];
+            console.log(lang);
+            $("#"+lang+"-form").removeClass('d-none');
+            if(lang == '{{$default_lang}}')
+            {
+                $(".from_part_2").removeClass('d-none');
+            }
+            else
+            {
+                $(".from_part_2").addClass('d-none');
+            }
         });
     </script>
 @endpush

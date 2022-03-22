@@ -23,9 +23,11 @@ class OrderFactory extends Factory
     {
         return [
             'user_id' => $this->faker->numberBetween(1,50),
+            'zone_id' => $this->faker->numberBetween(1,6),
             'order_amount' => $this->faker->randomNumber(3),
-            'order_status'=>$this->faker->randomElement(['pending','delivered','failed']),
-            'restaurant_id'=>$this->faker->randomElement([3,4,5]),
+            'order_status'=>$this->faker->randomElement(['pending','delivered','failed','confirmed','processing']),
+            'restaurant_id'=>$this->faker->numberBetween(1,50),
+            'restaurant_discount_amount'=>$this->faker->randomNumber(3),
         ];
     }
 }

@@ -1,6 +1,6 @@
 @extends('layouts.admin.app')
 
-@section('title','Update Notification')
+@section('title',__('messages.update').' '.__('messages.notification'))
 
 @push('css_or_js')
 
@@ -25,14 +25,14 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.title')}}</label>
-                                <input type="text" value="{{$notification['title']}}" name="notification_title" class="form-control" placeholder="{{__('messages.new_notification')}}" required>
+                                <input type="text" value="{{$notification['title']}}" name="notification_title" class="form-control" placeholder="{{__('messages.new_notification')}}" required maxlength="191">
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.zone')}}</label>
                                 <select name="zone" class="form-control js-select2-custom" >
-                                    <option value="all" {{isset($notification->zone_id)?'':'selected'}}>All Zones</option>
+                                    <option value="all" {{isset($notification->zone_id)?'':'selected'}}>{{__('messages.all')}} {{__('messages.zone')}}</option>
                                     @foreach(\App\Models\Zone::orderBy('name')->get() as $z)
                                         <option value="{{$z['id']}}"  {{$notification->zone_id==$z['id']?'selected':''}}>{{$z['name']}}</option>
                                     @endforeach

@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use App\Scopes\ZoneScope;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
 {
+    use HasFactory;
 
     protected $casts = [
         'order_amount' => 'float',
@@ -64,7 +66,8 @@ class Order extends Model
 
     public function dm_last_location()
     {
-        return $this->hasOne(DeliveryHistory::class, 'order_id')->latest();
+        // return $this->hasOne(DeliveryHistory::class, 'order_id')->latest();
+        return $this->delivery_man->last_location();
     }
 
     public function transaction()
@@ -124,7 +127,7 @@ class Order extends Model
     
     public function scopeSearchingForDeliveryman($query)
     {
-        return $query->whereNull('delivery_man_id')->where('order_type', '=' , 'delivery');
+        return $query->whereNull('delivery_man_id')->where('order_type', '=' , 'delivery')->whereNotIn('order_status',['delivered','failed','canceled', 'refund_requested', 'refunded']);
     }
     
     public function scopeDelivery($query)

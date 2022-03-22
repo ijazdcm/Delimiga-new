@@ -21,19 +21,36 @@
             <div class="col-sm-12 col-lg-12 mb-3 mb-lg-2">
                 <form action="{{route('vendor.addon.store')}}" method="post">
                     @csrf
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}}</label>
-                                <input type="text" name="name" class="form-control" placeholder="{{__('messages.new_addon')}}" required>
+                    @php($language=\App\Models\BusinessSetting::where('key','language')->first())
+                    @php($language = $language->value ?? null)
+                    @php($default_lang = 'en')
+                    @if($language)
+                        @php($default_lang = json_decode($language)[0])
+                        <ul class="nav nav-tabs mb-4">
+                            @foreach(json_decode($language) as $lang)
+                                <li class="nav-item">
+                                    <a class="nav-link lang_link {{$lang == $default_lang? 'active':''}}" href="#" id="{{$lang}}-link">{{\App\CentralLogics\Helpers::get_language_name($lang).'('.strtoupper($lang).')'}}</a>
+                                </li>
+                            @endforeach
+                        </ul>
+                        @foreach(json_decode($language) as $lang)
+                            <div class="form-group {{$lang != $default_lang ? 'd-none':''}} lang_form" id="{{$lang}}-form">
+                                <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}} ({{strtoupper($lang)}})</label>
+                                <input type="text" name="name[]" class="form-control" placeholder="{{__('messages.new_addon')}}" maxlength="191" {{$lang == $default_lang? 'required':''}} oninvalid="document.getElementById('en-link').click()">
                             </div>
+                            <input type="hidden" name="lang[]" value="{{$lang}}">
+                        @endforeach
+                    @else
+                        <div class="form-group">
+                            <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}}</label>
+                            <input type="text" name="name" class="form-control" placeholder="{{__('messages.new_addon')}}" value="{{old('name')}}" required maxlength="191">
                         </div>
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label class="input-label" for="exampleFormControlInput1">{{__('messages.price')}}</label>
-                                <input type="number" min=".01" max="10000" name="price" step="0.01" class="form-control" placeholder="100" required>
-                            </div>
-                        </div>
+                        <input type="hidden" name="lang[]" value="{{$lang}}">
+                    @endif
+
+                    <div class="form-group">
+                        <label class="input-label" for="exampleFormControlInput1">{{__('messages.price')}}</label>
+                        <input type="number" min="0" max="999999999999.99" name="price" step="0.01" class="form-control" placeholder="100.00" value="{{old('price')}}" required>
                     </div>
 
                     <button type="submit" class="btn btn-primary">{{__('messages.submit')}}</button>
@@ -82,7 +99,7 @@
                                     <td>{{$key+1}}</td>
                                     <td>
                                     <span class="d-block font-size-sm text-body">
-                                        {{$addon['name']}}
+                                        {{Str::limit($addon['name'], 20, '...')}}
                                     </span>
                                     </td>
                                     <td>{{\App\CentralLogics\Helpers::format_currency($addon['price'])}}</td>
@@ -143,6 +160,27 @@
             $('.js-select2-custom').each(function () {
                 var select2 = $.HSCore.components.HSSelect2.init($(this));
             });
+        });
+    </script>
+    <script>
+        $(".lang_link").click(function(e){
+            e.preventDefault();
+            $(".lang_link").removeClass('active');
+            $(".lang_form").addClass('d-none');
+            $(this).addClass('active');
+
+            let form_id = this.id;
+            let lang = form_id.split("-")[0];
+            console.log(lang);
+            $("#"+lang+"-form").removeClass('d-none');
+            if(lang == '{{$default_lang}}')
+            {
+                $(".from_part_2").removeClass('d-none');
+            }
+            else
+            {
+                $(".from_part_2").addClass('d-none');
+            }
         });
     </script>
 @endpush

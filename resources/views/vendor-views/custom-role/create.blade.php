@@ -120,6 +120,13 @@
                                     <label class="form-check-label input-label qcont" for="reviews">{{__('messages.reviews')}}</label>
                                 </div>
                             </div>
+                            <div class="col-md-3">
+                                <div class="form-group form-check">
+                                    <input type="checkbox" name="modules[]" value="pos" class="form-check-input"
+                                           id="pos">
+                                    <label class="form-check-label input-label qcont" for="pos">{{__('messages.pos')}}</label>
+                                </div>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary">{{__('messages.submit')}}</button>
                     </form>
@@ -159,11 +166,11 @@
                                }'>
                             <thead class="thead-light">
                                 <tr>
-                                    <th scope="col" style="width: 50px">SL#</th>
+                                    <th scope="col" style="width: 50px">{{__('messages.sl#')}}</th>
                                     <th scope="col" style="width: 50px">{{__('messages.role_name')}}</th>
                                     <th scope="col" style="width: 200px">{{__('messages.modules')}}</th>
                                     <th scope="col" style="width: 50px">{{__('messages.created_at')}}</th>
-                                    <th scope="col" style="width: 50px">{{__('messages.status')}}</th>
+                                    {{--<th scope="col" style="width: 50px">{{__('messages.status')}}</th>--}}
                                     <th scope="col" style="width: 50px">{{__('messages.action')}}</th>
                                 </tr>
                             </thead>
@@ -171,7 +178,7 @@
                             @foreach($rl as $k=>$r)
                                 <tr>
                                     <td scope="row">{{$k+$rl->firstItem()}}</td>
-                                    <td>{{$r['name']}}</td>
+                                    <td>{{Str::limit($r['name'],20,'...')}}</td>
                                     <td class="text-capitalize">
                                         @if($r['modules']!=null)
                                             @foreach((array)json_decode($r['modules']) as $key=>$m)
@@ -180,11 +187,11 @@
                                         @endif
                                     </td>
                                     <td>{{date('d-M-y',strtotime($r['created_at']))}}</td>
-                                    <td>
+                                    {{--<td>
                                         {{$r->status?'Active':'Inactive'}}
-                                    </td>
-                                    <td>
-                                        <a class="btn btn-sm btn-white"
+                                    </td>--}}
+                                    <td class="d-flex flex-row">
+                                        <a class="btn btn-sm btn-white mr-1"
                                             href="{{route('vendor.custom-role.edit',[$r['id']])}}" title="{{__('messages.edit')}} {{__('messages.role')}}"><i class="tio-edit"></i>
                                         </a>
                                         <a class="btn btn-sm btn-danger" href="javascript:"

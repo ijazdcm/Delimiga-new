@@ -9,6 +9,9 @@
                     <div class="card-body">
                         <div class="mar-ver pad-btm text-center mb-3">
                             <h1 class="h3">StackFood Software Update</h1>
+                            <span class="alert-warning text-danger px-1" role="alert">
+                                    Note: Update can take more then 5 minutes. Please do not close the window.
+                            </span>
                         </div>
                         <form method="POST" action="{{route('update-system')}}">
                             @csrf

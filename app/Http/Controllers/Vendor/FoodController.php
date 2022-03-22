@@ -15,6 +15,7 @@ use App\CentralLogics\Helpers;
 use App\CentralLogics\ProductLogic;
 use Rap2hpoutre\FastExcel\FastExcel;
 use Illuminate\Support\Facades\DB;
+use App\Models\Translation;
 
 class FoodController extends Controller
 {
@@ -41,16 +42,19 @@ class FoodController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            'name' => 'array',
+            'name.0' => 'required',
+            'name.*' => 'max:191',
             'category_id' => 'required',
             'image' => 'required',
-            'price' => 'required|numeric|min:0.01',
-            'description' => 'max:1000',
+            'price' => 'required|numeric|between:.01,999999999999.99',
+            'description.*' => 'max:1000',
             'discount' => 'required|numeric|min:0',
         ], [
-            'name.required' => trans('messages.item_name_required'),
+            'name.0.required' => trans('messages.item_name_required'),
             'category_id.required' => trans('messages.category_required'),
-            'veg.required'=>trans('messages.item_type_is_required')
+            'veg.required'=>trans('messages.item_type_is_required'),
+            'description.*.max' => trans('messages.description_length_warning'),   
         ]);
 
         if ($request['discount_type'] == 'percent') {
@@ -60,7 +64,7 @@ class FoodController extends Controller
         }
 
         if ($request['price'] <= $dis) {
-            $validator->getMessageBag()->add('unit_price', 'Discount can not be more or equal to the price!');
+            $validator->getMessageBag()->add('unit_price', trans('messages.discount_can_not_be_more_than_or_equal'));
         }
 
         if ($request['price'] <= $dis || $validator->fails()) {
@@ -68,7 +72,7 @@ class FoodController extends Controller
         }
 
         $food = new Food;
-        $food->name = $request->name;
+        $food->name = $request->name[array_search('en', $request->lang)];
 
         $category = [];
         if ($request->category_id != null) {
@@ -91,14 +95,14 @@ class FoodController extends Controller
         }
         $food->category_id = $request->sub_category_id?$request->sub_category_id:$request->category_id;
         $food->category_ids = json_encode($category);
-        $food->description = $request->description;
+        $food->description = $request->description[array_search('en', $request->lang)];
 
         $choice_options = [];
         if ($request->has('choice')) {
             foreach ($request->choice_no as $key => $no) {
                 $str = 'choice_options_' . $no;
                 if ($request[$str][0] == null) {
-                    $validator->getMessageBag()->add('name', 'Attribute choice option values can not be null!');
+                    $validator->getMessageBag()->add('name', trans('messages.attribute_choice_option_value_can_not_be_null'));
                     return response()->json(['errors' => Helpers::error_processor($validator)]);
                 }
                 $item['name'] = 'choice_' . $no;
@@ -149,12 +153,37 @@ class FoodController extends Controller
         $food->restaurant_id = Helpers::get_restaurant_id();
         $food->save();
 
+        $data = [];
+        foreach ($request->lang as $index => $key) {
+            if ($request->name[$index] && $key != 'en') {
+                array_push($data, array(
+                    'translationable_type' => 'App\Models\Food',
+                    'translationable_id' => $food->id,
+                    'locale' => $key,
+                    'key' => 'name',
+                    'value' => $request->name[$index],
+                ));
+            }
+            if ($request->description[$index] && $key != 'en') {
+                array_push($data, array(
+                    'translationable_type' => 'App\Models\Food',
+                    'translationable_id' => $food->id,
+                    'locale' => $key,
+                    'key' => 'description',
+                    'value' => $request->description[$index],
+                ));
+            }
+        }
+
+
+        Translation::insert($data);
+
         return response()->json([], 200);
     }
 
     public function view($id)
     {
-        $product = Food::where(['id' => $id])->first();
+        $product = Food::findOrFail($id);
         $reviews=Review::where(['food_id'=>$id])->latest()->paginate(config('default_pagination'));
         return view('vendor-views.product.view', compact('product','reviews'));
     }
@@ -167,7 +196,7 @@ class FoodController extends Controller
             return back();
         }
 
-        $product = Food::find($id);
+        $product = Food::withoutGlobalScope('translate')->findOrFail($id);
         $product_category = json_decode($product->category_ids);
         $categories = Category::where(['parent_id' => 0])->get();
         return view('vendor-views.product.edit', compact('product', 'product_category', 'categories'));
@@ -199,15 +228,18 @@ class FoodController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            'name' => 'array',
+            'name.0' => 'required',
+            'name.*' => 'max:191',
             'category_id' => 'required',
-            'price' => 'required|numeric|min:0.01',
-            'description' => 'max:1000',
+            'price' => 'required|numeric|between:0.01,999999999999.99',
+            'description.*' => 'max:1000',
             'discount' => 'required|numeric|min:0',
         ], [
-            'name.required' => trans('messages.item_name_required'),
+            'name.0.required' => trans('messages.item_name_required'),
             'category_id.required' => trans('messages.category_required'),
-            'veg.required'=>trans('messages.item_type_is_required')
+            'veg.required'=>trans('messages.item_type_is_required'),
+            'description.*.max' => trans('messages.description_length_warning'),   
         ]);
 
         if ($request['discount_type'] == 'percent') {
@@ -217,7 +249,7 @@ class FoodController extends Controller
         }
 
         if ($request['price'] <= $dis) {
-            $validator->getMessageBag()->add('unit_price', 'Discount can not be more or equal to the price!');
+            $validator->getMessageBag()->add('unit_price', trans('messages.discount_can_not_be_more_than_or_equal'));
         }
 
         if ($request['price'] <= $dis || $validator->fails()) {
@@ -226,7 +258,7 @@ class FoodController extends Controller
 
         $p = Food::find($id);
 
-        $p->name = $request->name;
+        $p->name = $request->name[array_search('en', $request->lang)];
 
         $category = [];
         if ($request->category_id != null) {
@@ -250,14 +282,14 @@ class FoodController extends Controller
 
         $p->category_id = $request->sub_category_id?$request->sub_category_id:$request->category_id;
         $p->category_ids = json_encode($category);
-        $p->description = $request->description;
+        $p->description = $request->description[array_search('en', $request->lang)];
 
         $choice_options = [];
         if ($request->has('choice')) {
             foreach ($request->choice_no as $key => $no) {
                 $str = 'choice_options_' . $no;
                 if ($request[$str][0] == null) {
-                    $validator->getMessageBag()->add('name', 'Attribute choice option values can not be null!');
+                    $validator->getMessageBag()->add('name', trans('messages.attribute_choice_option_value_can_not_be_null'));
                     return response()->json(['errors' => Helpers::error_processor($validator)]);
                 }
                 $item['name'] = 'choice_' . $no;
@@ -308,6 +340,26 @@ class FoodController extends Controller
 
         $p->save();
 
+        foreach ($request->lang as $index => $key) {
+            if ($request->name[$index] && $key != 'en') {
+                Translation::updateOrInsert(
+                    ['translationable_type' => 'App\Models\Food',
+                        'translationable_id' => $p->id,
+                        'locale' => $key,
+                        'key' => 'name'],
+                    ['value' => $request->name[$index]]
+                );
+            }
+            if ($request->description[$index] && $key != 'en') {
+                Translation::updateOrInsert(
+                    ['translationable_type' => 'App\Models\Food',
+                        'translationable_id' => $p->id,
+                        'locale' => $key,
+                        'key' => 'description'],
+                    ['value' => $request->description[$index]]
+                );
+            }
+        }
         return response()->json([], 200);
     }
 
@@ -420,19 +472,17 @@ class FoodController extends Controller
         try {
             $collections = (new FastExcel)->import($request->file('products_file'));
         } catch (\Exception $exception) {
-            Toastr::error('You have uploaded a wrong format file, please upload the right file.');
+            Toastr::error(trans('messages.you_have_uploaded_a_wrong_format_file'));
             return back();
         }
 
         $data = [];
         $skip = ['youtube_video_url'];
         foreach ($collections as $collection) {
-                if ($collection['name'] === "" || $collection['category_id'] === "" || $collection['sub_category_id'] === "" || $collection['price'] === "" || empty($collection['available_time_starts']) === "" || empty($collection['available_time_ends']) || $collection['restaurant_id'] === "") {
-                    Toastr::error('Please fill all the required fields');
-                    return back();
-                }
-
-
+            if ($collection['name'] === "" || $collection['category_id'] === "" || $collection['sub_category_id'] === "" || $collection['price'] === "" || empty($collection['available_time_starts']) === "" || empty($collection['available_time_ends']) || empty($collection['veg']) === "") {
+                Toastr::error(trans('messages.please_fill_all_required_fields'));
+                return back();
+            }
             array_push($data, [
                 'name' => $collection['name'],
                 'category_id' => $collection['sub_category_id']?$collection['sub_category_id']:$collection['category_id'],
@@ -454,7 +504,6 @@ class FoodController extends Controller
                 'updated_at'=>now()
             ]);
         }
-        DB::table('food')->insert($data);
 
         try
         {

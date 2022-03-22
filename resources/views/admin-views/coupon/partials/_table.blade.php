@@ -31,7 +31,7 @@
             <td>{{$key+1}}</td>
             <td>
             <span class="d-block font-size-sm text-body">
-                {{$coupon['title']}}
+                {{Str::limit($coupon['title'],15,'...')}}
             </span>
             </td>
             <td>{{$coupon['code']}}</td>

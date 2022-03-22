@@ -26,7 +26,7 @@
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.title')}}</label>
                                 <input type="text" name="title" value="{{$coupon['title']}}" class="form-control"
-                                       placeholder="{{__('messages.new_coupon')}}" required>
+                                       placeholder="{{__('messages.new_coupon')}}" required maxlength="191">
                             </div>
                         </div>
                         <div class="col-4">
@@ -74,13 +74,13 @@
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.code')}}</label>
                                 <input type="text" name="code" class="form-control" value="{{$coupon['code']}}"
-                                       placeholder="{{\Illuminate\Support\Str::random(8)}}" required>
+                                       placeholder="{{\Illuminate\Support\Str::random(8)}}" required maxlength="100">
                             </div>
                         </div>
                         <div class="col-md-3 col-6">
                             <div class="form-group">
                                 <label class="input-label" for="limit">{{__('messages.limit')}} {{__('messages.for')}} {{__('messages.same')}} {{__('messages.user')}}</label>
-                                <input type="number" name="limit" id="coupon_limit" value="{{$coupon['limit']}}" class="form-control"
+                                <input type="number" name="limit" id="coupon_limit" value="{{$coupon['limit']}}" class="form-control" max="100"
                                        placeholder="EX: 10">
                             </div>
                         </div>
@@ -117,14 +117,14 @@
                         <div class="col-md-3 col-6">
                             <div class="form-group">
                                 <label class="input-label" for="discount">{{__('messages.discount')}}</label>
-                                <input type="number" id="discount" min="1" max="10000" step="0.01" value="{{$coupon['discount']}}"
+                                <input type="number" id="discount" min="1" max="999999999999.99" step="0.01" value="{{$coupon['discount']}}"
                                        name="discount" class="form-control" required>
                             </div>
                         </div>
                         <div class="col-md-3 col-6">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.max')}} {{__('messages.discount')}}</label>
-                                <input type="number" min="0" max="1000000" step="0.01"
+                                <input type="number" min="0" max="999999999999.99" step="0.01"
                                        value="{{$coupon['max_discount']}}" name="max_discount" id="max_discount" class="form-control">
                             </div>
                         </div>
@@ -132,7 +132,7 @@
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.min')}} {{__('messages.purchase')}}</label>
                                 <input type="number" name="min_purchase" step="0.01" value="{{$coupon['min_purchase']}}"
-                                       min="0" max="100000" class="form-control"
+                                       min="0" max="999999999999.99" class="form-control"
                                        placeholder="100">
                             </div>
                         </div>

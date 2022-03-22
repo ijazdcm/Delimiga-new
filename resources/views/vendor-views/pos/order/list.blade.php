@@ -1,6 +1,6 @@
 @extends('layouts.vendor.app')
 
-@section('title','Order List')
+@section('title',__('messages.Order List'))
 
 @push('css_or_js')
     <meta name="csrf-token" content="{{ csrf_token() }}">

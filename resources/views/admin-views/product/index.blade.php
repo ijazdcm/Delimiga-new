@@ -23,9 +23,46 @@
                 <form action="javascript:" method="post" id="food_form"
                       enctype="multipart/form-data">
                     @csrf
-                    
+                    @php($language=\App\Models\BusinessSetting::where('key','language')->first())
+                    @php($language = $language->value ?? null)
+                    @php($default_lang = 'bn')
+                    @if($language)
+                        @php($default_lang = json_decode($language)[0])
+                        <ul class="nav nav-tabs mb-4">
+                            @foreach(json_decode($language) as $lang)
+                                <li class="nav-item">
+                                    <a class="nav-link lang_link {{$lang == $default_lang? 'active':''}}" href="#" id="{{$lang}}-link">{{\App\CentralLogics\Helpers::get_language_name($lang).'('.strtoupper($lang).')'}}</a>
+                                </li>
+                            @endforeach
+                        </ul>
+                        @foreach(json_decode($language) as $lang)
+                            <div class="card p-4 {{$lang != $default_lang ? 'd-none':''}} lang_form" id="{{$lang}}-form">
+                                <div class="form-group">
+                                    <label class="input-label" for="{{$lang}}_name">{{__('messages.name')}} ({{strtoupper($lang)}})</label>
+                                    <input type="text" name="name[]" id="{{$lang}}_name" class="form-control" placeholder="{{__('messages.new_food')}}" {{$lang == $default_lang? 'required':''}} oninvalid="document.getElementById('en-link').click()">
+                                </div>
+                                <input type="hidden" name="lang[]" value="{{$lang}}">
+                                <div class="form-group pt-4">
+                                    <label class="input-label" for="exampleFormControlInput1">{{__('messages.short')}} {{__('messages.description')}} ({{strtoupper($lang)}})</label>
+                                    <textarea type="text" name="description[]" class="form-control ckeditor"></textarea>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                    <div class="card p-4" id="{{$default_lang}}-form">
+                        <div class="form-group">
+                            <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}} (EN)</label>
+                            <input type="text" name="name[]" class="form-control" placeholder="{{__('messages.new_food')}}" required>
+                        </div>
+                        <input type="hidden" name="lang[]" value="en">
+                        <div class="form-group pt-4">
+                            <label class="input-label" for="exampleFormControlInput1">{{__('messages.short')}} {{__('messages.description')}}</label>
+                            <textarea type="text" name="description[]" class="form-control ckeditor"></textarea>
+                        </div>
+                    </div>
+                    @endif
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-12">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlSelect1">{{__('messages.restaurant')}}<span
                                         class="input-label-secondary"></span></label>
@@ -34,19 +71,13 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}}</label>
-                                <input type="text" name="name" class="form-control" placeholder="{{__('messages.new_food')}}" required>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-3 col-6">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.price')}}</label>
-                                <input type="number" min="0" max="9999999999999999999999" step="0.01" value="1" name="price" class="form-control"
+                                <input type="number" min="0" max="999999999999.99" step="0.01" value="1" name="price" class="form-control"
                                        placeholder="Ex : 100" required>
                             </div>
                         </div>
@@ -171,11 +202,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="input-label" for="exampleFormControlInput1">{{__('messages.short')}} {{__('messages.description')}}</label>
-                        <textarea type="text" name="description" class="form-control ckeditor"></textarea>
-                    </div>
-
-                    <div class="form-group">
                         <label>{{__('messages.food')}} {{__('messages.image')}}</label><small style="color: red">* ( {{__('messages.ratio')}} 1:1 )</small>
                         <div class="custom-file">
                             <input type="file" name="image" id="customFileEg1" class="custom-file-input"
@@ -206,23 +232,6 @@
                 dataType: 'json',
                 success: function (data) {
                     $('#' + id).empty().append(data.options);
-                },
-            });
-            $.get({
-                url:'{{url('/')}}/api/v1/restaurants/details/'+restaurant_id,
-                dataType: 'json',
-                success: function(data) {
-                    if(data.available_time_starts != null && data.available_time_ends != null){
-                        var opening_time = data.available_time_starts;
-                        var closeing_time = data.available_time_ends;
-                        $('#available_time_ends').attr('min', opening_time);
-                        $('#available_time_starts').attr('min', opening_time);
-                        $('#available_time_ends').attr('max', closeing_time);
-                        $('#available_time_starts').attr('max', closeing_time);
-                        $('#available_time_starts').val(opening_time);
-                        $('#available_time_ends').val(closeing_time);
-                    }
-                    
                 },
             });
         }
@@ -295,6 +304,14 @@
         $('#choice_attributes').on('change', function () {
             $('#customer_choice_options').html(null);
             $.each($("#choice_attributes option:selected"), function () {
+                if($(this).val().length > 50)
+                {
+                    toastr.error('{{__('validation.max.string',['attribute'=>__('messages.variation'),'max'=>'50'])}}', {
+                        CloseButton: true,
+                        ProgressBar: true
+                    });
+                    return false;
+                }
                 add_more_customer_choice_option($(this).val(), $(this).text());
             });
         });
@@ -361,7 +378,7 @@
                             });
                         }
                     } else {
-                        toastr.success('Food uploaded successfully!', {
+                        toastr.success('{{__('messages.product_added_successfully')}}', {
                             CloseButton: true,
                             ProgressBar: true
                         });
@@ -372,6 +389,27 @@
                 }
             });
         });
+    </script>
+    <script>
+        $(".lang_link").click(function(e){
+            e.preventDefault();
+            $(".lang_link").removeClass('active');
+            $(".lang_form").addClass('d-none');
+            $(this).addClass('active');
+
+            let form_id = this.id;
+            let lang = form_id.split("-")[0];
+            console.log(lang);
+            $("#"+lang+"-form").removeClass('d-none');
+            if(lang == '{{$default_lang}}')
+            {
+                $("#from_part_2").removeClass('d-none');
+            }
+            else
+            {
+                $("#from_part_2").addClass('d-none');
+            }
+        })
     </script>
 @endpush
 

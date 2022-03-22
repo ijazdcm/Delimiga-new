@@ -10,7 +10,8 @@ class RestaurantLogic
 {
     public static function get_restaurants($limit = 10, $offset = 1, $zone_id, $filter, $type)
     {
-        $paginator = Restaurant::selectRaw('*, IF((opening_time < "'.now()->format('H:i').'" and closeing_time > "'.now()->format('H:i').'"), true, false) as open')
+        $paginator = Restaurant::
+        withOpen()
         ->with(['discount'=>function($q){
             return $q->validate();
         }])->where('zone_id', $zone_id)
@@ -35,7 +36,7 @@ class RestaurantLogic
 
     public static function get_latest_restaurants($limit = 10, $offset = 1, $zone_id, $type)
     {
-        $paginator = Restaurant::selectRaw('*, IF((opening_time < "'.now()->format('H:i').'" and closeing_time > "'.now()->format('H:i').'"), true, false) as open')
+        $paginator = Restaurant::withOpen()
         ->with(['discount'=>function($q){
             return $q->validate();
         }])->where('zone_id', $zone_id)
@@ -56,7 +57,7 @@ class RestaurantLogic
 
     public static function get_popular_restaurants($limit = 10, $offset = 1, $zone_id, $type)
     {
-        $paginator = Restaurant::selectRaw('*, IF((opening_time < "'.now()->format('H:i').'" and closeing_time > "'.now()->format('H:i').'"), true, false) as open')
+        $paginator = Restaurant::withOpen()
         ->with(['discount'=>function($q){
             return $q->validate();
         }])->where('zone_id', $zone_id)
@@ -80,7 +81,7 @@ class RestaurantLogic
     {
         return Restaurant::with(['discount'=>function($q){
             return $q->validate();
-        }, 'campaigns'])->active()->whereId($restaurant_id)->first();
+        }, 'campaigns', 'schedules'])->active()->whereId($restaurant_id)->first();
     }
 
     public static function calculate_restaurant_rating($ratings)
@@ -112,7 +113,7 @@ class RestaurantLogic
     public static function search_restaurants($name, $zone_id, $category_id= null,$limit = 10, $offset = 1, $type)
     {
         $key = explode(' ', $name);
-        $paginator = Restaurant::with(['discount'=>function($q){
+        $paginator = Restaurant::withOpen()->with(['discount'=>function($q){
             return $q->validate();
         }])->where('zone_id', $zone_id)->weekday()->where(function ($q) use ($key) {
             foreach ($key as $value) {

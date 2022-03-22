@@ -26,7 +26,14 @@ class RestaurantController extends Controller
 
     public function update(Request $request)
     {
-        $shop = Restaurant::find(Helpers::get_restaurant_id());
+        $request->validate([
+            'name' => 'required|max:191',
+            'address' => 'nullable|max:1000',
+            'contact' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:20|unique:restaurants,phone,'.Helpers::get_restaurant_id(),
+        ], [
+            'f_name.required' => trans('messages.first_name_is_required'),
+        ]);
+        $shop = Restaurant::findOrFail(Helpers::get_restaurant_id());
         $shop->name = $request->name;
         $shop->address = $request->address;
         $shop->phone = $request->contact;
@@ -37,7 +44,7 @@ class RestaurantController extends Controller
         
         $shop->save();
 
-        Toastr::info(trans('messages.restaurant_data_updated'));
+        Toastr::success(trans('messages.restaurant_data_updated'));
         return redirect()->route('vendor.shop.view');
     }
 

@@ -35,11 +35,11 @@ class SystemController extends Controller
         $request->validate([
             'f_name' => 'required',
             'l_name' => 'required',
-            'email' => 'required',
-            'phone' => 'required',
+            'email' => 'required|unique:admins,email,'.auth('admin')->id(),
+            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|unique:admins,phone,'.auth('admin')->id(),
         ], [
-            'f_name.required' => 'First name is required!',
-            'l_name.required' => 'Last name is required!',
+            'f_name.required' => trans('messages.first_name_is_required'),
+            'l_name.required' => trans('messages.Last name is required!'),
         ]);
 
         $admin = Admin::find(auth('admin')->id());

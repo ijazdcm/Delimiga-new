@@ -1,6 +1,6 @@
 @extends('layouts.vendor.app')
 
-@section('title','Food Bulk Import')
+@section('title',__('messages.Food Bulk Import'))
 
 @push('css_or_js')
 
@@ -24,7 +24,7 @@
             <div class="col-12">
                 <div class="jumbotron pt-1" style="background: white">
                     <h3>Instructions : </h3>
-                    <p> 1. Download the format file and fill it with proper data.</p>
+                    <p>1. Download the format file and fill it with proper data.</p>
 
                     <p>2. You can download the example file to understand how the data must be filled.</p>
 
@@ -34,6 +34,8 @@
                     <p> 4. After uploading foods you need to edit them and set image and variations.</p>
 
                     <p> 5. You can get category id from their list, please input the right ids.</p>
+
+                    <p> 6. Don't forget to fill all the fields </p>
                     
                 </div>
             </div>
@@ -44,9 +46,9 @@
                     @csrf
                     <div class="card mt-2 rest-part">
                         <div class="card-header">
-                            <h4>Import Foods File</h4>
+                            <h4>{{__('messages.Import Food`s File')}}</h4>
                             <a href="{{asset('public/assets/restaurant_panel/foods_bulk_format.xlsx')}}" download=""
-                               class="btn btn-secondary">Download Format</a>
+                               class="btn btn-secondary">{{__('messages.Download Format')}}</a>
                         </div>
                         <div class="card-body">
                             <div class="form-group">
@@ -62,7 +64,7 @@
                     <div class="card card-footer">
                         <div class="row">
                             <div class="col-md-12" style="padding-top: 20px">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-primary">{{__('messages.Submit')}}</button>
                             </div>
                         </div>
                     </div>

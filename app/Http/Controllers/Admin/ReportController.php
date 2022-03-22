@@ -31,7 +31,7 @@ class ReportController extends Controller
             session()->put('to_date', date('Y-m-30'));
         }
 
-        $zone_id = $request->query('zone_id', 'all');
+        $zone_id = $request->query('zone_id', isset(auth('admin')->user()->zone_id)?auth('admin')->user()->zone_id:'all');
         $zone = is_numeric($zone_id)?Zone::findOrFail($zone_id):null;
         return view('admin-views.report.day-wise-report', compact('zone'));
     }
@@ -45,12 +45,12 @@ class ReportController extends Controller
         $from = session('from_date');
         $to = session('to_date');
 
-        $zone_id = $request->query('zone_id', 'all');
+        $zone_id = $request->query('zone_id', isset(auth('admin')->user()->zone_id)?auth('admin')->user()->zone_id:'all');
         $restaurant_id = $request->query('restaurant_id', 'all');
         $zone = is_numeric($zone_id)?Zone::findOrFail($zone_id):null;
         $restaurant = is_numeric($restaurant_id)?Restaurant::findOrFail($restaurant_id):null;
         $foods = \App\Models\Food::withoutGlobalScope(RestaurantScope::class)->withCount([
-            'orders as order_count' => function($query)use($from, $to) {
+            'orders' => function($query)use($from, $to) {
                 $query->whereBetween('created_at', [$from, $to]);
             },
         ])
@@ -85,7 +85,7 @@ class ReportController extends Controller
         $from = session('from_date');
         $to = session('to_date');
 
-        $zone_id = $request->query('zone_id', 'all');
+        $zone_id = $request->query('zone_id', isset(auth('admin')->user()->zone_id)?auth('admin')->user()->zone_id:'all');
         $restaurant_id = $request->query('restaurant_id', 'all');
         $zone = is_numeric($zone_id)?Zone::findOrFail($zone_id):null;
         $restaurant = is_numeric($restaurant_id)?Restaurant::findOrFail($restaurant_id):null;

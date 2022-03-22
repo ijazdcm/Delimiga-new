@@ -49,7 +49,7 @@
 <div class="footer text-center">
     <ul class="list-inline list-separator">
         <li class="list-inline-item">
-            <a class="list-separator-link" target="_blank" href="https://delimiga.com">{{\App\Models\BusinessSetting::where(['key'=>'business_name'])->first()->value??'Stack Food'}} {{__('messages.support')}}</a>
+            <a class="list-separator-link" target="_blank" href="https://6amtech.com/">{{\App\Models\BusinessSetting::where(['key'=>'business_name'])->first()->value??'Stack Food'}} {{__('messages.support')}}</a>
         </li>
     </ul>
 </div>

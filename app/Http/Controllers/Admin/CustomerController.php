@@ -12,9 +12,23 @@ use App\CentralLogics\Helpers;
 
 class CustomerController extends Controller
 {
-    public function customer_list()
+    public function customer_list(Request $request)
     {
-        $customers = User::with(['orders'])->latest()->paginate(config('default_pagination'));
+        $key = [];
+        if($request->search)
+        {
+            $key = explode(' ', $request['search']);
+        }
+        $customers = User::
+        when(count($key) > 0, function($query)use($key){
+            foreach ($key as $value) {
+                $query->orWhere('f_name', 'like', "%{$value}%")
+                    ->orWhere('l_name', 'like', "%{$value}%")
+                    ->orWhere('email', 'like', "%{$value}%")
+                    ->orWhere('phone', 'like', "%{$value}%");
+            };
+        })
+        ->orderBy('order_count','desc')->paginate(config('default_pagination'));
         return view('admin-views.customer.list', compact('customers'));
     }
 
@@ -68,7 +82,7 @@ class CustomerController extends Controller
                     ->orWhere('email', 'like', "%{$value}%")
                     ->orWhere('phone', 'like', "%{$value}%");
             }
-        })->get();
+        })->orderBy('order_count','desc')->limit(50)->get();
         return response()->json([
             'view'=>view('admin-views.customer.partials._table',compact('customers'))->render()
         ]);
@@ -78,7 +92,7 @@ class CustomerController extends Controller
     {
         $customer = User::find($id);
         if (isset($customer)) {
-            $orders = Order::latest()->where(['user_id' => $id])->paginate(config('default_pagination'));
+            $orders = Order::latest()->where(['user_id' => $id])->Notpos()->paginate(config('default_pagination'));
             return view('admin-views.customer.customer-view', compact('customer', 'orders'));
         }
         Toastr::error(trans('messages.customer_not_found'));

@@ -198,8 +198,8 @@
                             @else
                                 <div class="row p-2">
                                     <div class="col-6 pr-0">
-                                        <input type="text" class="form-control form-control-lg" name="custome_recaptcha"
-                                               id="custome_recaptcha" required placeholder="{{\__('Enter recaptcha value')}}" style="border: none" autocomplete="off">
+                                        <input type="text" class="form-control form-control-lg" name="custome_recaptcha2"
+                                               id="custome_recaptcha2" required placeholder="{{\__('Enter recaptcha value')}}" style="border: none" autocomplete="off">
                                     </div>
                                     <div class="col-6" style="background-color: #FFFFFF; border-radius: 5px;">
                                         <img src="<?php echo $custome_recaptcha->inline(); ?>" style="width: 100%; border-radius: 4px;"/>

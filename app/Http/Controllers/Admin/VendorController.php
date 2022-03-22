@@ -14,6 +14,7 @@ use App\Models\WithdrawRequest;
 use App\Models\RestaurantWallet;
 use App\Models\AdminWallet;
 use App\Models\AccountTransaction;
+use App\Models\RestaurantSchedule;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use App\CentralLogics\Helpers;
 use App\CentralLogics\RestaurantLogic;
 use Rap2hpoutre\FastExcel\FastExcel;
+use App\Scopes\RestaurantScope;
 
 
 class VendorController extends Controller
@@ -35,13 +37,14 @@ class VendorController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'f_name' => 'required',
-            'name' => 'required',
-            'address' => 'required',
+            'f_name' => 'required|max:100',
+            'l_name' => 'nullable|max:100',
+            'name' => 'required|max:191',
+            'address' => 'required|max:1000',
             'latitude' => 'required',
             'longitude' => 'required',
             'email' => 'required|unique:vendors',
-            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|unique:vendors',
+            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:20|unique:vendors',
             'minimum_delivery_time' => 'required|regex:/^([0-9]{2})$/|min:2|max:2',
             'maximum_delivery_time' => 'required|regex:/^([0-9]{2})$/|min:2|max:2',
             'password' => 'required|min:6',
@@ -57,7 +60,7 @@ class VendorController extends Controller
             $point = new Point($request->latitude, $request->longitude);
             $zone = Zone::contains('coordinates', $point)->where('id', $request->zone_id)->first();
             if(!$zone){
-                $validator->getMessageBag()->add('latitude', 'Coordinates out of zone!');
+                $validator->getMessageBag()->add('latitude', trans('messages.coordinates_out_of_zone'));
                 return back()->withErrors($validator)
                         ->withInput();
             }
@@ -110,10 +113,11 @@ class VendorController extends Controller
     public function update(Request $request, Restaurant $restaurant)
     {
         $validator = Validator::make($request->all(), [
-            'f_name' => 'required',
-            'name' => 'required',
+            'f_name' => 'required|max:100',
+            'l_name' => 'nullable|max:100',
+            'name' => 'required|max:191',
             'email' => 'required|unique:vendors,email,'.$restaurant->vendor->id,
-            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|unique:vendors,phone,'.$restaurant->vendor->id,
+            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:20|unique:vendors,phone,'.$restaurant->vendor->id,
             'zone_id'=>'required',
             'latitude' => 'required',
             'longitude' => 'required',
@@ -122,8 +126,7 @@ class VendorController extends Controller
             'minimum_delivery_time' => 'required|regex:/^([0-9]{2})$/|min:2|max:2',
             'maximum_delivery_time' => 'required|regex:/^([0-9]{2})$/|min:2|max:2',
         ], [
-            'f_name.required' => 'First name is required!',
-            'name.required' => 'Restaurant name is required!'
+            'f_name.required' => trans('messages.first_name_is_required')
         ]);
 
         if($request->zone_id)
@@ -131,7 +134,7 @@ class VendorController extends Controller
             $point = new Point($request->latitude, $request->longitude);
             $zone = Zone::contains('coordinates', $point)->where('id', $request->zone_id)->first();
             if(!$zone){
-                $validator->getMessageBag()->add('latitude', 'Coordinates out of zone!');
+                $validator->getMessageBag()->add('latitude', trans('messages.coordinates_out_of_zone'));
                 return back()->withErrors($validator)
                         ->withInput();
             }
@@ -372,8 +375,6 @@ class VendorController extends Controller
     {
         $request->validate([
             'minimum_order'=>'required',
-            'opening_time'=>'required',
-            'closeing_time'=>'required',
             'comission'=>'required',
             'tax'=>'required',
             'minimum_delivery_time' => 'required|regex:/^([0-9]{2})$/|min:2|max:2',
@@ -479,7 +480,7 @@ class VendorController extends Controller
 
     public function get_addons(Request $request)
     {
-        $cat = AddOn::where(['restaurant_id' => $request->restaurant_id])->get();
+        $cat = AddOn::withoutGlobalScope(RestaurantScope::class)->withoutGlobalScope('translate')->where(['restaurant_id' => $request->restaurant_id])->active()->get();
         $res = '';
         foreach ($cat as $row) {
             $res .= '<option value="' . $row->id.'"';
@@ -631,5 +632,58 @@ class VendorController extends Controller
         })
         ->get();
         return (new FastExcel(RestaurantLogic::format_export_restaurants($vendors)))->download('Restaurants.xlsx');
+    }
+
+    public function add_schedule(Request $request)
+    {
+        $validator = Validator::make($request->all(),[
+            'start_time'=>'required|date_format:H:i',
+            'end_time'=>'required|date_format:H:i|after:start_time',
+            'restaurant_id'=>'required',
+        ],[
+            'end_time.after'=>trans('messages.End time must be after the start time')
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => Helpers::error_processor($validator)]);
+        }
+
+        $temp = RestaurantSchedule::where('day', $request->day)->where('restaurant_id',$request->restaurant_id)
+        ->where(function($q)use($request){
+            return $q->where(function($query)use($request){
+                return $query->where('opening_time', '<=' , $request->start_time)->where('closing_time', '>=', $request->start_time);
+            })->orWhere(function($query)use($request){
+                return $query->where('opening_time', '<=' , $request->end_time)->where('closing_time', '>=', $request->end_time);
+            });
+        })
+        ->first();
+
+        if(isset($temp))
+        {
+            return response()->json(['errors' => [
+                ['code'=>'time', 'message'=>trans('messages.schedule_overlapping_warning')]
+            ]]);
+        }
+
+        $restaurant = Restaurant::find($request->restaurant_id);
+        $restaurant_schedule = RestaurantSchedule::insert(['restaurant_id'=>$request->restaurant_id,'day'=>$request->day,'opening_time'=>$request->start_time,'closing_time'=>$request->end_time]);
+        
+        return response()->json([
+            'view' => view('admin-views.vendor.view.partials._schedule', compact('restaurant'))->render(),
+        ]);
+    }
+
+    public function remove_schedule($restaurant_schedule)
+    {
+        $schedule = RestaurantSchedule::find($restaurant_schedule);
+        if(!$schedule)
+        {
+            return response()->json([],404);
+        }
+        $restaurant = $schedule->restaurant;
+        $schedule->delete();
+        return response()->json([
+            'view' => view('admin-views.vendor.view.partials._schedule', compact('restaurant'))->render(),
+        ]);
     }
 }

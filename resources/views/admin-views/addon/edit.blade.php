@@ -1,6 +1,6 @@
 @extends('layouts.admin.app')
 
-@section('title','Update addon')
+@section('title',__('update'))
 
 @push('css_or_js')
 
@@ -21,26 +21,64 @@
             <div class="col-sm-12 col-lg-12 mb-3 mb-lg-2">
                 <form action="{{route('admin.addon.update',[$addon['id']])}}" method="post">
                     @csrf
-                    <div class="form-group">
-                        <label class="input-label" for="exampleFormControlSelect1">{{__('messages.restaurant')}}<span
-                                class="input-label-secondary"></span></label>
-                        <select name="restaurant_id" class="form-control  js-data-example-ajax"  data-placeholder="{{__('messages.select')}} {{__('messages.restaurant')}}" required oninvalid="this.setCustomValidity('{{__('messages.please_select_restaurant')}}')">
-                        @if($addon->restaurant)
-                        <option value="{{$addon->restaurant_id}}" selected="selected">{{$addon->restaurant->name}}</option>
-                        @endif
-                        </select>
-                    </div>
+                    @php($language=\App\Models\BusinessSetting::where('key','language')->first())
+                    @php($language = $language->value ?? null)
+                    @php($default_lang = 'en')
+
+                    @if($language)
+                        @php($default_lang = json_decode($language)[0])
+                        <ul class="nav nav-tabs mb-4">
+                            @foreach(json_decode($language) as $lang)
+                                <li class="nav-item">
+                                    <a class="nav-link lang_link {{$lang == $default_lang? 'active':''}}" href="#" id="{{$lang}}-link">{{\App\CentralLogics\Helpers::get_language_name($lang).'('.strtoupper($lang).')'}}</a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-12">
+                        @if ($language)
+                            @foreach(json_decode($language) as $lang)
+                                <?php
+                                    if(count($addon['translations'])){
+                                        $translate = [];
+                                        foreach($addon['translations'] as $t)
+                                        {
+                                            if($t->locale == $lang && $t->key=="name"){
+                                                $translate[$lang]['name'] = $t->value;
+                                            }
+                                        }
+                                    }
+                                ?>
+                                <div class="form-group {{$lang != $default_lang ? 'd-none':''}} lang_form" id="{{$lang}}-form">
+                                    <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}} ({{strtoupper($lang)}})</label>
+                                    <input type="text" name="name[]" class="form-control" placeholder="{{__('messages.new_addon')}}" maxlength="191" value="{{$lang==$default_lang?$addon['name']:($translate[$lang]['name']??'')}}" {{$lang == $default_lang? 'required':''}} oninvalid="document.getElementById('en-link').click()">
+                                </div>
+                                <input type="hidden" name="lang[]" value="{{$lang}}">
+                            @endforeach
+                        @else
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.name')}}</label>
-                                <input type="text" name="name" value="{{$addon['name']}}" class="form-control" placeholder="{{__('messages.new_addon')}}" required>
+                                <input type="text" name="name" class="form-control" placeholder="{{__('messages.new_addon')}}" value="{{ $attribute['name'] }}" required maxlength="191">
+                            </div>
+                            <input type="hidden" name="lang[]" value="{{$lang}}">
+                        @endif
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="input-label" for="exampleFormControlSelect1">{{__('messages.restaurant')}}<span
+                                        class="input-label-secondary"></span></label>
+                                <select name="restaurant_id" class="form-control  js-data-example-ajax"  data-placeholder="{{__('messages.select')}} {{__('messages.restaurant')}}" required oninvalid="this.setCustomValidity('{{__('messages.please_select_restaurant')}}')">
+                                @if($addon->restaurant)
+                                <option value="{{$addon->restaurant_id}}" selected="selected">{{$addon->restaurant->name}}</option>
+                                @endif
+                                </select>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{__('messages.price')}}</label>
-                                <input type="number" min="0" max="10000" step="0.01" name="price" value="{{$addon['price']}}" class="form-control" placeholder="200" required>
+                                <input type="number" min="0" max="999999999999.99" step="0.01" name="price" value="{{$addon['price']}}" class="form-control" placeholder="200" required>
                             </div>
                         </div>
                     </div>
@@ -55,6 +93,27 @@
 @endsection
 
 @push('script_2')
+<script>
+    $(".lang_link").click(function(e){
+        e.preventDefault();
+        $(".lang_link").removeClass('active');
+        $(".lang_form").addClass('d-none');
+        $(this).addClass('active');
+
+        let form_id = this.id;
+        let lang = form_id.split("-")[0];
+        console.log(lang);
+        $("#"+lang+"-form").removeClass('d-none');
+        if(lang == '{{$default_lang}}')
+        {
+            $(".from_part_2").removeClass('d-none');
+        }
+        else
+        {
+            $(".from_part_2").addClass('d-none');
+        }
+    });
+</script>
 <script>
     $('.js-data-example-ajax').select2({
         ajax: {

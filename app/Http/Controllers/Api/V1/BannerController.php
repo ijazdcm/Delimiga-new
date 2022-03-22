@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Campaign;
 use App\CentralLogics\BannerLogic;
+use App\CentralLogics\Helpers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -24,7 +25,7 @@ class BannerController extends Controller
             $query->where('zone_id', $zone_id);
         })->running()->active()->get();
         try {
-            return response()->json(['campaigns'=>$campaigns,'banners'=>$banners], 200);
+            return response()->json(['campaigns'=>Helpers::basic_campaign_data_formatting($campaigns, true),'banners'=>$banners], 200);
         } catch (\Exception $e) {
             return response()->json([], 200);
         }

@@ -21,12 +21,46 @@
             <div class="col-sm-12 col-lg-12 mb-3 mb-lg-2">
                 <form action="{{route('admin.campaign.store-basic')}}" method="post" enctype="multipart/form-data" id="campaign-form">
                     @csrf
+                    @php($language=\App\Models\BusinessSetting::where('key','language')->first())
+                    @php($language = $language->value ?? null)
+                    @php($default_lang = 'bn')
+                    @if($language)
+                        @php($default_lang = json_decode($language)[0])
+                        <ul class="nav nav-tabs mb-4">
+                            @foreach(json_decode($language) as $lang)
+                                <li class="nav-item">
+                                    <a class="nav-link lang_link {{$lang == $default_lang? 'active':''}}" href="#" id="{{$lang}}-link">{{\App\CentralLogics\Helpers::get_language_name($lang).'('.strtoupper($lang).')'}}</a>
+                                </li>
+                            @endforeach
+                        </ul>
+                        @foreach(json_decode($language) as $lang)
+                            <div class="card mb-1 p-4 {{$lang != $default_lang ? 'd-none':''}} lang_form" id="{{$lang}}-form">
+                                <div class="form-group">
+                                    <label class="input-label" for="{{$lang}}_title">{{__('messages.title')}} ({{strtoupper($lang)}})</label>
+                                    <input type="text" {{$lang == $default_lang? 'required':''}} name="title[]" id="{{$lang}}_title" class="form-control" placeholder="{{__('messages.new_campaign')}}" oninvalid="document.getElementById('en-link').click()">
+                                </div>
+                                <input type="hidden" name="lang[]" value="{{$lang}}">
+                                <div class="form-group pt-4">
+                                    <label class="input-label" for="exampleFormControlInput1">{{__('messages.short')}} {{__('messages.description')}} ({{strtoupper($lang)}})</label>
+                                    <textarea type="text" name="description[]" class="form-control ckeditor"></textarea>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                    <div class="card mb-1 p-4" id="{{$default_lang}}-form">
+                        <div class="form-group">
+                            <label class="input-label" for="exampleFormControlInput1">{{__('messages.title')}} (EN)</label>
+                            <input type="text" name="title[]" class="form-control" placeholder="{{__('messages.new_food')}}" required>
+                        </div>
+                        <input type="hidden" name="lang[]" value="en">
+                        <div class="form-group pt-4">
+                            <label class="input-label" for="exampleFormControlInput1">{{__('messages.short')}} {{__('messages.description')}}</label>
+                            <textarea type="text" name="description[]" class="form-control ckeditor"></textarea>
+                        </div>
+                    </div>
+                    @endif
                     <div class="row">
                         <div class="col-6">
-                            <div class="form-group">
-                                <label class="input-label" for="title">{{__('messages.title')}}</label>
-                                <input type="text" name="title" class="form-control" placeholder="{{__('messages.new_campaign')}}" required>
-                            </div>
                             <div class="row">
                                 <div class="col-6">
                                     <div class="form-group">
@@ -50,10 +84,6 @@
                                     <label class="input-label text-capitalize" for="title">{{__('messages.daily')}} {{__('messages.end')}} {{__('messages.time')}}</label>
                                     <input type="time" id="end_time" class="form-control" name="end_time">
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="input-label" for="description">{{__('messages.description')}}<small style="color: red">* (maximum 255 characters)</small></label>
-                                <textarea type="text" name="description" class="form-control" placeholder="{{__('messages.about_the_campaign')}}" maxlength="255"></textarea>
                             </div>
                             <div class="form-group">
                                 <label>{{__('messages.campaign')}} {{__('messages.image')}}</label>
@@ -161,5 +191,26 @@
             });
         });
 
+    </script>
+    <script>
+        $(".lang_link").click(function(e){
+            e.preventDefault();
+            $(".lang_link").removeClass('active');
+            $(".lang_form").addClass('d-none');
+            $(this).addClass('active');
+
+            let form_id = this.id;
+            let lang = form_id.split("-")[0];
+            console.log(lang);
+            $("#"+lang+"-form").removeClass('d-none');
+            if(lang == '{{$default_lang}}')
+            {
+                $("#from_part_2").removeClass('d-none');
+            }
+            else
+            {
+                $("#from_part_2").addClass('d-none');
+            }
+        })
     </script>
 @endpush

@@ -127,13 +127,31 @@ class RestaurantController extends Controller
         ->whereHas('food', function($query)use($id){
             return $query->where('restaurant_id', $id);
         })
-        ->active()->get();
+        ->active()->latest()->get();
 
         $storage = [];
         foreach ($reviews as $item) {
             $item['attachment'] = json_decode($item['attachment']);
-            $item['food_name'] = $item->food->name;
+            $item['food_name'] = null;
+            $item['food_image'] = null;
+            $item['customer_name'] = null;
+            if($item->food)
+            {
+                $item['food_name'] = $item->food->name;
+                $item['food_image'] = $item->food->image;
+                if(count($item->food->translations)>0)
+                {
+                    $translate = array_column($item->food->translations->toArray(), 'value', 'key');
+                    $item['food_name'] = $translate['name'];
+                }
+            }
+            if($item->customer)
+            {
+                $item['customer_name'] = $item->customer->f_name.' '.$item->customer->l_name;
+            }
+            
             unset($item['food']);
+            unset($item['customer']);
             array_push($storage, $item);
         }
 

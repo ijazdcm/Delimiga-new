@@ -19,7 +19,7 @@ class BannerController extends Controller
 
     public function status(Request $request)
     {
-        $banner = Banner::find($request->id);
+        $banner = Banner::findOrFail($request->id);
         $restaurant_id = $request->status;
         $restaurant_ids = json_decode($banner->restaurant_ids);
         if(in_array($restaurant_id, $restaurant_ids))

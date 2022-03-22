@@ -26,12 +26,12 @@
                             <img height="35" style="border-radius: 5px"
                                  onerror="this.src='{{asset('public/assets/admin/img/160x160/img1.jpg')}}'"
                                  src="{{asset('storage/app/public/restaurant')}}/{{$item->restaurant['logo']}}">
-                            <span class="ml-2"> {{$item->restaurant->name??'Not exist!'}} </span>
+                            <span class="ml-2"> {{Str::limit($item->restaurant->name??__('messages.Restaurant deleted!'), 20, '...')}} </span>
                         </td>
                         <td>
-                                                <span style="font-size: 18px">
-                                                    {{$item['count']}} <i style="color: darkred" class="tio-heart-outlined"></i>
-                                                </span>
+                            <span style="font-size: 18px">
+                                {{$item['count']}} <i style="color: darkred" class="tio-heart-outlined"></i>
+                            </span>
                         </td>
                     </tr>
                 @endforeach
